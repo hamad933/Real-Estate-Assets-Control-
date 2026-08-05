@@ -21,11 +21,13 @@ with related but separately governed `Payment`, `Maintenance`, `Renewal`, and `E
 
 Default non-goals include property sales, brokerage marketplaces, short-term rentals, public listing aggregation, assumed government integrations, BIM, full facility management, legal-advice automation, and provider-specific accounting or payment choices without an approved decision.
 
-## Current repository status
+## Repository baseline
 
-This governance baseline is proposed through workstream `RP04-GOV-INIT-001`.
+The repository was initialized through bounded governance workstream `RP04-GOV-INIT-001`. This baseline establishes repository-native execution governance only; it does not itself authorize product implementation.
 
-The repository does **not** currently contain or authorize:
+The effective repository-governance version is the accepted commit on `main`, interpreted together with the current canonical RP04 Drive control state.
+
+No item below may begin solely because this governance baseline exists; each requires separate bounded authority:
 
 - application code;
 - database schemas or migrations;
@@ -35,7 +37,7 @@ The repository does **not** currently contain or authorize:
 - product feature work;
 - jurisdiction-specific legal policy.
 
-The governance files become effective only after the governance-only pull request is reviewed and accepted by the proper authority.
+Proposed governance changes become effective only after the applicable review, acceptance, and merge authority are complete.
 
 ## Repository governance map
 
@@ -51,8 +53,9 @@ Read in this order before an authorized change:
 
 ## Branch and review model
 
-- `main` is the baseline branch.
+- `main` is the governed baseline branch.
 - Changes use a bounded workstream branch and pull request.
+- Repository text does not prove that GitHub branch-protection settings are configured; verify platform enforcement directly when required.
 - Executors do not self-approve, merge, release, deploy, or update canonical Drive state.
 - Required evidence is referenced from the PR and authoritative artifact location.
 - The Central Controller performs primary review and records accepted control events in Drive.
