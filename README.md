@@ -4,12 +4,14 @@ Private repository for `RP04 — Real Estate & Assets`, a reference product for 
 
 ## Authority boundaries
 
-- **Google Drive** is the canonical source for current governed project-control state, approved decisions, gates, accepted evidence, accepted releases, recovery, and continuity.
-- **GitHub** is the canonical source for repository-native governance, branches, commits, pull requests, checks, technical artifacts, and implementation history.
-- **Project Sources** provide static portfolio policy and stable RP04 product/domain truth.
+Authority is assigned by fact category:
+
+- **Google Drive** is canonical for current governed project-control state, Owner-approved decisions, gates, accepted control events, accepted releases, recovery, continuity, delegations, and explicit merge authority.
+- **GitHub** is canonical for repository-native governance, branches, commits, pull requests, reviews, checks, technical artifacts, and implementation history.
+- **Project Sources** provide static portfolio policy and stable RP04 product/domain truth only; they do not own live state, current gates, repository status, acceptance, or merge authority.
 - **Chat history** is supporting context only and is not a canonical authority.
 
-A repository file or pull request does not by itself approve a product decision, gate transition, implementation, merge, release, or deployment.
+`AGENTS.md` defines the executable authority, precedence, conflict, and bounded-override rules. A repository file, review verdict, or pull request does not by itself approve a product decision, gate transition, implementation, acceptance, merge, release, or deployment.
 
 ## Product boundary
 
@@ -37,7 +39,7 @@ No item below may begin solely because this governance baseline exists; each req
 - product feature work;
 - jurisdiction-specific legal policy.
 
-Proposed governance changes become effective only after the applicable review, acceptance, and merge authority are complete.
+Proposed governance changes become effective only after the applicable review, acceptance, and exact-head merge authority are complete.
 
 ## Repository governance map
 
@@ -50,15 +52,21 @@ Read in this order before an authorized change:
 5. [`docs/architecture/README.md`](docs/architecture/README.md)
 6. [`docs/decisions/README.md`](docs/decisions/README.md)
 7. The exact bounded Workstream Contract
+8. Only the exact Controller-routed Project Sources required for stable product/domain facts
 
-## Branch and review model
+## Branch, review, and merge model
 
 - `main` is the governed baseline branch.
 - Changes use a bounded workstream branch and pull request.
 - Repository text does not prove that GitHub branch-protection settings are configured; verify platform enforcement directly when required.
-- Executors do not self-approve, merge, release, deploy, or update canonical Drive state.
+- A material author must not be the sole reviewer or final acceptance authority for their change.
+- Independent review is mandatory for repository-governance or authority-model changes and when the Controller materially contributed to the branch.
+- Required reviews are tied to an exact head SHA; a new commit requires review of the new head.
+- Review verdict, acceptance, and merge authority are separate.
+- Merge authority must be granted by the Owner or an explicitly delegated named authority in canonical Drive state for one exact head SHA.
+- Executors and Independent Reviewers do not self-approve, grant themselves merge authority, merge, release, deploy, or update canonical Drive state.
 - Required evidence is referenced from the PR and authoritative artifact location.
-- The Central Controller performs primary review and records accepted control events in Drive.
+- The Central Controller performs primary review, coordinates accepted control events, and may coordinate an authorized merge after verifying all gates.
 
 ## Legal and sensitive-data caution
 
