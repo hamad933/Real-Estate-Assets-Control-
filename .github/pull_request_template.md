@@ -3,15 +3,18 @@
 - Project: `RP04`
 - Workstream ID:
 - Governing decision / gate:
-- Executor:
+- Executor / material authors:
 - Controller / primary reviewer:
+- Independent review required: `YES / NO`
+- Independent-review trigger or approved reason for `NO`:
 
 ## Verified baseline
 
 - Base branch:
 - Base commit:
 - Head branch:
-- Head commit:
+- Current head commit:
+- Comparison status:
 
 ## Outcome
 
@@ -48,6 +51,18 @@ State explicitly when validation was not applicable, unavailable, skipped, or fa
 - Domain and authority-boundary coverage:
 - Data, migration, backup, recovery, or rollback coverage:
 
+## Review record
+
+| Review role | Reviewer identity | Reviewed head SHA | Verdict | Date / evidence reference |
+|---|---|---|---|---|
+| Primary reviewer | | | | |
+| Independent reviewer | | | | |
+
+- Unresolved review disagreement: `NONE / DESCRIBE`
+- Resolution authority/reference, when applicable:
+
+A new commit invalidates review records tied to an older head.
+
 ## Limitations, deviations, and unexpected findings
 
 - 
@@ -58,22 +73,37 @@ Identify the recommended first file, diff section, command, report, or artifact 
 
 ## Preservation classification
 
-- [ ] `REFERENCE_ONLY`
-- [ ] `PROMOTE_TO_GOOGLE_DRIVE`
-- [ ] `DO_NOT_PRESERVE`
+Classify each evidence item separately.
 
-Explain any requested promotion.
+| Evidence reference | Authoritative location | Classification | Promotion reason |
+|---|---|---|---|
+| | | `REFERENCE_ONLY / PROMOTE_TO_GOOGLE_DRIVE / DO_NOT_PRESERVE` | |
+
+## Acceptance and merge authority
+
+A review verdict is not acceptance or merge authority.
+
+- Acceptance status: `NOT GRANTED / GRANTED`
+- Acceptance authority and canonical reference:
+- Merge authorized: `NO / YES`
+- Merge-authority grantor:
+- Canonical Drive decision / control-event reference:
+- Grant date:
+- Exact authorized head SHA:
+- Conditions / expiry:
+- Intended merge coordinator:
 
 ## Stop Gate
 
 - Contract Stop Gate:
 - Current stop state:
-- Merge authorized: `NO` unless explicitly recorded otherwise.
 - Release/deployment authorized: `NO` unless explicitly recorded otherwise.
+- Product implementation authorized: `NO` unless explicitly recorded otherwise.
 
 ## Executor declaration
 
 - [ ] I stayed within the authorized scope.
 - [ ] I did not include secrets or sensitive real data.
 - [ ] I disclosed missing or failed validation honestly.
-- [ ] I did not self-approve, merge, release, deploy, or update canonical Google Drive state.
+- [ ] I identified all material authors and did not self-approve.
+- [ ] I did not merge, release, deploy, grant merge authority, or update canonical Google Drive state.
