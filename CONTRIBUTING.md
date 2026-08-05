@@ -16,8 +16,10 @@ Do not begin from chat history or assumptions when the current baseline is not d
 
 ## 2. Branch policy
 
-- `main` is the protected baseline branch.
-- Do not commit directly to `main` after repository initialization.
+- `main` is the governed baseline branch and is policy-protected.
+- This policy does not assert that GitHub branch-protection settings are configured; verify platform enforcement directly when it is required.
+- Do not commit directly to `main` after repository initialization unless an explicit recovery or initialization authority permits it.
+- Where GitHub branch protection is configured, it supplements this policy and must not be bypassed.
 - Use a short-lived branch named with one of these prefixes:
   - `governance/<workstream-id>`
   - `docs/<workstream-id>`
@@ -64,7 +66,7 @@ Possible primary review verdicts are:
 - `REVISION_REQUIRED`
 - `BLOCKED`
 
-Opening a PR does not make its contents effective. An Executor must not approve or merge their own work. Independent review may be required for security boundaries, destructive operations, releases, client-sensitive data, major architecture, reusable policy, or disputed evidence.
+Opening a PR does not make its contents effective. An Executor must not approve or merge their own work. Independent review may be required for security boundaries, destructive operations, releases, client-sensitive data, major architecture, reusable policy, the authority model, or disputed evidence.
 
 ## 6. Scope control
 
@@ -83,7 +85,7 @@ Stop and request a new or amended Workstream Contract when the change would intr
 - stable executor and repository rules: `AGENTS.md`, `CONTRIBUTING.md`, and `docs/`;
 - architecture contracts: `docs/architecture/`;
 - architecture decision records: `docs/decisions/`;
-- task-specific instructions: the Workstream Contract and PR;
+- task-specific instructions and approved bounded overrides: the Workstream Contract and PR;
 - current accepted project-control state: canonical Google Drive records;
 - temporary technical evidence: GitHub Actions artifacts.
 
