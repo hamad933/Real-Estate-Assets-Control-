@@ -29,7 +29,9 @@ Use the following precedence:
 4. The bounded Workstream Contract for task-specific scope, approved overrides, required tests, evidence, and Stop Gate.
 5. The pull request description and discussion for implementation-specific clarification.
 
-A lower-precedence source must not silently override a higher-precedence source. Stop and escalate conflicts.
+A Workstream Contract may apply a bounded override to repository defaults in items 2–3 only when it explicitly identifies the overridden rule, approving authority, reason, scope, and Stop Gate or expiry. It must not override an Owner-approved Drive decision or gate, invent authority, or weaken a legal, privacy, security, destructive-operation, evidence, merge, release, or deployment prohibition without the required higher authority.
+
+A lower-precedence source must not silently override a higher-precedence source. Stop and escalate any conflict or ambiguous override.
 
 ## 3. Mandatory reading order
 
@@ -64,8 +66,10 @@ Unless the Workstream Contract explicitly authorizes otherwise:
 - no production, client, tenant, financial, identity, contract, or legal data;
 - no jurisdiction-specific legal conclusion;
 - no destructive operation;
-- no direct write to the protected baseline branch;
+- no direct write to the governed baseline branch outside an explicitly authorized initialization or recovery action;
 - no merge or release action.
+
+Treat `main` as policy-protected. Repository text does not prove that GitHub branch-protection settings are configured; platform enforcement must be verified directly when it is required.
 
 Use synthetic data only when examples or fixtures are authorized.
 
