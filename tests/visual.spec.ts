@@ -17,11 +17,20 @@ async function setSession(page: Page, fixtureId: string) {
   ]);
 }
 
+async function expectNoPageOverflow(page: Page) {
+  const overflow = await page.evaluate(() => ({
+    viewport: document.documentElement.clientWidth,
+    scroll: document.documentElement.scrollWidth
+  }));
+  expect(overflow.scroll).toBeLessThanOrEqual(overflow.viewport);
+}
+
 async function shot(page: Page, name: string) {
   fs.mkdirSync(evidenceDir, { recursive: true });
   await page.screenshot({
     path: path.join(evidenceDir, name),
-    fullPage: true
+    fullPage: true,
+    caret: "initial"
   });
 }
 
@@ -57,18 +66,21 @@ test("capture representative desktop shells", async ({ page }) => {
   await shot(page, "07-access-denied-desktop.png");
 });
 
-test("capture responsive baseline", async ({ page }) => {
+test("capture responsive baseline without page-level horizontal overflow", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
 
   await page.goto("/");
+  await expectNoPageOverflow(page);
   await shot(page, "08-public-mobile.png");
 
   await setSession(page, "tenant-demo");
   await page.goto("/tenant");
+  await expectNoPageOverflow(page);
   await shot(page, "09-tenant-mobile.png");
 
   await setSession(page, "admin-demo");
   await page.goto("/admin");
+  await expectNoPageOverflow(page);
   await shot(page, "10-admin-mobile.png");
 });
 
@@ -76,5 +88,6 @@ test("capture tablet-width operations baseline", async ({ page }) => {
   await page.setViewportSize({ width: 820, height: 1000 });
   await setSession(page, "operations-demo");
   await page.goto("/operations");
+  await expectNoPageOverflow(page);
   await shot(page, "11-operations-tablet.png");
 });
