@@ -27,7 +27,7 @@ test("admin demo credential signs in and wrong credential is rejected", async ({
   await page.getByLabel("اسم المستخدم").fill("admin");
   await page.getByLabel("كلمة المرور").fill("wrong");
   await page.getByRole("button", { name: "تسجيل الدخول" }).click();
-  await expect(page.getByRole("alert")).toContainText("بيانات الدخول غير صحيحة");
+  await expect(page.getByText("بيانات الدخول غير صحيحة.", { exact: true })).toBeVisible();
 
   await page.getByLabel("اسم المستخدم").fill("admin");
   await page.getByLabel("كلمة المرور").fill("admin");
@@ -43,7 +43,7 @@ test("TENANT is restricted to tenant workspace and own resource", async ({ page 
   await expect(page.getByRole("heading", { name: "خدمات المستأجر" })).toBeVisible();
 
   await page.goto("/tenant/resources/tenant-resource-101");
-  await expect(page.getByText("ضمن نطاق المستأجر")).toBeVisible();
+  await expect(page.getByText("ضمن نطاق المستأجر", { exact: true })).toBeVisible();
 
   await page.goto("/tenant/resources/tenant-resource-202");
   await expect(page).toHaveURL(/\/access-denied\?reason=scope/);
