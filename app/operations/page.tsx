@@ -1,63 +1,131 @@
 import Link from "next/link";
-import { PropertyVisual } from "@/components/PropertyVisual";
-import { WorkspaceShell } from "@/components/WorkspaceShell";
-import { requireWorkspace } from "@/lib/auth/guards";
-import { operationsFixture } from "@/lib/fixtures";
+import { ReadinessDemoActions } from "@/app/operations/_components/LocalDemoActions";
+import { OperationsRecordFrame } from "@/app/operations/_components/OperationsRecordFrame";
+import { operationsRecord } from "@/app/operations/_data/records";
+import styles from "@/app/operations/operations.module.css";
+import { requireResource } from "@/lib/auth/guards";
+
+function toneClass(tone: string) {
+  return tone === "good" ? styles.badgeGood : styles.badgeWarn;
+}
 
 export default async function OperationsPage() {
-  const session = await requireWorkspace("OPERATIONS");
+  const session = await requireResource(
+    "OPERATIONS",
+    "operations-record",
+    operationsRecord.recordId
+  );
+  const readiness = operationsRecord.readiness;
 
   return (
-    <WorkspaceShell
+    <OperationsRecordFrame
       session={session}
-      workspace="OPERATIONS"
-      eyebrow="S05 — مرجع العمليات"
+      current="readiness"
+      surfaceCode="S05"
+      entity="property"
       title="الجاهزية التشغيلية"
-      description="مساحة تشغيلية مركّزة لمراجعة حالة أصل واحد ضمن النطاق المصرّح به."
-      aside={
-        <div className="rail-stack">
-          <p className="rail-label">نطاق التشغيل</p>
-          <strong>{operationsFixture.propertyName}</strong>
-          <bdi className="ltr-id">{operationsFixture.propertyId}</bdi>
-          <hr />
-          <span>الفريق</span>
-          <bdi className="ltr-id">{session.accessState === "USER" && session.profile === "OPERATIONS" ? session.scope.teamId : ""}</bdi>
-        </div>
-      }
+      description="مراجعة فئوية للجاهزية تربط العوائق والمتابعة والأدلة والإجراءات داخل سجل تشغيلي واحد، دون نسب أو درجات محسوبة."
     >
-      <section className="property-summary panel">
-        <PropertyVisual compact label={`تصوير تمثيلي لـ ${operationsFixture.propertyName}`} />
+      <section className={styles.heroState} aria-labelledby="readiness-state-title">
+        <span className={styles.stateIcon} aria-hidden="true">!</span>
         <div>
-          <span className="status status--good">{operationsFixture.readiness}</span>
-          <h2>{operationsFixture.propertyName}</h2>
-          <p>مراجعة تركيبية للجاهزية دون ربط ببيانات أو مزودات إنتاجية.</p>
-          <div className="metric-row">
-            <div><span>مكتمل</span><strong>{operationsFixture.completedChecks}</strong></div>
-            <div><span>يحتاج متابعة</span><strong>{operationsFixture.followUpChecks}</strong></div>
-            <div><span>عائق</span><strong>{operationsFixture.blockers}</strong></div>
+          <p className={styles.kicker}>حالة الجاهزية التشغيلية</p>
+          <h2 id="readiness-state-title">{readiness.status}</h2>
+          <p>{readiness.narrative}</p>
+        </div>
+        <div className={styles.stateCounts} aria-label="ملخص فئوي للجاهزية">
+          <div>
+            <span>عناصر مكتملة</span>
+            <strong className={styles.goodNumber}>{readiness.counts.complete}</strong>
+          </div>
+          <div>
+            <span>عناصر متابعة</span>
+            <strong className={styles.warnNumber}>{readiness.counts.followUp}</strong>
+          </div>
+          <div>
+            <span>عناصر معيقة</span>
+            <strong className={styles.dangerNumber}>{readiness.counts.blockers}</strong>
           </div>
         </div>
       </section>
 
-      <section className="panel" aria-labelledby="checks-title">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">مراجعة قابلة للتتبع</p>
-            <h2 id="checks-title">الفحوص الحالية</h2>
+      <div className={styles.twoColumn}>
+        <section className={styles.panel} aria-labelledby="readiness-dimensions-title">
+          <div className={styles.panelTitle}>
+            <h2 id="readiness-dimensions-title">أبعاد الجاهزية</h2>
+            <span>آخر تحديث: {readiness.updatedAt}</span>
           </div>
-          <Link
-            className="button button--quiet"
-            href={`/operations/records/${operationsFixture.recordId}`}
-          >
-            فتح السجل المصرّح
-          </Link>
+          <div className={styles.dimensionList}>
+            {readiness.dimensions.map((item) => (
+              <div className={styles.dimensionRow} key={item.label}>
+                <strong>{item.label}</strong>
+                <p>{item.detail}</p>
+                <span className={toneClass(item.tone)}>{item.state}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <div className={styles.surfaceBody}>
+          <section className={styles.panel} aria-labelledby="evidence-title">
+            <div className={styles.panelTitle}>
+              <h2 id="evidence-title">الأدلة الداعمة</h2>
+              <span>أدلة تجريبية فقط</span>
+            </div>
+            <div className={styles.documentList}>
+              {readiness.evidence.map((item) => (
+                <div className={styles.documentRow} key={item.name}>
+                  <div>
+                    <strong>{item.name}</strong>
+                    <small>{item.meta}</small>
+                  </div>
+                  <span className={styles.evidenceState}>{item.state}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className={styles.panel} aria-labelledby="blocker-title">
+            <div className={styles.panelTitle}>
+              <h2 id="blocker-title">عنصر يحتاج إجراء</h2>
+              <span className={styles.badgeDanger}>عائق</span>
+            </div>
+            <article className={styles.blockerCard}>
+              <div className={styles.blockerHead}>
+                <strong>{readiness.blocker.title}</strong>
+                <p>{readiness.blocker.detail}</p>
+              </div>
+              <div className={styles.blockerMeta}>
+                <div><span>التاريخ المرجعي</span><strong>{readiness.blocker.due}</strong></div>
+                <div><span>الإجراء المطلوب</span><strong>{readiness.blocker.requiredAction}</strong></div>
+                <div><span>المسؤول المقترح</span><strong>{readiness.blocker.assignee}</strong></div>
+              </div>
+            </article>
+            <ReadinessDemoActions />
+          </section>
         </div>
-        <div className="check-list">
-          <div><span className="check-dot check-dot--ok" />السلامة الأساسية <small>مكتمل</small></div>
-          <div><span className="check-dot check-dot--warn" />مراجعة المستندات <small>تتطلب متابعة</small></div>
-          <div><span className="check-dot check-dot--ok" />جاهزية التسليم <small>مكتمل</small></div>
+      </div>
+
+      <section className={styles.activityRail} aria-labelledby="readiness-activity-title">
+        <h2 id="readiness-activity-title">آخر نشاط متعلق بالجاهزية</h2>
+        <div className={styles.activityList}>
+          {readiness.activity.map((item) => (
+            <div className={styles.activityItem} key={item}>{item}</div>
+          ))}
         </div>
       </section>
-    </WorkspaceShell>
+
+      <div className={styles.footerActionRow}>
+        <Link className={styles.footerLink} href={`/operations/records/${operationsRecord.recordId}`}>
+          فتح فهرس السجل
+        </Link>
+        <Link
+          className={styles.footerLinkPrimary}
+          href={`/operations/records/${operationsRecord.recordId}/occupancy`}
+        >
+          الانتقال إلى سجل الإشغال
+        </Link>
+      </div>
+    </OperationsRecordFrame>
   );
 }
