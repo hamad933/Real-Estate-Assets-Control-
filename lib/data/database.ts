@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { DatabaseSync, type StatementResultingChanges } from "node:sqlite";
+import { DatabaseSync } from "node:sqlite";
 
 const migrationsDirectory = path.join(process.cwd(), "db", "migrations");
 const seedFile = path.join(process.cwd(), "db", "seed", "001_synthetic_seed.sql");
@@ -45,9 +45,9 @@ export function migrateDatabase(db: DatabaseSync) {
   }
 }
 
-export function seedDatabase(db: DatabaseSync): StatementResultingChanges | null {
+export function seedDatabase(db: DatabaseSync): void {
   const row = db.prepare("SELECT COUNT(*) AS count FROM properties").get() as { count: number };
-  if (Number(row.count) > 0) return null;
+  if (Number(row.count) > 0) return;
 
   const seedSql = fs.readFileSync(seedFile, "utf8");
   db.exec("BEGIN IMMEDIATE");
@@ -58,7 +58,6 @@ export function seedDatabase(db: DatabaseSync): StatementResultingChanges | null
     db.exec("ROLLBACK");
     throw error;
   }
-  return null;
 }
 
 export function openDatabase(options: { seedIfEmpty?: boolean } = {}): DatabaseSync {
