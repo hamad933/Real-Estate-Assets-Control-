@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "db:init": "node db/scripts/manage.mjs init",
+    "db:seed": "node db/scripts/manage.mjs seed",
+    "db:reset": "node db/scripts/manage.mjs reset",
+    "db:verify": "node db/scripts/manage.mjs verify"
   },
   "dependencies": {
     "next": "16.2.12",
