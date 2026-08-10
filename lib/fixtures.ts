@@ -19,8 +19,9 @@ export const operationsFixture = {
   propertyId: "property-101",
   propertyName: "مبنى تجريبي 101",
   readiness: "جاهز للمراجعة",
-  completion: 82,
-  openChecks: 3,
+  completedChecks: 2,
+  followUpChecks: 1,
+  blockers: 0,
   recordId: "ops-record-101",
   outsideRecordId: "ops-record-202"
 };
