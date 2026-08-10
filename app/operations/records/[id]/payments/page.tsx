@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CollectionDemoActions } from "@/app/operations/_components/LocalDemoActions";
 import { OperationsRecordFrame } from "@/app/operations/_components/OperationsRecordFrame";
 import { operationsRecord } from "@/app/operations/_data/records";
 import styles from "@/app/operations/operations.module.css";
@@ -99,10 +100,7 @@ export default async function PaymentsRecordPage({
             <div className={styles.keyValueRow}><span>تفصيل التذكير</span><strong>{payments.reminderDetail}</strong></div>
           </div>
           <div className={styles.privacyNote}>{payments.collectionNote}</div>
-          <div className={styles.actionStack}>
-            <button className={styles.actionButtonPrimary} type="button">تحديث المتابعة</button>
-            <button className={styles.actionButton} type="button">إضافة ملاحظة تحصيل</button>
-          </div>
+          <CollectionDemoActions />
         </section>
       </div>
 
