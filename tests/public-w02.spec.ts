@@ -83,6 +83,19 @@ test("negative public states remain visitor-safe", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "لا توجد عقارات هنا" })).toBeVisible();
 });
 
+test("W02 public surfaces use repository-native authorized photography", async ({ page }) => {
+  await page.goto("/");
+  const heroPhoto = page.getByTestId("property-photo").first();
+  await expect(heroPhoto).toBeVisible();
+  await expect(heroPhoto).toHaveCSS("background-image", /property-sprite\.webp/);
+
+  await page.goto("/search?district=all&type=all&budget=all&rooms=all&availability=all");
+  await expect(page.getByTestId("property-photo").first()).toBeVisible();
+
+  await page.goto("/assets/yasmin-villa");
+  await expect(page.getByTestId("property-photo")).toHaveCount(3);
+});
+
 test("capture desktop evidence for all six W02 surfaces", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
 
