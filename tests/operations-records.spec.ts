@@ -108,6 +108,78 @@ test("deterministic occupancy, payment, and maintenance states do not drift", as
   await expect(page.getByText("خدمة كهربائية", { exact: true })).toBeVisible();
 });
 
+test("enabled W03 actions produce explicit local outcomes", async ({ page }) => {
+  await setSession(page, "operations-demo");
+
+  await page.goto("/operations");
+  await page.getByTestId("readiness-review-action").click();
+  await expect(page.getByTestId("readiness-review-state")).toHaveText("تمت محليًا");
+  await expect(page.getByTestId("readiness-action-feedback")).toHaveText(
+    "تمت مراجعة العنصر المفتوح محليًا داخل هذه الجلسة التجريبية فقط."
+  );
+
+  await page.getByTestId("readiness-followup-action").click();
+  await expect(page.getByTestId("readiness-followup-state")).toHaveText(
+    "12 أغسطس 2026، 10:00 ص"
+  );
+  await expect(page.getByTestId("readiness-action-feedback")).toContainText(
+    "لا توجد رسالة أو مزامنة خارجية"
+  );
+
+  await page.goto(`/operations/records/${recordId}/payments`);
+  await page.getByTestId("collection-followup-action").click();
+  await expect(page.getByTestId("collection-followup-state")).toHaveText(
+    "متابعة داخلية مطلوبة"
+  );
+  await expect(page.getByTestId("collection-action-feedback")).toContainText(
+    "لم يُرسل أي اتصال خارجي"
+  );
+
+  await page.getByTestId("collection-note-action").click();
+  await expect(page.getByTestId("collection-note-state")).toHaveText(
+    "تمت مراجعة الاستحقاق؛ لا يوجد اتصال خارجي."
+  );
+  await expect(page.getByTestId("collection-action-feedback")).toHaveText(
+    "تمت إضافة ملاحظة تحصيل تركيبية محليًا داخل هذه الجلسة فقط."
+  );
+});
+
+test("unavailable and non-action surfaces leave no enabled silent no-op", async ({ page }) => {
+  await setSession(page, "operations-demo");
+
+  await page.goto("/operations");
+  const readinessMain = page.locator("main");
+  await expect(readinessMain.getByRole("button")).toHaveCount(3);
+  await expect(page.getByTestId("readiness-documents-action")).toBeDisabled();
+  await expect(
+    page.getByText(
+      "غير متاح في النموذج التركيبي الحالي: تحديث الوثائق يتطلب حفظًا أو مخزن مستندات، وهما خارج نطاق W03.",
+      { exact: true }
+    )
+  ).toBeVisible();
+
+  await page.goto(`/operations/records/${recordId}/occupancy`);
+  await expect(page.locator("main").getByRole("button")).toHaveCount(0);
+
+  await page.goto(`/operations/records/${recordId}/payments`);
+  await expect(page.locator("main").getByRole("button")).toHaveCount(2);
+
+  await page.goto(`/operations/records/${recordId}/maintenance`);
+  await expect(page.locator("main").getByRole("button")).toHaveCount(0);
+});
+
+test("local demo action state does not persist across reload", async ({ page }) => {
+  await setSession(page, "operations-demo");
+  await page.goto("/operations");
+
+  await page.getByTestId("readiness-review-action").click();
+  await expect(page.getByTestId("readiness-review-state")).toHaveText("تمت محليًا");
+
+  await page.reload();
+  await expect(page.getByTestId("readiness-review-state")).toHaveText("لم تتم بعد");
+  await expect(page.getByTestId("readiness-followup-state")).toHaveText("غير مجدولة محليًا");
+});
+
 const surfaces = [
   { code: "s05", route: "/operations", heading: "الجاهزية التشغيلية" },
   { code: "s08", route: `/operations/records/${recordId}/occupancy`, heading: "سجل الإشغال والسكن" },
