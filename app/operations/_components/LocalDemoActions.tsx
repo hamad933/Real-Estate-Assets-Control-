@@ -3,6 +3,9 @@
 import { useState } from "react";
 import styles from "@/app/operations/operations.module.css";
 
+const enabledActionStyle = { cursor: "pointer" } as const;
+const disabledActionStyle = { cursor: "not-allowed", opacity: 0.5 } as const;
+
 export function ReadinessDemoActions() {
   const [reviewed, setReviewed] = useState(false);
   const [followUpScheduled, setFollowUpScheduled] = useState(false);
@@ -25,13 +28,14 @@ export function ReadinessDemoActions() {
   }
 
   return (
-    <div className={styles.demoActionPanel}>
+    <div style={{ marginTop: 14, display: "grid", gap: 12 }}>
       <div
         className={styles.actionStack}
         aria-label="إجراءات محلية للسجل التجريبي"
       >
         <button
           className={styles.actionButtonPrimary}
+          style={enabledActionStyle}
           type="button"
           onClick={reviewOpenItem}
           data-testid="readiness-review-action"
@@ -41,22 +45,21 @@ export function ReadinessDemoActions() {
 
         <button
           className={styles.actionButton}
+          style={disabledActionStyle}
           type="button"
           disabled
           aria-describedby="documents-action-unavailable"
           data-testid="readiness-documents-action"
         >
-          تحديث الوثائق
+          تحديث الوثائق — غير متاح
         </button>
-        <p
-          id="documents-action-unavailable"
-          className={styles.unavailableNote}
-        >
+        <p id="documents-action-unavailable" className={styles.noticeNote}>
           غير متاح في النموذج التركيبي الحالي: تحديث الوثائق يتطلب حفظًا أو مخزن مستندات، وهما خارج نطاق W03.
         </p>
 
         <button
           className={styles.actionButton}
+          style={enabledActionStyle}
           type="button"
           onClick={scheduleFollowUp}
           data-testid="readiness-followup-action"
@@ -65,14 +68,14 @@ export function ReadinessDemoActions() {
         </button>
       </div>
 
-      <div className={styles.localStateSummary} aria-label="الحالة المحلية للإجراءات">
-        <div>
+      <div className={styles.keyValueList} aria-label="الحالة المحلية للإجراءات">
+        <div className={styles.keyValueRow}>
           <span>مراجعة العنصر</span>
           <strong data-testid="readiness-review-state">
             {reviewed ? "تمت محليًا" : "لم تتم بعد"}
           </strong>
         </div>
-        <div>
+        <div className={styles.keyValueRow}>
           <span>المتابعة</span>
           <strong data-testid="readiness-followup-state">
             {followUpScheduled ? "12 أغسطس 2026، 10:00 ص" : "غير مجدولة محليًا"}
@@ -81,7 +84,7 @@ export function ReadinessDemoActions() {
       </div>
 
       <p
-        className={styles.actionFeedback}
+        className={styles.privacyNote}
         role="status"
         aria-live="polite"
         data-testid="readiness-action-feedback"
@@ -114,10 +117,11 @@ export function CollectionDemoActions() {
   }
 
   return (
-    <div className={styles.demoActionPanel}>
+    <div style={{ marginTop: 14, display: "grid", gap: 12 }}>
       <div className={styles.actionStack} aria-label="إجراءات التحصيل المحلية">
         <button
           className={styles.actionButtonPrimary}
+          style={enabledActionStyle}
           type="button"
           onClick={updateFollowUp}
           data-testid="collection-followup-action"
@@ -126,6 +130,7 @@ export function CollectionDemoActions() {
         </button>
         <button
           className={styles.actionButton}
+          style={enabledActionStyle}
           type="button"
           onClick={addCollectionNote}
           data-testid="collection-note-action"
@@ -134,14 +139,14 @@ export function CollectionDemoActions() {
         </button>
       </div>
 
-      <div className={styles.localStateSummary} aria-label="الحالة المحلية للتحصيل">
-        <div>
+      <div className={styles.keyValueList} aria-label="الحالة المحلية للتحصيل">
+        <div className={styles.keyValueRow}>
           <span>حالة المتابعة المحلية</span>
           <strong data-testid="collection-followup-state">
             {followUpUpdated ? "متابعة داخلية مطلوبة" : "لم تتغير"}
           </strong>
         </div>
-        <div>
+        <div className={styles.keyValueRow}>
           <span>الملاحظة المحلية</span>
           <strong data-testid="collection-note-state">
             {noteAdded
@@ -152,7 +157,7 @@ export function CollectionDemoActions() {
       </div>
 
       <p
-        className={styles.actionFeedback}
+        className={styles.privacyNote}
         role="status"
         aria-live="polite"
         data-testid="collection-action-feedback"
