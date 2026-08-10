@@ -78,7 +78,16 @@ export const portfolioOperationsFixture = {
       maintenance: "تحتاج إجراء",
       readiness: "جاهزة",
       open: 5,
-      priority: 1
+      priority: 1,
+      reason: "توجد حالات مفتوحة ذات تأثير تشغيلي وتتطلب إجراء خلال 7 أيام.",
+      conditions: [
+        { title: "شهادة السلامة من الدفاع المدني منتهية", severity: "عالٍ", date: "15 أبريل 2026" },
+        { title: "صيانة تكييف غرفة المعيشة", severity: "متوسط", date: "01 مايو 2026" },
+        { title: "دفعة إيجار متأخرة", severity: "عالٍ", date: "10 مايو 2026" },
+        { title: "فحص مضخة المياه الدورية", severity: "متوسط", date: "12 مايو 2026" },
+        { title: "تحديث سجل مفاتيح الوصول", severity: "منخفض", date: "13 مايو 2026" }
+      ],
+      nextAction: "مراجعة الحالات المفتوحة وتحديث خطة المعالجة."
     },
     {
       id: "property-102",
@@ -90,7 +99,14 @@ export const portfolioOperationsFixture = {
       maintenance: "تحتاج متابعة",
       readiness: "جاهزة",
       open: 3,
-      priority: 2
+      priority: 2,
+      reason: "هناك دفعة متأخرة وطلبا صيانة مفتوحان يحتاجان متابعة منسقة.",
+      conditions: [
+        { title: "دفعة شهرية متأخرة", severity: "عالٍ", date: "08 مايو 2026" },
+        { title: "متابعة تبريد غرفة المعيشة", severity: "متوسط", date: "09 مايو 2026" },
+        { title: "فحص تسرب أسفل الحوض", severity: "متوسط", date: "10 مايو 2026" }
+      ],
+      nextAction: "تأكيد خطة تحصيل الدفعة وربط طلبي الصيانة بمواعيد تنفيذ محددة."
     },
     {
       id: "property-103",
@@ -102,7 +118,13 @@ export const portfolioOperationsFixture = {
       maintenance: "تحتاج متابعة",
       readiness: "جاهزة",
       open: 2,
-      priority: 3
+      priority: 3,
+      reason: "الحالة المالية مستقرة، لكن يوجد مساران صيانة يحتاجان إغلاقًا تشغيليًا.",
+      conditions: [
+        { title: "استبدال حساس إنارة المدخل", severity: "متوسط", date: "06 مايو 2026" },
+        { title: "فحص باب المرآب", severity: "منخفض", date: "11 مايو 2026" }
+      ],
+      nextAction: "تأكيد موعدي الصيانة ثم مراجعة دليل الإغلاق بعد التنفيذ."
     },
     {
       id: "property-104",
@@ -114,18 +136,12 @@ export const portfolioOperationsFixture = {
       maintenance: "سليم",
       readiness: "جاهزة",
       open: 1,
-      priority: 4
+      priority: 4,
+      reason: "السجل مستقر، وتبقى متابعة دورية واحدة منخفضة الأثر.",
+      conditions: [
+        { title: "تأكيد موعد الفحص الوقائي القادم", severity: "منخفض", date: "14 مايو 2026" }
+      ],
+      nextAction: "تأكيد موعد الفحص الوقائي والإبقاء على السجل ضمن المتابعة الدورية."
     }
-  ],
-  selected: {
-    name: "فيلا الياسمين",
-    location: "الرياض — حي الياسمين",
-    reason: "توجد حالات مفتوحة ذات تأثير تشغيلي وتتطلب إجراء خلال 7 أيام.",
-    conditions: [
-      { title: "شهادة السلامة من الدفاع المدني منتهية", severity: "عالٍ", date: "15 أبريل 2026" },
-      { title: "صيانة تكييف غرفة المعيشة", severity: "متوسط", date: "01 مايو 2026" },
-      { title: "دفعة إيجار متأخرة", severity: "عالٍ", date: "10 مايو 2026" }
-    ],
-    nextAction: "مراجعة الحالات المفتوحة وتحديث خطة المعالجة."
-  }
+  ]
 };
