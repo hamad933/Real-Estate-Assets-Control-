@@ -115,6 +115,42 @@ test("S13 is ADMIN only and all USER profiles are denied", async ({ page }) => {
   await expect(page.getByText("سبب الأولوية الحالية")).toBeVisible();
 });
 
+test("S13 Admin search selection review and unsupported controls are deterministic", async ({ page }) => {
+  await setSession(page, "admin-demo");
+  await page.goto("/admin");
+
+  const table = page.getByRole("table", { name: "سجلات المحفظة" });
+  const search = page.getByRole("searchbox", { name: "ابحث باسم العقار أو الوحدة" });
+
+  await expect(page.getByTestId("s13-columns-disabled")).toBeDisabled();
+  await expect(page.getByTestId("s13-actions-disabled")).toBeDisabled();
+  await expect(page.getByText(/تخصيص الأعمدة والإجراءات المجمعة غير متاحة/)).toBeVisible();
+
+  await search.fill("العقيق");
+  await expect(table.getByRole("button", { name: "اختيار دوبلكس العقيق" })).toBeVisible();
+  await expect(table.getByRole("button", { name: "اختيار فيلا الياسمين" })).toHaveCount(0);
+
+  await search.fill("سجل غير موجود");
+  await expect(page.getByTestId("s13-no-match")).toBeVisible();
+  await expect(page.getByTestId("s13-no-match")).toContainText("لا توجد سجلات مطابقة");
+
+  await page.getByRole("button", { name: "مسح البحث" }).click();
+  await search.fill("النرجس");
+  const selectNarcissus = table.getByRole("button", { name: "اختيار شقة النرجس 101" });
+  await selectNarcissus.click();
+  await expect(selectNarcissus).toHaveAttribute("aria-pressed", "true");
+
+  const context = page.getByTestId("s13-selected-context");
+  await expect(context.getByRole("heading", { name: "شقة النرجس 101" })).toBeVisible();
+  await expect(context).toContainText("دفعة متأخرة وطلبا صيانة مفتوحان");
+
+  await page.getByTestId("s13-review-open-conditions").click();
+  const review = page.getByTestId("s13-review-mode");
+  await expect(review).toBeVisible();
+  await expect(review).toContainText("الحالات المفتوحة — 3");
+  await expect(review).toContainText("دفعة شهرية متأخرة");
+});
+
 test("logout clears W04 access", async ({ page }) => {
   await setSession(page, "tenant-demo");
   await page.goto("/tenant");
