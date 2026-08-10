@@ -1,5 +1,7 @@
+import { redirect } from "next/navigation";
 import { WorkspaceShell } from "@/components/WorkspaceShell";
 import { requireResource } from "@/lib/auth/guards";
+import { getTenantResource } from "@/lib/data/repository";
 
 export default async function TenantResourcePage({
   params
@@ -8,6 +10,8 @@ export default async function TenantResourcePage({
 }) {
   const { id } = await params;
   const session = await requireResource("TENANT", "tenant-resource", id);
+  const data = getTenantResource(session, id);
+  if (!data) redirect("/access-denied?reason=scope");
 
   return (
     <WorkspaceShell
@@ -19,9 +23,9 @@ export default async function TenantResourcePage({
     >
       <section className="panel detail-panel">
         <span className="status status--good">ضمن نطاق المستأجر</span>
-        <h2>معرّف المورد</h2>
+        <h2>{data.unit.name}</h2>
         <bdi className="ltr-id ltr-id--large">{id}</bdi>
-        <p>بيانات تجريبية فقط لإثبات عزل الكائنات المباشر.</p>
+        <p>علاقة سكنية تركيبية محفوظة محليًا: <bdi className="ltr-id">{data.unit.tenancyId}</bdi>.</p>
       </section>
     </WorkspaceShell>
   );
