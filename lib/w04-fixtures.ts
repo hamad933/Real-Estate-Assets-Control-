@@ -54,7 +54,9 @@ export const contractorWorkspaceFixture = {
     { title: "مقطع فيديو", meta: "video_20250501.mp4" },
     { title: "صورة من البلاغ", meta: "IMG_20250501_1045.jpg" }
   ],
-  otherAssigned: [],
+  otherAssigned: [
+    { id: "work-order-501", title: "صيانة تكييف — المهمة الحالية", when: "اليوم · 10:00 ص" }
+  ],
   permittedContact: "إدارة العمليات — قناة المهمة فقط"
 };
 
