@@ -28,14 +28,14 @@ export default async function AdminPage() {
           <div><span>عناصر مفتوحة</span><strong>{data.totals.openConditions}</strong><small>عنصرًا</small></div>
         </section>
 
-        <section className={styles.operationsGrid}>
-          <div className={styles.tablePanel}>
+        <section className={styles.operationsGrid} style={{ minWidth: 0 }}>
+          <div className={styles.tablePanel} style={{ minWidth: 0 }}>
             <div className={styles.toolbar}>
               <button className={styles.secondaryAction} type="button">تخصيص الأعمدة</button>
               <span className={styles.searchBox}>ابحث باسم العقار أو الوحدة</span>
               <button className={styles.secondaryAction} type="button">إجراءات</button>
             </div>
-            <div className="table-wrap">
+            <div className="table-wrap" style={{ maxWidth: "100%", overflowX: "auto" }}>
               <table className={styles.opsTable}>
                 <thead>
                   <tr>
@@ -71,7 +71,7 @@ export default async function AdminPage() {
             </div>
           </div>
 
-          <aside className={styles.contextPanel}>
+          <aside className={styles.contextPanel} style={{ minWidth: 0 }}>
             <div className={styles.heroMeta}>
               <PropertyVisual compact label={`تصوير تمثيلي لـ ${data.selected.name}`} />
               <span className={styles.statusDanger}>يتطلب تدخل</span>
