@@ -51,8 +51,8 @@ export default async function ContractorPage() {
           <div><span className={styles.miniLabel}>التواصل المسموح</span><strong>{data.permittedContact}</strong></div>
         </section>
 
-        <section className={styles.workBody}>
-          <aside className={styles.softCard}>
+        <section className={styles.workBody} style={{ direction: "ltr" }}>
+          <aside className={styles.softCard} dir="rtl">
             <span className={styles.kicker}>الموقع والوصول</span>
             <h2>سياق الوصول</h2>
             <div className={styles.list}>
@@ -62,7 +62,7 @@ export default async function ContractorPage() {
             </div>
           </aside>
 
-          <div className={styles.stack}>
+          <div className={styles.stack} dir="rtl">
             <section className={styles.softCard}>
               <span className={styles.kicker}>تفاصيل المشكلة</span>
               <h2>{data.assignment.title}</h2>
@@ -95,7 +95,7 @@ export default async function ContractorPage() {
             </section>
           </div>
 
-          <aside className={styles.softCard}>
+          <aside className={styles.softCard} dir="rtl">
             <span className={styles.kicker}>حالتك الحالية</span>
             <h2>التنفيذ والتقرير</h2>
             <ContractorControls />
