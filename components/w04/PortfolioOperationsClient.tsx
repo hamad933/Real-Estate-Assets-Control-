@@ -4,9 +4,9 @@ import { useMemo, useState } from "react";
 import { PropertyVisual } from "@/components/PropertyVisual";
 import s13Styles from "@/components/w04/PortfolioOperations.module.css";
 import styles from "@/components/w04/RoleWorkspaces.module.css";
-import { portfolioOperationsFixture as data } from "@/lib/w04-fixtures";
+import type { PortfolioOperationsData } from "@/lib/data/types";
 
-type PortfolioRecord = (typeof data.records)[number];
+type PortfolioRecord = PortfolioOperationsData["records"][number];
 
 function stateClass(value: string) {
   if (value === "مستقر" || value === "سليم" || value === "جاهزة" || value === "مشغول") return styles.statusGood;
@@ -20,7 +20,7 @@ function severityClass(value: string) {
   return styles.statusNeutral;
 }
 
-export function PortfolioOperationsClient() {
+export function PortfolioOperationsClient({ data }: { data: PortfolioOperationsData }) {
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(data.records[0].id);
   const [reviewMode, setReviewMode] = useState(false);
@@ -35,7 +35,7 @@ export function PortfolioOperationsClient() {
         .toLocaleLowerCase("ar")
         .includes(normalized)
     );
-  }, [query]);
+  }, [data.records, query]);
 
   const selectedRecord: PortfolioRecord =
     data.records.find((record) => record.id === selectedId) ?? data.records[0];
