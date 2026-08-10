@@ -98,8 +98,8 @@ test("deterministic occupancy, payment, and maintenance states do not drift", as
   await expect(page.getByText("مستأجر مسجل", { exact: true })).toBeVisible();
 
   await page.goto(`/operations/records/${recordId}/payments`);
-  await expect(page.getByRole("cell", { name: "أغسطس 2026" })).toBeVisible();
-  await expect(page.getByRole("cell", { name: "مستحقة" })).toBeVisible();
+  await expect(page.getByRole("cell", { name: "أغسطس 2026", exact: true })).toBeVisible();
+  await expect(page.getByRole("cell", { name: "مستحقة", exact: true })).toBeVisible();
   await expect(page.getByText("لا يوجد اتصال بخدمة خارجية", { exact: true })).toBeVisible();
 
   await page.goto(`/operations/records/${recordId}/maintenance`);
