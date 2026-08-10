@@ -87,9 +87,9 @@ export default async function AdminPage() {
             <div className={styles.conditionList}>
               {data.selected.conditions.map((condition) => (
                 <div className={styles.condition} key={condition.title}>
-                  <div>
-                    <strong>{condition.title}</strong>
-                    <small>تاريخ الإنشاء: {condition.date}</small>
+                  <div style={{ minWidth: 0 }}>
+                    <strong style={{ display: "block" }}>{condition.title}</strong>
+                    <small style={{ display: "block", marginTop: "0.2rem" }}>تاريخ الإنشاء: {condition.date}</small>
                   </div>
                   <span className={condition.severity === "عالٍ" ? styles.statusDanger : styles.statusWarn}>{condition.severity}</span>
                 </div>
