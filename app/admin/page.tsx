@@ -1,7 +1,14 @@
 import { PropertyVisual } from "@/components/PropertyVisual";
 import { WorkspaceShell } from "@/components/WorkspaceShell";
+import styles from "@/components/w04/RoleWorkspaces.module.css";
 import { requireWorkspace } from "@/lib/auth/guards";
-import { adminFixture } from "@/lib/fixtures";
+import { portfolioOperationsFixture as data } from "@/lib/w04-fixtures";
+
+function stateClass(value: string) {
+  if (value === "مستقر" || value === "سليم" || value === "جاهزة" || value === "مشغول") return styles.statusGood;
+  if (value.includes("تدخل") || value === "متأخر") return styles.statusDanger;
+  return styles.statusWarn;
+}
 
 export default async function AdminPage() {
   const session = await requireWorkspace("ADMIN");
@@ -10,57 +17,98 @@ export default async function AdminPage() {
     <WorkspaceShell
       session={session}
       workspace="ADMIN"
-      eyebrow="S13 — إدارة المحافظ"
-      title="عمليات المحفظة"
-      description="مرجع إداري مقيّد بحالة ADMIN، مع كثافة معلومات منضبطة ومؤشرات بلا جدار بطاقات."
-      aside={
-        <div className="rail-stack">
-          <p className="rail-label">سياق المحفظة</p>
-          <strong>{adminFixture.portfolioName}</strong>
-          <span className="status status--neutral">عرض تركيبي</span>
-          <hr />
-          <PropertyVisual compact label="تصوير تمثيلي لأصل داخل المحفظة" />
-        </div>
-      }
+      eyebrow="S13 — عمليات المحافظ"
+      title="عمليات المحافظ"
+      description="رؤية تشغيلية على مستوى المحفظة لتحديد الحالات المفتوحة ذات الأولوية، ثم الانتقال إلى سياق السجل والإجراء المبرر."
     >
-      <section className="summary-strip" aria-label="ملخص المحفظة">
-        <div><span>أصول نشطة</span><strong>{adminFixture.activeAssets}</strong></div>
-        <div><span>بحاجة إلى انتباه</span><strong>{adminFixture.attentionItems}</strong></div>
-        <div><span>حرجة</span><strong>{adminFixture.criticalItems}</strong></div>
-      </section>
+      <div className={styles.stack}>
+        <section className={styles.operationsSummary} aria-label="ملخص العمليات">
+          <div><span>تحتاج متابعة</span><strong>{data.totals.followUp}</strong><small>عنصرًا</small></div>
+          <div><span>سجلات نشطة</span><strong>{data.totals.activeRecords}</strong><small>سجلًا</small></div>
+          <div><span>عناصر مفتوحة</span><strong>{data.totals.openConditions}</strong><small>عنصرًا</small></div>
+        </section>
 
-      <section className="panel" aria-labelledby="portfolio-title">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">قائمة المراجعة</p>
-            <h2 id="portfolio-title">الأصول ضمن المحفظة التجريبية</h2>
+        <section className={styles.operationsGrid}>
+          <div className={styles.tablePanel}>
+            <div className={styles.toolbar}>
+              <button className={styles.secondaryAction} type="button">تخصيص الأعمدة</button>
+              <span className={styles.searchBox}>ابحث باسم العقار أو الوحدة</span>
+              <button className={styles.secondaryAction} type="button">إجراءات</button>
+            </div>
+            <div className="table-wrap">
+              <table className={styles.opsTable}>
+                <thead>
+                  <tr>
+                    <th>الأولوية</th>
+                    <th>العقار / الوحدة</th>
+                    <th>الحالة التشغيلية</th>
+                    <th>الإشغال</th>
+                    <th>الدفعات</th>
+                    <th>الصيانة</th>
+                    <th>الجاهزية</th>
+                    <th>العناصر المفتوحة</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.records.map((record) => (
+                    <tr key={record.id}>
+                      <td><span className={styles.priority}>{record.priority}</span></td>
+                      <td><strong>{record.name}</strong><br /><span className={styles.miniLabel}>{record.location}</span></td>
+                      <td><span className={stateClass(record.operationalState)}>{record.operationalState}</span></td>
+                      <td><span className={stateClass(record.occupancy)}>{record.occupancy}</span></td>
+                      <td><span className={stateClass(record.payments)}>{record.payments}</span></td>
+                      <td><span className={stateClass(record.maintenance)}>{record.maintenance}</span></td>
+                      <td><span className={stateClass(record.readiness)}>{record.readiness}</span></td>
+                      <td>{record.open}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className={styles.footerMeta}>
+              <span>عرض سجلات المحفظة التجريبية بحسب الصلاحيات.</span>
+              <span>ADMIN فقط</span>
+            </div>
           </div>
-          <span className="status status--good">ADMIN فقط</span>
-        </div>
 
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>الأصل</th>
-                <th>المعرّف</th>
-                <th>الحالة</th>
-                <th>الانتباه</th>
-              </tr>
-            </thead>
-            <tbody>
-              {adminFixture.properties.map((property) => (
-                <tr key={property.id}>
-                  <td>{property.name}</td>
-                  <td><bdi className="ltr-id">{property.id}</bdi></td>
-                  <td>{property.state}</td>
-                  <td>{property.attention}</td>
-                </tr>
+          <aside className={styles.contextPanel}>
+            <div className={styles.heroMeta}>
+              <PropertyVisual compact label={`تصوير تمثيلي لـ ${data.selected.name}`} />
+              <span className={styles.statusDanger}>يتطلب تدخل</span>
+              <h2>{data.selected.name}</h2>
+              <p className={styles.muted}>{data.selected.location}</p>
+            </div>
+
+            <div className={styles.warningBox}>
+              <strong>سبب الأولوية الحالية</strong>
+              <p>{data.selected.reason}</p>
+            </div>
+
+            <div className={styles.conditionList}>
+              {data.selected.conditions.map((condition) => (
+                <div className={styles.condition} key={condition.title}>
+                  <div>
+                    <strong>{condition.title}</strong>
+                    <small>تاريخ الإنشاء: {condition.date}</small>
+                  </div>
+                  <span className={condition.severity === "عالٍ" ? styles.statusDanger : styles.statusWarn}>{condition.severity}</span>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+            </div>
+
+            <div className={styles.softCard}>
+              <span className={styles.kicker}>الإجراء التالي الموصى به</span>
+              <p>{data.selected.nextAction}</p>
+              <button className={styles.primaryAction} type="button">مراجعة الحالات المفتوحة</button>
+            </div>
+          </aside>
+        </section>
+
+        <section className={styles.footerMeta}>
+          <span>البيانات المعروضة تركيبية ومقيدة بجلسة الإدارة الحالية.</span>
+          <span>آخر تحديث تمثيلي: 09 مايو 2026 · 10:45 ص</span>
+        </section>
+      </div>
     </WorkspaceShell>
   );
 }
