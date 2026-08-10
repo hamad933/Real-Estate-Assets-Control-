@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { PropertyVisual } from "@/components/PropertyVisual";
+import s13Styles from "@/components/w04/PortfolioOperations.module.css";
 import styles from "@/components/w04/RoleWorkspaces.module.css";
 import { portfolioOperationsFixture as data } from "@/lib/w04-fixtures";
 
@@ -65,7 +66,7 @@ export function PortfolioOperationsClient() {
               تخصيص الأعمدة
             </button>
 
-            <label className={styles.searchGroup}>
+            <label className={s13Styles.searchGroup}>
               <span>ابحث باسم العقار أو الوحدة</span>
               <input
                 className={styles.searchBox}
@@ -89,7 +90,7 @@ export function PortfolioOperationsClient() {
             </button>
           </div>
 
-          <p className={styles.toolbarNote} id="s13-unavailable-actions">
+          <p className={s13Styles.toolbarNote} id="s13-unavailable-actions">
             تخصيص الأعمدة والإجراءات المجمعة غير متاحة في هذا التنفيذ المحلي؛ لا توجد إعدادات محفوظة أو عمليات خلفية ضمن W04.
           </p>
 
@@ -114,13 +115,16 @@ export function PortfolioOperationsClient() {
                     return (
                       <tr
                         key={record.id}
-                        className={isSelected ? styles.selectedRow : undefined}
                         data-selected={isSelected ? "true" : "false"}
+                        style={{
+                          background: isSelected ? "#f2f7fc" : "transparent",
+                          boxShadow: isSelected ? "inset -3px 0 #0c4179" : "none"
+                        }}
                       >
                         <td><span className={styles.priority}>{record.priority}</span></td>
                         <td>
                           <button
-                            className={styles.rowSelectButton}
+                            className={s13Styles.rowSelectButton}
                             type="button"
                             onClick={() => selectRecord(record.id)}
                             aria-pressed={isSelected}
@@ -142,7 +146,7 @@ export function PortfolioOperationsClient() {
                 ) : (
                   <tr>
                     <td colSpan={8}>
-                      <div className={styles.emptyState} data-testid="s13-no-match">
+                      <div className={s13Styles.emptyState} data-testid="s13-no-match">
                         <strong>لا توجد سجلات مطابقة.</strong>
                         <span>لم نجد عقارًا أو وحدة تطابق “{query.trim()}”.</span>
                         <button className={styles.secondaryAction} type="button" onClick={() => setQuery("")}>
@@ -181,7 +185,7 @@ export function PortfolioOperationsClient() {
           </div>
 
           {reviewMode ? (
-            <section className={styles.reviewPanel} aria-label="مراجعة الحالات المفتوحة" data-testid="s13-review-mode">
+            <section className={s13Styles.reviewPanel} aria-label="مراجعة الحالات المفتوحة" data-testid="s13-review-mode">
               <div className={styles.rowBetween}>
                 <div>
                   <span className={styles.kicker}>وضع المراجعة المحلي</span>
