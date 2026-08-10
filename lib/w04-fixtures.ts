@@ -54,10 +54,7 @@ export const contractorWorkspaceFixture = {
     { title: "مقطع فيديو", meta: "video_20250501.mp4" },
     { title: "صورة من البلاغ", meta: "IMG_20250501_1045.jpg" }
   ],
-  otherAssigned: [
-    { id: "work-order-503", title: "التنظيف العام للمكيف", when: "اليوم · 02:00 م" },
-    { id: "work-order-504", title: "إصلاح تسريب مياه", when: "غدًا · 09:00 ص" }
-  ],
+  otherAssigned: [],
   permittedContact: "إدارة العمليات — قناة المهمة فقط"
 };
 
