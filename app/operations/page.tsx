@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ReadinessDemoActions } from "@/app/operations/_components/LocalDemoActions";
 import { OperationsRecordFrame } from "@/app/operations/_components/OperationsRecordFrame";
-import { operationsRecord } from "@/app/operations/_data/records";
+import { PRIMARY_OPERATIONS_RECORD_ID } from "@/app/operations/_data/records";
 import styles from "@/app/operations/operations.module.css";
 import { requireResource } from "@/lib/auth/guards";
+import { getOperationsRecord } from "@/lib/data/repository";
 
 function toneClass(tone: string) {
   return tone === "good" ? styles.badgeGood : styles.badgeWarn;
@@ -13,13 +15,16 @@ export default async function OperationsPage() {
   const session = await requireResource(
     "OPERATIONS",
     "operations-record",
-    operationsRecord.recordId
+    PRIMARY_OPERATIONS_RECORD_ID
   );
+  const operationsRecord = getOperationsRecord(session, PRIMARY_OPERATIONS_RECORD_ID);
+  if (!operationsRecord) redirect("/access-denied?reason=scope");
   const readiness = operationsRecord.readiness;
 
   return (
     <OperationsRecordFrame
       session={session}
+      record={operationsRecord}
       current="readiness"
       surfaceCode="S05"
       entity="property"
@@ -34,18 +39,9 @@ export default async function OperationsPage() {
           <p>{readiness.narrative}</p>
         </div>
         <div className={styles.stateCounts} aria-label="ملخص فئوي للجاهزية">
-          <div>
-            <span>عناصر مكتملة</span>
-            <strong className={styles.goodNumber}>{readiness.counts.complete}</strong>
-          </div>
-          <div>
-            <span>عناصر متابعة</span>
-            <strong className={styles.warnNumber}>{readiness.counts.followUp}</strong>
-          </div>
-          <div>
-            <span>عناصر معيقة</span>
-            <strong className={styles.dangerNumber}>{readiness.counts.blockers}</strong>
-          </div>
+          <div><span>عناصر مكتملة</span><strong className={styles.goodNumber}>{readiness.counts.complete}</strong></div>
+          <div><span>عناصر متابعة</span><strong className={styles.warnNumber}>{readiness.counts.followUp}</strong></div>
+          <div><span>عناصر معيقة</span><strong className={styles.dangerNumber}>{readiness.counts.blockers}</strong></div>
         </div>
       </section>
 
@@ -75,10 +71,7 @@ export default async function OperationsPage() {
             <div className={styles.documentList}>
               {readiness.evidence.map((item) => (
                 <div className={styles.documentRow} key={item.name}>
-                  <div>
-                    <strong>{item.name}</strong>
-                    <small>{item.meta}</small>
-                  </div>
+                  <div><strong>{item.name}</strong><small>{item.meta}</small></div>
                   <span className={styles.evidenceState}>{item.state}</span>
                 </div>
               ))}
@@ -109,9 +102,7 @@ export default async function OperationsPage() {
       <section className={styles.activityRail} aria-labelledby="readiness-activity-title">
         <h2 id="readiness-activity-title">آخر نشاط متعلق بالجاهزية</h2>
         <div className={styles.activityList}>
-          {readiness.activity.map((item) => (
-            <div className={styles.activityItem} key={item}>{item}</div>
-          ))}
+          {readiness.activity.map((item) => <div className={styles.activityItem} key={item}>{item}</div>)}
         </div>
       </section>
 
@@ -119,10 +110,7 @@ export default async function OperationsPage() {
         <Link className={styles.footerLink} href={`/operations/records/${operationsRecord.recordId}`}>
           فتح فهرس السجل
         </Link>
-        <Link
-          className={styles.footerLinkPrimary}
-          href={`/operations/records/${operationsRecord.recordId}/occupancy`}
-        >
+        <Link className={styles.footerLinkPrimary} href={`/operations/records/${operationsRecord.recordId}/occupancy`}>
           الانتقال إلى سجل الإشغال
         </Link>
       </div>
