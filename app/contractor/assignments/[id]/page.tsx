@@ -1,5 +1,7 @@
+import { redirect } from "next/navigation";
 import { WorkspaceShell } from "@/components/WorkspaceShell";
 import { requireResource } from "@/lib/auth/guards";
+import { getContractorAssignment } from "@/lib/data/repository";
 
 export default async function ContractorAssignmentPage({
   params
@@ -8,6 +10,8 @@ export default async function ContractorAssignmentPage({
 }) {
   const { id } = await params;
   const session = await requireResource("CONTRACTOR", "assignment", id);
+  const data = getContractorAssignment(session, id);
+  if (!data) redirect("/access-denied?reason=scope");
 
   return (
     <WorkspaceShell
@@ -19,8 +23,9 @@ export default async function ContractorAssignmentPage({
     >
       <section className="panel detail-panel">
         <span className="status status--good">مهمة مسندة</span>
-        <h2>معرّف المهمة</h2>
+        <h2>{data.assignment.title}</h2>
         <bdi className="ltr-id ltr-id--large">{id}</bdi>
+        <p>الحالة المحفوظة محليًا: {data.assignment.status}</p>
         <p>لا توجد هنا صلاحية لاعتماد الإكمال أو التكلفة النهائية.</p>
       </section>
     </WorkspaceShell>
