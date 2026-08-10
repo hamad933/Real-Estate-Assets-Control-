@@ -32,8 +32,9 @@ export default async function OperationsPage() {
           <h2>{operationsFixture.propertyName}</h2>
           <p>مراجعة تركيبية للجاهزية دون ربط ببيانات أو مزودات إنتاجية.</p>
           <div className="metric-row">
-            <div><span>نسبة الاكتمال</span><strong dir="ltr">{operationsFixture.completion}%</strong></div>
-            <div><span>فحوص مفتوحة</span><strong>{operationsFixture.openChecks}</strong></div>
+            <div><span>مكتمل</span><strong>{operationsFixture.completedChecks}</strong></div>
+            <div><span>يحتاج متابعة</span><strong>{operationsFixture.followUpChecks}</strong></div>
+            <div><span>عائق</span><strong>{operationsFixture.blockers}</strong></div>
           </div>
         </div>
       </section>
