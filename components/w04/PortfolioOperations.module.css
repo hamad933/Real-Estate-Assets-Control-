@@ -1,0 +1,74 @@
+.searchGroup {
+  display: grid;
+  flex: 1 1 280px;
+  gap: 0.25rem;
+  min-width: 240px;
+}
+
+.searchGroup > span {
+  color: #53677d;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.toolbarNote {
+  margin: -0.2rem 0 0.8rem;
+  color: #6b7d91;
+  font-size: 0.78rem;
+}
+
+.rowSelectButton {
+  appearance: none;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: right;
+}
+
+.rowSelectButton strong {
+  display: block;
+  color: #153960;
+}
+
+.rowSelectButton:focus-visible {
+  border-radius: 8px;
+  outline: 2px solid #0c4179;
+  outline-offset: 3px;
+}
+
+.emptyState {
+  display: grid;
+  justify-items: start;
+  gap: 0.55rem;
+  padding: 1.25rem 0.6rem;
+  color: #64748b;
+}
+
+.emptyState strong {
+  color: #173b64;
+}
+
+.reviewPanel {
+  display: grid;
+  gap: 0.8rem;
+  border: 1px solid #d8e3ee;
+  border-radius: 14px;
+  padding: 0.9rem;
+  background: #f9fbfd;
+}
+
+.reviewPanel h2 {
+  margin: 0.15rem 0 0;
+  color: #0d2f5c;
+  font-size: 1rem;
+}
+
+@media (max-width: 560px) {
+  .searchGroup {
+    min-width: 0;
+    width: 100%;
+  }
+}
