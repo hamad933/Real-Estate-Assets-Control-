@@ -57,6 +57,19 @@ test("capture S11 S12 S13 desktop evidence", async ({ page }) => {
   await shot(page, "w04-s13-portfolio-operations-desktop.png");
 });
 
+test("capture S13 interaction evidence", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await setSession(page, "admin-demo");
+  await page.goto("/admin");
+
+  await page.getByRole("searchbox", { name: "ابحث باسم العقار أو الوحدة" }).fill("النرجس");
+  await page.getByRole("button", { name: "اختيار شقة النرجس 101" }).click();
+  await page.getByTestId("s13-review-open-conditions").click();
+  await expect(page.getByTestId("s13-review-mode")).toBeVisible();
+  await expectNoPageOverflow(page);
+  await shot(page, "w04-s13-interaction-review-desktop.png");
+});
+
 test("capture representative mobile evidence", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
 
