@@ -3,6 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 const baseURL = "http://127.0.0.1:3000";
 
 async function setSession(page: Page, fixtureId: string) {
+  await page.context().clearCookies();
   await page.context().addCookies([
     {
       name: "rp04_demo_session",
@@ -14,15 +15,14 @@ async function setSession(page: Page, fixtureId: string) {
   ]);
 }
 
-test("VISITOR cannot enter protected routes", async ({ page }) => {
-  await page.goto("/tenant");
-  await expect(page).toHaveURL(/\/sign-in\?reason=authentication-required/);
-
-  await page.goto("/admin");
-  await expect(page).toHaveURL(/\/sign-in\?reason=authentication-required/);
+test("VISITOR cannot enter W04 protected routes", async ({ page }) => {
+  for (const route of ["/tenant", "/contractor", "/admin"]) {
+    await page.goto(route);
+    await expect(page).toHaveURL(/\/sign-in\?reason=authentication-required/);
+  }
 });
 
-test("admin demo credential signs in and wrong credential is rejected", async ({ page }) => {
+test("admin demo credential remains the only visible demo credential", async ({ page }) => {
   await page.goto("/sign-in");
   await page.getByLabel("اسم المستخدم").fill("admin");
   await page.getByLabel("كلمة المرور").fill("wrong");
@@ -33,14 +33,18 @@ test("admin demo credential signs in and wrong credential is rejected", async ({
   await page.getByLabel("كلمة المرور").fill("admin");
   await page.getByRole("button", { name: "تسجيل الدخول" }).click();
   await expect(page).toHaveURL(/\/admin$/);
-  await expect(page.getByRole("heading", { name: "عمليات المحفظة" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "عمليات المحافظ" })).toBeVisible();
 });
 
-test("TENANT is restricted to tenant workspace and own resource", async ({ page }) => {
+test("TENANT sees only own relationship and cross-scope access is denied", async ({ page }) => {
   await setSession(page, "tenant-demo");
 
   await page.goto("/tenant");
   await expect(page.getByRole("heading", { name: "خدمات المستأجر" })).toBeVisible();
+  await expect(page.getByText("شقة النرجس 101", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("مستندات شخصية مرتبطة بالعلاقة")).toBeVisible();
+  await page.getByTestId("tenant-create-service-request").first().click();
+  await expect(page.getByText(/تم إنشاء تمثيل طلب جديد/).first()).toBeVisible();
 
   await page.goto("/tenant/resources/tenant-resource-101");
   await expect(page.getByText("ضمن نطاق المستأجر", { exact: true })).toBeVisible();
@@ -54,13 +58,20 @@ test("TENANT is restricted to tenant workspace and own resource", async ({ page 
   }
 });
 
-test("CONTRACTOR sees assigned work only and cannot self-approve", async ({ page }) => {
+test("CONTRACTOR sees assigned work, can update execution representation, and cannot self-approve", async ({ page }) => {
   await setSession(page, "contractor-demo");
 
   await page.goto("/contractor");
-  await expect(page.getByRole("heading", { name: "مهمة مكلّف بها" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "تفاصيل المهمة الموكلة إليك" })).toBeVisible();
+  await expect(page.getByText("الأعمال المسندة فقط")).toBeVisible();
   await expect(page.getByTestId("approve-completion")).toBeDisabled();
   await expect(page.getByTestId("approve-cost")).toBeDisabled();
+
+  await page.getByLabel("حالة المهمة").selectOption({ label: "قيد التنفيذ" });
+  await page.getByTestId("contractor-update-status").click();
+  await expect(page.getByText(/تم تحديث الحالة داخل الجلسة إلى: قيد التنفيذ/)).toBeVisible();
+  await page.getByTestId("contractor-upload-evidence").click();
+  await expect(page.getByText(/تمثيل رفع الدليل جاهز/)).toBeVisible();
 
   await page.goto("/contractor/assignments/work-order-501");
   await expect(page.getByText("مهمة مسندة")).toBeVisible();
@@ -74,7 +85,7 @@ test("CONTRACTOR sees assigned work only and cannot self-approve", async ({ page
   }
 });
 
-test("OPERATIONS is scoped and cannot enter other workspaces", async ({ page }) => {
+test("existing OPERATIONS user remains scoped and is denied from S13", async ({ page }) => {
   await setSession(page, "operations-demo");
 
   await page.goto("/operations");
@@ -86,19 +97,25 @@ test("OPERATIONS is scoped and cannot enter other workspaces", async ({ page }) 
   await page.goto("/operations/records/ops-record-202");
   await expect(page).toHaveURL(/\/access-denied\?reason=scope/);
 
-  for (const route of ["/tenant", "/contractor", "/admin"]) {
-    await page.goto(route);
+  await page.goto("/admin");
+  await expect(page).toHaveURL(/\/access-denied\?reason=workspace/);
+});
+
+test("S13 is ADMIN only and all USER profiles are denied", async ({ page }) => {
+  for (const fixtureId of ["tenant-demo", "contractor-demo", "operations-demo"]) {
+    await setSession(page, fixtureId);
+    await page.goto("/admin");
     await expect(page).toHaveURL(/\/access-denied\?reason=workspace/);
   }
-});
 
-test("ADMIN can enter admin experience", async ({ page }) => {
   await setSession(page, "admin-demo");
   await page.goto("/admin");
-  await expect(page.getByText("ADMIN فقط")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "عمليات المحافظ" })).toBeVisible();
+  await expect(page.getByText("ADMIN فقط", { exact: true })).toBeVisible();
+  await expect(page.getByText("سبب الأولوية الحالية")).toBeVisible();
 });
 
-test("logout clears access", async ({ page }) => {
+test("logout clears W04 access", async ({ page }) => {
   await setSession(page, "tenant-demo");
   await page.goto("/tenant");
   await page.getByRole("button", { name: "تسجيل الخروج" }).click();
@@ -108,10 +125,15 @@ test("logout clears access", async ({ page }) => {
   await expect(page).toHaveURL(/\/sign-in\?reason=authentication-required/);
 });
 
-test("refresh preserves the intended simulated session", async ({ page }) => {
-  await setSession(page, "tenant-demo");
-  await page.goto("/tenant");
-  await page.reload();
-  await expect(page.getByRole("heading", { name: "خدمات المستأجر" })).toBeVisible();
-  await expect(page.getByText("tenant-demo")).toBeVisible();
+test("refresh preserves synthetic sessions for touched role workspaces", async ({ page }) => {
+  for (const [fixtureId, route, heading] of [
+    ["tenant-demo", "/tenant", "خدمات المستأجر"],
+    ["contractor-demo", "/contractor", "تفاصيل المهمة الموكلة إليك"],
+    ["admin-demo", "/admin", "عمليات المحافظ"]
+  ] as const) {
+    await setSession(page, fixtureId);
+    await page.goto(route);
+    await page.reload();
+    await expect(page.getByRole("heading", { name: heading })).toBeVisible();
+  }
 });
