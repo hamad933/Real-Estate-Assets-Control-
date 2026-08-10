@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ReadinessDemoActions } from "@/app/operations/_components/LocalDemoActions";
 import { OperationsRecordFrame } from "@/app/operations/_components/OperationsRecordFrame";
 import { operationsRecord } from "@/app/operations/_data/records";
 import styles from "@/app/operations/operations.module.css";
@@ -100,11 +101,7 @@ export default async function OperationsPage() {
                 <div><span>المسؤول المقترح</span><strong>{readiness.blocker.assignee}</strong></div>
               </div>
             </article>
-            <div className={styles.actionStack} aria-label="إجراءات مقترحة غير متصلة بمزود خارجي">
-              <button className={styles.actionButtonPrimary} type="button">مراجعة العنصر المفتوح</button>
-              <button className={styles.actionButton} type="button">تحديث الوثائق</button>
-              <button className={styles.actionButton} type="button">جدولة متابعة</button>
-            </div>
+            <ReadinessDemoActions />
           </section>
         </div>
       </div>
