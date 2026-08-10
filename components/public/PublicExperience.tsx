@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, type FormEvent } from "react";
-import { PropertyVisual } from "@/components/PropertyVisual";
+import { PropertyPhoto } from "./PropertyPhoto";
 import {
   filterPublicProperties,
   formatAnnualPrice,
@@ -96,7 +96,7 @@ function PropertyCard({ property, shortlisted = false, shortlistQuery = "", onTo
   return (
     <article className={`${styles.propertyCard} ${compact ? styles.compactCard : ""} ${selected ? styles.selectedCard : ""}`} data-testid={`property-${property.id}`}>
       <div className={styles.cardVisual}>
-        <PropertyVisual compact label={`تصوير تمثيلي لـ ${property.title}`} />
+        <PropertyPhoto propertyId={property.id} alt={`صورة عقارية لـ ${property.title}`} />
         <span className={styles.statusPill}>{property.statusLabel}</span>
         {onToggle ? (
           <button
@@ -226,7 +226,7 @@ export function DiscoveryExperience() {
             </div>
           </div>
           <div className={styles.heroImage}>
-            <PropertyVisual label="واجهة تمثيلية لعقار سكني معاصر" />
+            <PropertyPhoto variant="hero" alt="واجهة سكنية معاصرة بإضاءة دافئة" />
             <div className={styles.heroCaption}><span>خيار مميز</span><strong>شقة النرجس 101</strong><small>الرياض — حي النرجس</small></div>
           </div>
         </section>
@@ -391,8 +391,8 @@ export function AssetDetailExperience({ propertyId, initial }: { propertyId: str
         <div className={styles.breadcrumb}><Link href="/">الرئيسية</Link><span>/</span><Link href={queryWithShortlist("/search", shortlist)}>العقارات</Link><span>/</span><strong>{property.title}</strong></div>
         <section className={styles.detailHero}>
           <div className={styles.detailGallery}>
-            <div className={styles.galleryMain}><PropertyVisual label={`الصورة الرئيسية التمثيلية لـ ${property.title}`} /></div>
-            <div className={styles.gallerySmall}><PropertyVisual compact label="زاوية داخلية تمثيلية" /><PropertyVisual compact label="زاوية إضافية تمثيلية" /></div>
+            <div className={styles.galleryMain}><PropertyPhoto propertyId={property.id} alt={`الصورة الرئيسية لـ ${property.title}`} /></div>
+            <div className={styles.gallerySmall}><PropertyPhoto propertyId={property.id} variant="secondary" alt={`صورة سكنية إضافية لـ ${property.title}`} /><PropertyPhoto propertyId={property.id} variant="tertiary" alt={`صورة سكنية إضافية ثانية لـ ${property.title}`} /></div>
           </div>
           <div className={styles.detailIdentity}>
             <span className={styles.statusPill}>{property.statusLabel}</span>
@@ -459,7 +459,7 @@ export function ComparisonExperience({ initial }: { initial: InitialQuery }) {
       <main className={styles.pageShell}>
         <div className={styles.breadcrumb}><Link href={queryWithShortlist("/search", ids)}>نتائج البحث</Link><span>/</span><strong>المقارنة</strong></div>
         <section className={styles.compareHeading}><div><p className={styles.eyebrow}>مقارنة مباشرة</p><h1>قارن الخيارات التي اخترتها</h1><p>لا توجد درجة إجمالية أو ذكاء اصطناعي. التوصية أدناه تتبع الأولوية التي تختارها أنت فقط.</p></div></section>
-        <div className={styles.compareCards}>{properties.map((property) => <div key={property.id} className={styles.compareCard}><PropertyVisual compact label={`تصوير تمثيلي لـ ${property.title}`} /><div><h2>{property.title}</h2><p>{property.district}</p><strong><span dir="ltr">{formatAnnualPrice(property.price)}</span> ريال / سنة</strong><button type="button" onClick={() => remove(property.id)}>إزالة من المقارنة</button></div></div>)}</div>
+        <div className={styles.compareCards}>{properties.map((property) => <div key={property.id} className={styles.compareCard}><PropertyPhoto propertyId={property.id} alt={`صورة عقارية لـ ${property.title}`} /><div><h2>{property.title}</h2><p>{property.district}</p><strong><span dir="ltr">{formatAnnualPrice(property.price)}</span> ريال / سنة</strong><button type="button" onClick={() => remove(property.id)}>إزالة من المقارنة</button></div></div>)}</div>
 
         <section className={styles.priorityPanel} aria-labelledby="priority-title">
           <div><p className={styles.eyebrow}>أولويتك</p><h2 id="priority-title">ما العامل الأهم لك الآن؟</h2><p>اختيارك يغيّر التوصية بطريقة معلنة وحتمية.</p></div>
@@ -551,7 +551,7 @@ export function InquiryExperience({ initial }: { initial: InitialQuery }) {
           </form>
 
           <aside className={styles.inquirySummary}>
-            <div className={styles.summaryVisual}><PropertyVisual compact label={`تصوير تمثيلي لـ ${property.title}`} /></div>
+            <div className={styles.summaryVisual}><PropertyPhoto propertyId={property.id} alt={`صورة عقارية لـ ${property.title}`} /></div>
             <span className={styles.statusPill}>{property.statusLabel}</span><h2>{property.title}</h2><p>{property.district}</p><div className={styles.bigPrice}><strong dir="ltr">{formatAnnualPrice(property.price)}</strong><span>ريال / سنة</span></div><dl><div><dt>النوع</dt><dd>{property.typeLabel}</dd></div><div><dt>الغرف</dt><dd>{property.bedrooms}</dd></div><div><dt>المساحة</dt><dd dir="ltr">{property.area} m²</dd></div></dl><Link className={styles.inlineLink} href={queryWithShortlist(`/assets/${property.id}`, shortlist)}>مراجعة تفاصيل العقار</Link>
           </aside>
         </div>
