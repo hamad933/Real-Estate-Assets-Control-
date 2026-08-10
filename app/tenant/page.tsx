@@ -1,14 +1,16 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { PropertyVisual } from "@/components/PropertyVisual";
 import { WorkspaceShell } from "@/components/WorkspaceShell";
 import { TenantServicePanel } from "@/components/w04/TenantServicePanel";
 import styles from "@/components/w04/RoleWorkspaces.module.css";
 import { requireWorkspace } from "@/lib/auth/guards";
-import { tenantFixture } from "@/lib/fixtures";
-import { tenantWorkspaceFixture as data } from "@/lib/w04-fixtures";
+import { getTenantWorkspace } from "@/lib/data/repository";
 
 export default async function TenantPage() {
   const session = await requireWorkspace("TENANT");
+  const data = getTenantWorkspace(session);
+  if (!data) redirect("/access-denied?reason=scope");
 
   return (
     <WorkspaceShell
@@ -44,7 +46,7 @@ export default async function TenantPage() {
               <h2>{data.unit.name}</h2>
               <p className={styles.muted}>{data.unit.location}</p>
               <p>{data.unit.contractType}</p>
-              <Link className="button button--quiet" href={`/tenant/resources/${tenantFixture.resourceId}`}>
+              <Link className="button button--quiet" href={`/tenant/resources/${data.resourceId}`}>
                 عرض تفاصيل العلاقة المصرّح بها
               </Link>
             </div>
