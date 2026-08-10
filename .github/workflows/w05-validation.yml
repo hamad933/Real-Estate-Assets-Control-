@@ -1,0 +1,173 @@
+name: W05 validation
+
+on:
+  pull_request:
+    branches:
+      - feature/rp04-imp-w01-app-foundation
+    types: [opened, reopened, synchronize]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: exact-head-integrated-regression
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.ref == 'feature/rp04-imp-w05-integration'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      W01: d508722a6218fa5ba895fdd0861b6731f50731fb
+      W02: 16e9af1ac5821c4e99def3aa777195ef5866b141
+      W03: 0dc7913624b23fa02f419a659d6eec5a6a107f93
+      W04: b5796fc1213eca1be8b3c99548229d623325946d
+
+    steps:
+      - name: Checkout exact W05 head
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Checkout dispatched ref
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Verify exact head and frozen integration provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACTUAL_HEAD="$(git rev-parse HEAD)"
+          EXPECTED_HEAD="${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}"
+          test "$ACTUAL_HEAD" = "$EXPECTED_HEAD"
+          git merge-base --is-ancestor "$W01" HEAD
+          git merge-base --is-ancestor "$W02" HEAD
+
+          git fetch --no-tags origin feature/rp04-imp-w02-public-discovery-inquiry
+          test "$(git rev-parse FETCH_HEAD)" = "$W02"
+          git fetch --no-tags origin feature/rp04-imp-w03-operational-records
+          test "$(git rev-parse FETCH_HEAD)" = "$W03"
+          git fetch --no-tags origin feature/rp04-imp-w04-role-workspaces
+          test "$(git rev-parse FETCH_HEAD)" = "$W04"
+
+          w02_paths=(
+            '.github/workflows/w02-validation.yml'
+            'app/assets/[id]/page.tsx'
+            'app/compare/page.tsx'
+            'app/inquiry/page.tsx'
+            'app/map/page.tsx'
+            'app/page.tsx'
+            'app/search/page.tsx'
+            'components/public/PropertyPhoto.tsx'
+            'components/public/PublicExperience.module.css'
+            'components/public/PublicExperience.tsx'
+            'components/public/PublicHeader.tsx'
+            'lib/public-data.ts'
+            'public/assets/rp04/properties/README.md'
+            'public/assets/rp04/properties/property-sprite.webp'
+            'tests/public-w02.spec.ts'
+          )
+          for path in "${w02_paths[@]}"; do
+            test "$(git rev-parse "HEAD:${path}")" = "$(git rev-parse "${W02}:${path}")"
+          done
+
+          w03_paths=(
+            '.github/workflows/w03-validation.yml'
+            'app/operations/_components/LocalDemoActions.tsx'
+            'app/operations/_components/OperationsRecordFrame.tsx'
+            'app/operations/_data/records.ts'
+            'app/operations/operations.module.css'
+            'app/operations/page.tsx'
+            'app/operations/records/[id]/maintenance/page.tsx'
+            'app/operations/records/[id]/occupancy/page.tsx'
+            'app/operations/records/[id]/page.tsx'
+            'app/operations/records/[id]/payments/page.tsx'
+            'tests/operations-records.spec.ts'
+          )
+          for path in "${w03_paths[@]}"; do
+            test "$(git rev-parse "HEAD:${path}")" = "$(git rev-parse "${W03}:${path}")"
+          done
+
+          w04_paths=(
+            '.github/workflows/w04-validation.yml'
+            'app/admin/page.tsx'
+            'app/contractor/page.tsx'
+            'app/tenant/page.tsx'
+            'components/w04/ContractorControls.tsx'
+            'components/w04/PortfolioOperations.module.css'
+            'components/w04/PortfolioOperationsClient.tsx'
+            'components/w04/RoleWorkspaces.module.css'
+            'components/w04/TenantServicePanel.tsx'
+            'lib/w04-fixtures.ts'
+            'tests/access.spec.ts'
+            'tests/visual.spec.ts'
+          )
+          for path in "${w04_paths[@]}"; do
+            test "$(git rev-parse "HEAD:${path}")" = "$(git rev-parse "${W04}:${path}")"
+          done
+
+          mkdir -p evidence
+          printf '%s\n' "$ACTUAL_HEAD" > evidence/w05-validated-head-sha.txt
+          git diff --name-only "$W01" HEAD | sort > evidence/w05-changed-paths.txt
+          cat > evidence/w05-integration-provenance.txt <<EOF
+          Workstream: RP04-IMP-W05 — Integrated Application Assembly and Regression
+          W01 baseline: $W01
+          W02 input: $W02
+          W03 input: $W03
+          W04 input: $W04
+          Integration method: W02 exact reviewed head retained as ancestry; exact W03 and W04 downstream deltas materialized over that head. All frozen changed paths, including W03/W04 validation workflows, are verified by Git blob equality against the exact reviewed input heads. This method was used because the Actions GITHUB_TOKEN could merge all three heads cleanly but could not push newly reachable workflow-file changes without workflow permission.
+          Conflicts: NONE. A prior isolated merge rehearsal completed all W02/W03/W04 merges with the ort strategy without conflict.
+          Validated W05 head: $ACTUAL_HEAD
+          EOF
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies from committed lockfile
+        run: npm ci
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Production build
+        run: npm run build
+
+      - name: Full integrated Playwright regression
+        run: npm run test:e2e
+
+      - name: Index integrated visual evidence
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p evidence
+          find evidence/screenshots -type f -name '*.png' -print 2>/dev/null | sort > evidence/w05-evidence-index.txt || true
+
+      - name: Upload W05 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rp04-w05-evidence
+          if-no-files-found: warn
+          path: |
+            evidence/w05-validated-head-sha.txt
+            evidence/w05-integration-provenance.txt
+            evidence/w05-changed-paths.txt
+            evidence/w05-evidence-index.txt
+            evidence/screenshots
+            playwright-report
+            test-results
