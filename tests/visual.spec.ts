@@ -6,6 +6,7 @@ const evidenceDir = path.resolve("evidence/screenshots");
 const baseURL = "http://127.0.0.1:3000";
 
 async function setSession(page: Page, fixtureId: string) {
+  await page.context().clearCookies();
   await page.context().addCookies([
     {
       name: "rp04_demo_session",
@@ -34,60 +35,59 @@ async function shot(page: Page, name: string) {
   });
 }
 
-test("capture representative desktop shells", async ({ page }) => {
+test("capture S11 S12 S13 desktop evidence", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
-
-  await page.goto("/");
-  await expect(page.getByRole("heading", { name: "اعثر على المكان المناسب لك" })).toBeVisible();
-  await shot(page, "01-public-desktop.png");
-
-  await page.goto("/sign-in");
-  await shot(page, "02-sign-in-desktop.png");
-
-  await setSession(page, "operations-demo");
-  await page.goto("/operations");
-  await shot(page, "03-operations-desktop.png");
 
   await setSession(page, "tenant-demo");
   await page.goto("/tenant");
-  await shot(page, "04-tenant-desktop.png");
+  await expect(page.getByRole("heading", { name: "خدمات المستأجر" })).toBeVisible();
+  await expectNoPageOverflow(page);
+  await shot(page, "w04-s11-tenant-desktop.png");
 
   await setSession(page, "contractor-demo");
   await page.goto("/contractor");
-  await shot(page, "05-contractor-desktop.png");
+  await expect(page.getByRole("heading", { name: "تفاصيل المهمة الموكلة إليك" })).toBeVisible();
+  await expectNoPageOverflow(page);
+  await shot(page, "w04-s12-contractor-desktop.png");
 
   await setSession(page, "admin-demo");
   await page.goto("/admin");
-  await shot(page, "06-admin-desktop.png");
-
-  await setSession(page, "tenant-demo");
-  await page.goto("/admin");
-  await expect(page).toHaveURL(/\/access-denied/);
-  await shot(page, "07-access-denied-desktop.png");
+  await expect(page.getByRole("heading", { name: "عمليات المحافظ" })).toBeVisible();
+  await expectNoPageOverflow(page);
+  await shot(page, "w04-s13-portfolio-operations-desktop.png");
 });
 
-test("capture responsive baseline without page-level horizontal overflow", async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
+test("capture S13 interaction evidence", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await setSession(page, "admin-demo");
+  await page.goto("/admin");
 
-  await page.goto("/");
+  await page.getByRole("searchbox", { name: "ابحث باسم العقار أو الوحدة" }).fill("النرجس");
+  await page.getByRole("button", { name: "اختيار شقة النرجس 101" }).click();
+  await page.getByTestId("s13-review-open-conditions").click();
+  await expect(page.getByTestId("s13-review-mode")).toBeVisible();
   await expectNoPageOverflow(page);
-  await shot(page, "08-public-mobile.png");
+  await shot(page, "w04-s13-interaction-review-desktop.png");
+});
+
+test("capture representative mobile evidence", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
 
   await setSession(page, "tenant-demo");
   await page.goto("/tenant");
   await expectNoPageOverflow(page);
-  await shot(page, "09-tenant-mobile.png");
+  await shot(page, "w04-s11-tenant-mobile.png");
 
   await setSession(page, "admin-demo");
   await page.goto("/admin");
   await expectNoPageOverflow(page);
-  await shot(page, "10-admin-mobile.png");
+  await shot(page, "w04-s13-portfolio-operations-mobile.png");
 });
 
-test("capture tablet-width operations baseline", async ({ page }) => {
+test("capture representative tablet contractor evidence", async ({ page }) => {
   await page.setViewportSize({ width: 820, height: 1000 });
-  await setSession(page, "operations-demo");
-  await page.goto("/operations");
+  await setSession(page, "contractor-demo");
+  await page.goto("/contractor");
   await expectNoPageOverflow(page);
-  await shot(page, "11-operations-tablet.png");
+  await shot(page, "w04-s12-contractor-tablet.png");
 });
