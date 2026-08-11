@@ -12,16 +12,15 @@ type OperationsRecordFrameProps = {
   current: OperationsSection;
   title: string;
   description: string;
-  surfaceCode: "S05" | "S08" | "S09" | "S10";
   entity: "property" | "unit";
   children: ReactNode;
 };
 
-const tabs: Array<{ key: OperationsSection; label: string; code: string }> = [
-  { key: "readiness", label: "الجاهزية التشغيلية", code: "S05" },
-  { key: "occupancy", label: "الإشغال والسكن", code: "S08" },
-  { key: "payments", label: "الدفعات والتحصيل", code: "S09" },
-  { key: "maintenance", label: "الصيانة والخدمة", code: "S10" }
+const tabs: Array<{ key: OperationsSection; label: string }> = [
+  { key: "readiness", label: "الجاهزية التشغيلية" },
+  { key: "occupancy", label: "الإشغال والسكن" },
+  { key: "payments", label: "الدفعات والتحصيل" },
+  { key: "maintenance", label: "الصيانة والخدمة" }
 ];
 
 function tabHref(section: OperationsSection, recordId: string) {
@@ -35,7 +34,6 @@ export function OperationsRecordFrame({
   current,
   title,
   description,
-  surfaceCode,
   entity,
   children
 }: OperationsRecordFrameProps) {
@@ -46,7 +44,7 @@ export function OperationsRecordFrame({
     <WorkspaceShell
       session={session}
       workspace="OPERATIONS"
-      eyebrow={`${surfaceCode} — سجل تشغيلي ضمن النطاق`}
+      eyebrow="السجل التشغيلي"
       title={title}
       description={description}
     >
@@ -85,7 +83,6 @@ export function OperationsRecordFrame({
             className={tab.key === current ? styles.recordTabActive : styles.recordTab}
             aria-current={tab.key === current ? "page" : undefined}
           >
-            <span className={styles.tabCode} dir="ltr">{tab.code}</span>
             <span>{tab.label}</span>
           </Link>
         ))}
