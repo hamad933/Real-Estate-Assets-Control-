@@ -1,12 +1,21 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PropertyVisual } from "@/components/PropertyVisual";
+import { PropertyPhoto } from "@/components/public/PropertyPhoto";
 import s13Styles from "@/components/w04/PortfolioOperations.module.css";
 import styles from "@/components/w04/RoleWorkspaces.module.css";
 import type { PortfolioOperationsData } from "@/lib/data/types";
 
 type PortfolioRecord = PortfolioOperationsData["records"][number];
+
+const photoIdByRecordName: Record<string, string> = {
+  "شقة النرجس 101": "narjis-101",
+  "فيلا الياسمين": "yasmin-villa",
+  "دوبلكس العقيق": "aqiq-duplex",
+  "استوديو الملقا": "malqa-studio",
+  "شقة الياسمين 12": "yasmin-12",
+  "فيلا العارض": "arid-villa"
+};
 
 function stateClass(value: string) {
   if (value === "مستقر" || value === "سليم" || value === "جاهزة" || value === "مشغول") return styles.statusGood;
@@ -173,7 +182,10 @@ export function PortfolioOperationsClient({ data }: { data: PortfolioOperationsD
           data-testid="s13-selected-context"
         >
           <div className={styles.heroMeta}>
-            <PropertyVisual compact label={`تصوير تمثيلي لـ ${selectedRecord.name}`} />
+            <PropertyPhoto
+              propertyId={photoIdByRecordName[selectedRecord.name]}
+              alt={`صورة عقارية لـ ${selectedRecord.name}`}
+            />
             <span className={stateClass(selectedRecord.operationalState)}>{selectedRecord.operationalState}</span>
             <h2>{selectedRecord.name}</h2>
             <p className={styles.muted}>{selectedRecord.location}</p>
