@@ -13,10 +13,10 @@ export default async function OccupancyRecordPage({ params }: { params: Promise<
   const occupancy = operationsRecord.occupancy;
 
   return (
-    <OperationsRecordFrame session={session} record={operationsRecord} current="occupancy" surfaceCode="S08" entity="unit" title="سجل الإشغال والسكن" description="سياق إشغال على مستوى الوحدة يوضح العلاقة والمدة والمستندات والمتابعة، مع إبقاء القيم الحساسة للمستأجر مقنّعة.">
+    <OperationsRecordFrame session={session} record={operationsRecord} current="occupancy" entity="unit" title="سجل الإشغال والسكن" description="تابع حالة الإشغال ومدة العلاقة والمستندات والتنبيهات المرتبطة بالوحدة، مع إخفاء بيانات التواصل الحساسة.">
       <section className={styles.heroStateGood} aria-labelledby="occupancy-state-title">
         <span className={styles.stateIconGood} aria-hidden="true">✓</span>
-        <div><p className={styles.kicker}>حالة الإشغال</p><h2 id="occupancy-state-title">{occupancy.status}</h2><p>سجل إشغال نشط ومرتبط بهذه الوحدة ضمن السجل التشغيلي المصرّح به.</p></div>
+        <div><p className={styles.kicker}>حالة الإشغال</p><h2 id="occupancy-state-title">{occupancy.status}</h2><p>سجل الإشغال نشط ومرتبط بهذه الوحدة.</p></div>
         <span className={styles.badgeGood}>{occupancy.recordState}</span>
       </section>
       <section className={styles.recordSummary} aria-label="ملخص سجل الإشغال">
@@ -29,7 +29,7 @@ export default async function OccupancyRecordPage({ params }: { params: Promise<
       </section>
       <div className={styles.twoColumnReverse}>
         <section className={styles.panel} aria-labelledby="occupancy-term-title">
-          <div className={styles.panelTitle}><h2 id="occupancy-term-title">مدة الإشغال</h2><span>سياق تشغيلي فقط</span></div>
+          <div className={styles.panelTitle}><h2 id="occupancy-term-title">مدة الإشغال</h2><span>بيانات العلاقة الحالية</span></div>
           <div className={styles.keyValueList}>
             <div className={styles.keyValueRow}><span>تاريخ البداية</span><strong>{occupancy.startDate}</strong></div>
             <div className={styles.keyValueRow}><span>تاريخ النهاية</span><strong>{occupancy.endDate}</strong></div>
@@ -49,7 +49,7 @@ export default async function OccupancyRecordPage({ params }: { params: Promise<
               <div className={styles.keyValueRow}><span>وسيلة التواصل</span><strong dir="ltr">{occupancy.tenant.phone}</strong></div>
               <div className={styles.keyValueRow}><span>البريد</span><strong dir="ltr">{occupancy.tenant.email}</strong></div>
             </div>
-            <div className={styles.privacyNote}>ملاحظة: تظهر بيانات التواصل بقناع ثابت داخل تجربة العمليات. لا تعرض هذه الصفحة مساحة المستأجر أو ملفًا عامًا للمستأجرين.</div>
+            <div className={styles.privacyNote}>تظهر بيانات التواصل بقناع ثابت لحماية الخصوصية.</div>
           </section>
           <section className={styles.panel} aria-labelledby="occupancy-alert-title">
             <div className={styles.panelTitle}><h2 id="occupancy-alert-title">تنبيهات وملاحظات مهمة</h2><span className={styles.badgeWarn}>متابعة</span></div>
@@ -58,7 +58,7 @@ export default async function OccupancyRecordPage({ params }: { params: Promise<
         </div>
       </div>
       <section className={styles.panel} aria-labelledby="occupancy-documents-title">
-        <div className={styles.panelTitle}><h2 id="occupancy-documents-title">المستندات والإثباتات</h2><span>مراجع تركيبية غير قابلة للتنزيل</span></div>
+        <div className={styles.panelTitle}><h2 id="occupancy-documents-title">المستندات والإثباتات</h2><span>مراجع مرتبطة بالسجل</span></div>
         <div className={styles.documentList}>
           {occupancy.documents.map((document) => <div className={styles.documentRow} key={document.name}><div><strong>{document.name}</strong><small>{document.meta}</small></div><span className={styles.badgeNeutral}>موثق</span></div>)}
         </div>
