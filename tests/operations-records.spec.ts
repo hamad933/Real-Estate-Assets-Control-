@@ -76,15 +76,15 @@ test("record navigation preserves the authorized record context", async ({ page 
   await setSession(page, "operations-demo");
   await page.goto(`/operations/records/${recordId}/occupancy`);
 
-  await page.getByRole("link", { name: /S09.*الدفعات والتحصيل/ }).click();
+  await page.getByRole("link", { name: "الدفعات والتحصيل", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/operations/records/${recordId}/payments$`));
   await expect(page.getByText("6,000 ريال", { exact: true }).first()).toBeVisible();
 
-  await page.getByRole("link", { name: /S10.*الصيانة والخدمة/ }).click();
+  await page.getByRole("link", { name: "الصيانة والخدمة", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/operations/records/${recordId}/maintenance$`));
   await expect(page.getByText("SRV-2026-0892", { exact: true })).toBeVisible();
 
-  await page.getByRole("link", { name: /S05.*الجاهزية التشغيلية/ }).click();
+  await page.getByRole("link", { name: "الجاهزية التشغيلية", exact: true }).click();
   await expect(page).toHaveURL(/\/operations$/);
   await expect(page.getByText("دفعة أغسطس ومسارات خدمة مفتوحة", { exact: true })).toBeVisible();
 });
@@ -100,7 +100,7 @@ test("deterministic occupancy, payment, and maintenance states do not drift", as
   await page.goto(`/operations/records/${recordId}/payments`);
   await expect(page.getByRole("cell", { name: "أغسطس 2026", exact: true })).toBeVisible();
   await expect(page.getByRole("cell", { name: "متأخرة", exact: true })).toBeVisible();
-  await expect(page.getByText("لا يوجد اتصال بخدمة خارجية", { exact: true })).toBeVisible();
+  await expect(page.getByText("متابعة السجل الحالي", { exact: true })).toBeVisible();
 
   await page.goto(`/operations/records/${recordId}/maintenance`);
   await expect(page.getByText("صيانة تكييف", { exact: true })).toBeVisible();
@@ -108,14 +108,14 @@ test("deterministic occupancy, payment, and maintenance states do not drift", as
   await expect(page.getByText("خدمة كهربائية", { exact: true })).toBeVisible();
 });
 
-test("enabled W03 actions produce explicit local outcomes", async ({ page }) => {
+test("enabled W03 actions produce explicit outcomes", async ({ page }) => {
   await setSession(page, "operations-demo");
 
   await page.goto("/operations");
   await page.getByTestId("readiness-review-action").click();
-  await expect(page.getByTestId("readiness-review-state")).toHaveText("تمت محليًا");
+  await expect(page.getByTestId("readiness-review-state")).toHaveText("تمت المراجعة");
   await expect(page.getByTestId("readiness-action-feedback")).toHaveText(
-    "تمت مراجعة العنصر المفتوح محليًا داخل هذه الجلسة التجريبية فقط."
+    "تمت مراجعة العنصر المفتوح وتحديث حالته في هذه الجلسة."
   );
 
   await page.getByTestId("readiness-followup-action").click();
@@ -123,7 +123,7 @@ test("enabled W03 actions produce explicit local outcomes", async ({ page }) => 
     "12 أغسطس 2026، 10:00 ص"
   );
   await expect(page.getByTestId("readiness-action-feedback")).toContainText(
-    "لا توجد رسالة أو مزامنة خارجية"
+    "تمت جدولة المتابعة"
   );
 
   await page.goto(`/operations/records/${recordId}/payments`);
@@ -132,15 +132,15 @@ test("enabled W03 actions produce explicit local outcomes", async ({ page }) => 
     "متابعة داخلية مطلوبة"
   );
   await expect(page.getByTestId("collection-action-feedback")).toContainText(
-    "لم يُرسل أي اتصال خارجي"
+    "تم تحديث حالة المتابعة"
   );
 
   await page.getByTestId("collection-note-action").click();
   await expect(page.getByTestId("collection-note-state")).toHaveText(
-    "تمت مراجعة الاستحقاق؛ لا يوجد اتصال خارجي."
+    "تمت مراجعة الاستحقاق."
   );
   await expect(page.getByTestId("collection-action-feedback")).toHaveText(
-    "تمت إضافة ملاحظة تحصيل تركيبية محليًا داخل هذه الجلسة فقط."
+    "تمت إضافة ملاحظة التحصيل إلى السجل الحالي."
   );
 });
 
@@ -153,7 +153,7 @@ test("unavailable and non-action surfaces leave no enabled silent no-op", async 
   await expect(page.getByTestId("readiness-documents-action")).toBeDisabled();
   await expect(
     page.getByText(
-      "غير متاح في النموذج التركيبي الحالي: تحديث الوثائق يتطلب حفظًا أو مخزن مستندات، وهما خارج نطاق W03.",
+      "تحديث الوثائق غير متاح في هذه النسخة لأن إدارة المستندات غير مفعّلة.",
       { exact: true }
     )
   ).toBeVisible();
@@ -168,16 +168,16 @@ test("unavailable and non-action surfaces leave no enabled silent no-op", async 
   await expect(page.locator("main").getByRole("button")).toHaveCount(0);
 });
 
-test("local demo action state does not persist across reload", async ({ page }) => {
+test("session action state does not persist across reload", async ({ page }) => {
   await setSession(page, "operations-demo");
   await page.goto("/operations");
 
   await page.getByTestId("readiness-review-action").click();
-  await expect(page.getByTestId("readiness-review-state")).toHaveText("تمت محليًا");
+  await expect(page.getByTestId("readiness-review-state")).toHaveText("تمت المراجعة");
 
   await page.reload();
   await expect(page.getByTestId("readiness-review-state")).toHaveText("لم تتم بعد");
-  await expect(page.getByTestId("readiness-followup-state")).toHaveText("غير مجدولة محليًا");
+  await expect(page.getByTestId("readiness-followup-state")).toHaveText("غير مجدولة");
 });
 
 const surfaces = [
