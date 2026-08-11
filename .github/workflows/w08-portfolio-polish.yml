@@ -1,0 +1,134 @@
+name: W08 human-grade portfolio polish
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, reopened, synchronize]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: exact-head-portfolio-quality-regression
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.ref == 'feature/rp04-imp-w08-human-grade-portfolio-polish'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      BASELINE: 9e03dd28240a2ee9f9f2f8e892e3bc05db720b9f
+      RP04_DB_PATH: ${{ github.workspace }}/.runtime/rp04-ci.sqlite
+
+    steps:
+      - name: Checkout exact W08 head
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Checkout dispatched ref
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Verify exact head and W08 baseline ancestry
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACTUAL_HEAD="$(git rev-parse HEAD)"
+          EXPECTED_HEAD="${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}"
+          test "$ACTUAL_HEAD" = "$EXPECTED_HEAD"
+          git merge-base --is-ancestor "$BASELINE" HEAD
+          test "$(git merge-base "$BASELINE" HEAD)" = "$BASELINE"
+          mkdir -p evidence
+          printf '%s\n' "$ACTUAL_HEAD" > evidence/w08-validated-head-sha.txt
+          printf '%s\n' "$BASELINE" > evidence/w08-exact-baseline.txt
+          git diff --name-only "$BASELINE" HEAD | sort > evidence/w08-changed-paths.txt
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: npm ci
+        run: npm ci | tee evidence/w08-npm-ci.txt
+
+      - name: npm audit high
+        run: npm audit --audit-level=high | tee evidence/w08-npm-audit.txt
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: npm run lint
+        run: npm run lint | tee evidence/w08-lint.txt
+
+      - name: npm run typecheck
+        run: npm run typecheck | tee evidence/w08-typecheck.txt
+
+      - name: npm run build
+        run: npm run build | tee evidence/w08-build.txt
+
+      - name: Reset database for deterministic regression
+        run: npm run db:reset | tee evidence/w08-db-reset.txt
+
+      - name: npm run db:verify
+        run: npm run db:verify | tee evidence/w08-db-verify.txt
+
+      - name: Full Playwright regression
+        run: npm run test:e2e | tee evidence/w08-playwright.txt
+
+      - name: Final exact-head evidence index
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          git rev-parse HEAD > evidence/w08-final-head-sha.txt
+          npm run db:verify > evidence/w08-db-final-verify.txt 2>&1 || true
+          find evidence/screenshots/w08 -type f -name '*.png' -print 2>/dev/null | sort > evidence/w08-screenshot-index.txt || true
+          if [ -s evidence/w08-screenshot-index.txt ]; then
+            xargs -d '\n' sha256sum < evidence/w08-screenshot-index.txt > evidence/w08-screenshot-sha256.txt
+          else
+            : > evidence/w08-screenshot-sha256.txt
+          fi
+          {
+            echo "workflow=W08 human-grade portfolio polish"
+            echo "baseline=$BASELINE"
+            echo "head=$(git rev-parse HEAD)"
+            echo "node=$(node --version)"
+            echo "npm=$(npm --version)"
+            echo "screenshots=$(wc -l < evidence/w08-screenshot-index.txt | tr -d ' ')"
+          } > evidence/w08-manifest.txt
+
+      - name: Upload W08 exact-head evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rp04-w08-human-grade-portfolio-evidence
+          if-no-files-found: error
+          path: |
+            evidence/w08-validated-head-sha.txt
+            evidence/w08-exact-baseline.txt
+            evidence/w08-changed-paths.txt
+            evidence/w08-final-head-sha.txt
+            evidence/w08-manifest.txt
+            evidence/w08-npm-ci.txt
+            evidence/w08-npm-audit.txt
+            evidence/w08-lint.txt
+            evidence/w08-typecheck.txt
+            evidence/w08-build.txt
+            evidence/w08-db-reset.txt
+            evidence/w08-db-verify.txt
+            evidence/w08-db-final-verify.txt
+            evidence/w08-playwright.txt
+            evidence/w08-screenshot-index.txt
+            evidence/w08-screenshot-sha256.txt
+            evidence/screenshots/w08
+            playwright-report
+            test-results
+            package.json
+            package-lock.json
