@@ -84,7 +84,8 @@ test("record navigation preserves the authorized record context", async ({ page 
   await expect(page).toHaveURL(new RegExp(`/operations/records/${recordId}/maintenance$`));
   await expect(page.getByText("SRV-2026-0892", { exact: true })).toBeVisible();
 
-  await page.getByRole("link", { name: "الجاهزية التشغيلية", exact: true }).click();
+  const recordTabs = page.getByRole("navigation", { name: "التنقل بين السجلات التشغيلية المرتبطة" });
+  await recordTabs.locator('a[href="/operations"]').click();
   await expect(page).toHaveURL(/\/operations$/);
   await expect(page.getByText("دفعة أغسطس ومسارات خدمة مفتوحة", { exact: true })).toBeVisible();
 });
