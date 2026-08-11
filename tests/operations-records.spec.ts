@@ -40,14 +40,14 @@ test("OPERATIONS can access every owned W03 surface", async ({ page }) => {
   await page.goto(`/operations/records/${recordId}/payments`);
   await expect(page.getByRole("heading", { name: "سجل الدفعات والتحصيل" })).toBeVisible();
   await expect(page.getByText("6,000 ريال", { exact: true }).first()).toBeVisible();
-  await expect(page.getByText("15 أغسطس 2026", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("10 أغسطس 2026", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("SRV-2026-0891")).toHaveCount(0);
 
   await page.goto(`/operations/records/${recordId}/maintenance`);
   await expect(page.getByRole("heading", { name: "الصيانة والخدمة" })).toBeVisible();
   await expect(page.getByText("تحت المعالجة", { exact: true })).toBeVisible();
   await expect(page.getByText("SRV-2026-0891", { exact: true })).toBeVisible();
-  await expect(page.getByText("فريق الخدمة المعتمد", { exact: true })).toBeVisible();
+  await expect(page.getByText("مؤسسة أفق الصيانة", { exact: true })).toBeVisible();
 });
 
 test("operations record scope denial applies to hub and nested surfaces", async ({ page }) => {
@@ -93,13 +93,13 @@ test("deterministic occupancy, payment, and maintenance states do not drift", as
   await setSession(page, "operations-demo");
 
   await page.goto(`/operations/records/${recordId}/occupancy`);
-  await expect(page.getByText("01 سبتمبر 2025", { exact: true }).first()).toBeVisible();
-  await expect(page.getByText("31 أغسطس 2026", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("15 سبتمبر 2025", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("14 سبتمبر 2026", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("مستأجر مسجل", { exact: true })).toBeVisible();
 
   await page.goto(`/operations/records/${recordId}/payments`);
   await expect(page.getByRole("cell", { name: "أغسطس 2026", exact: true })).toBeVisible();
-  await expect(page.getByRole("cell", { name: "مستحقة", exact: true })).toBeVisible();
+  await expect(page.getByRole("cell", { name: "متأخرة", exact: true })).toBeVisible();
   await expect(page.getByText("لا يوجد اتصال بخدمة خارجية", { exact: true })).toBeVisible();
 
   await page.goto(`/operations/records/${recordId}/maintenance`);
