@@ -1,9 +1,13 @@
-INSERT OR IGNORE INTO properties (
+INSERT INTO properties (
   id, name, location, portfolio_visible, operational_state, occupancy_state,
   payment_state, maintenance_state, readiness_state, open_conditions,
   priority, reason, next_action, conditions_json
-) VALUES
-  ('property-202', 'أصل تجريبي خارج النطاق', 'الرياض — نطاق تجريبي', 0, NULL, 'مشغول', NULL, NULL, NULL, 0, NULL, NULL, NULL, '[]');
+)
+SELECT
+  'property-202', 'أصل تجريبي خارج النطاق', 'الرياض — نطاق تجريبي', 0, NULL, 'مشغول',
+  NULL, NULL, NULL, 0, NULL, NULL, NULL, '[]'
+WHERE EXISTS (SELECT 1 FROM units WHERE id = 'unit-202')
+  AND NOT EXISTS (SELECT 1 FROM properties WHERE id = 'property-202');
 
 UPDATE properties
 SET operational_state = 'يتطلب متابعة', occupancy_state = 'شاغر', payment_state = 'لا يوجد استحقاق',
@@ -35,25 +39,36 @@ SET property_id = 'property-102', name = 'شقة النرجس 101', location = '
     unit_type = 'شقة', bedrooms = 2, bathrooms = 2, area = 135
 WHERE id = 'unit-tenant-101';
 
-INSERT OR IGNORE INTO units (id, property_id, name, location, unit_type, bedrooms, bathrooms, area) VALUES
-  ('unit-103', 'property-103', 'دوبلكس العقيق', 'الرياض — حي العقيق', 'دوبلكس', 3, 3, 210),
-  ('unit-104', 'property-104', 'شقة الياسمين 12', 'الرياض — حي الياسمين', 'شقة', 2, 2, 110),
-  ('unit-105', 'property-105', 'استوديو الملقا', 'الرياض — حي الملقا', 'استوديو', 1, 1, 45),
-  ('unit-106', 'property-106', 'فيلا العارض', 'الرياض — حي العارض', 'فيلا', 6, 6, 420);
+INSERT INTO units (id, property_id, name, location, unit_type, bedrooms, bathrooms, area)
+SELECT 'unit-103', 'property-103', 'دوبلكس العقيق', 'الرياض — حي العقيق', 'دوبلكس', 3, 3, 210
+WHERE EXISTS (SELECT 1 FROM listings WHERE id = 'aqiq-duplex')
+  AND NOT EXISTS (SELECT 1 FROM units WHERE id = 'unit-103');
+INSERT INTO units (id, property_id, name, location, unit_type, bedrooms, bathrooms, area)
+SELECT 'unit-104', 'property-104', 'شقة الياسمين 12', 'الرياض — حي الياسمين', 'شقة', 2, 2, 110
+WHERE EXISTS (SELECT 1 FROM listings WHERE id = 'yasmin-12')
+  AND NOT EXISTS (SELECT 1 FROM units WHERE id = 'unit-104');
+INSERT INTO units (id, property_id, name, location, unit_type, bedrooms, bathrooms, area)
+SELECT 'unit-105', 'property-105', 'استوديو الملقا', 'الرياض — حي الملقا', 'استوديو', 1, 1, 45
+WHERE EXISTS (SELECT 1 FROM listings WHERE id = 'malqa-studio')
+  AND NOT EXISTS (SELECT 1 FROM units WHERE id = 'unit-105');
+INSERT INTO units (id, property_id, name, location, unit_type, bedrooms, bathrooms, area)
+SELECT 'unit-106', 'property-106', 'فيلا العارض', 'الرياض — حي العارض', 'فيلا', 6, 6, 420
+WHERE EXISTS (SELECT 1 FROM listings WHERE id = 'arid-villa')
+  AND NOT EXISTS (SELECT 1 FROM units WHERE id = 'unit-106');
 
 UPDATE units
 SET property_id = 'property-202', name = 'وحدة تجريبية خارج النطاق', location = 'الرياض — نطاق تجريبي'
-WHERE id = 'unit-202';
+WHERE id = 'unit-202' AND EXISTS (SELECT 1 FROM properties WHERE id = 'property-202');
 
-UPDATE listings SET unit_id = 'unit-101' WHERE id = 'yasmin-villa';
+UPDATE listings SET unit_id = 'unit-101' WHERE id = 'yasmin-villa' AND EXISTS (SELECT 1 FROM units WHERE id = 'unit-101');
 UPDATE listings SET unit_id = 'unit-tenant-101', status = 'soon', status_label = 'متاح قريبًا',
   annual_price = 72000,
   summary = 'شقة هادئة بتوزيع عملي ومساحات معيشة مضاءة طبيعيًا، متاحة قريبًا بعد انتهاء العلاقة الإيجارية الحالية.'
-WHERE id = 'narjis-101';
-UPDATE listings SET unit_id = 'unit-103' WHERE id = 'aqiq-duplex';
-UPDATE listings SET unit_id = 'unit-104' WHERE id = 'yasmin-12';
-UPDATE listings SET unit_id = 'unit-105' WHERE id = 'malqa-studio';
-UPDATE listings SET unit_id = 'unit-106' WHERE id = 'arid-villa';
+WHERE id = 'narjis-101' AND EXISTS (SELECT 1 FROM units WHERE id = 'unit-tenant-101');
+UPDATE listings SET unit_id = 'unit-103' WHERE id = 'aqiq-duplex' AND EXISTS (SELECT 1 FROM units WHERE id = 'unit-103');
+UPDATE listings SET unit_id = 'unit-104' WHERE id = 'yasmin-12' AND EXISTS (SELECT 1 FROM units WHERE id = 'unit-104');
+UPDATE listings SET unit_id = 'unit-105' WHERE id = 'malqa-studio' AND EXISTS (SELECT 1 FROM units WHERE id = 'unit-105');
+UPDATE listings SET unit_id = 'unit-106' WHERE id = 'arid-villa' AND EXISTS (SELECT 1 FROM units WHERE id = 'unit-106');
 
 UPDATE tenancies
 SET annual_rent = 72000, payment_plan = 'دفعات شهرية',
@@ -61,21 +76,32 @@ SET annual_rent = 72000, payment_plan = 'دفعات شهرية',
 WHERE id = 'tenancy-101';
 
 DELETE FROM payment_records WHERE tenancy_id = 'tenancy-101';
-INSERT INTO payment_records (id, tenancy_id, period, due_date, amount, status, paid_date) VALUES
-  ('PAY-2026-0510', 'tenancy-101', 'مايو 2026', '10 مايو 2026', 6000, 'مستلمة', '10 مايو 2026'),
-  ('PAY-2026-0610', 'tenancy-101', 'يونيو 2026', '10 يونيو 2026', 6000, 'مستلمة', '10 يونيو 2026'),
-  ('PAY-2026-0710', 'tenancy-101', 'يوليو 2026', '10 يوليو 2026', 6000, 'مستلمة', '10 يوليو 2026'),
-  ('INV-2026-0810', 'tenancy-101', 'أغسطس 2026', '10 أغسطس 2026', 6000, 'متأخرة', NULL);
+INSERT INTO payment_records (id, tenancy_id, period, due_date, amount, status, paid_date)
+SELECT 'PAY-2026-0510', 'tenancy-101', 'مايو 2026', '10 مايو 2026', 6000, 'مستلمة', '10 مايو 2026'
+WHERE EXISTS (SELECT 1 FROM tenancies WHERE id = 'tenancy-101');
+INSERT INTO payment_records (id, tenancy_id, period, due_date, amount, status, paid_date)
+SELECT 'PAY-2026-0610', 'tenancy-101', 'يونيو 2026', '10 يونيو 2026', 6000, 'مستلمة', '10 يونيو 2026'
+WHERE EXISTS (SELECT 1 FROM tenancies WHERE id = 'tenancy-101');
+INSERT INTO payment_records (id, tenancy_id, period, due_date, amount, status, paid_date)
+SELECT 'PAY-2026-0710', 'tenancy-101', 'يوليو 2026', '10 يوليو 2026', 6000, 'مستلمة', '10 يوليو 2026'
+WHERE EXISTS (SELECT 1 FROM tenancies WHERE id = 'tenancy-101');
+INSERT INTO payment_records (id, tenancy_id, period, due_date, amount, status, paid_date)
+SELECT 'INV-2026-0810', 'tenancy-101', 'أغسطس 2026', '10 أغسطس 2026', 6000, 'متأخرة', NULL
+WHERE EXISTS (SELECT 1 FROM tenancies WHERE id = 'tenancy-101');
 
-INSERT OR IGNORE INTO maintenance_records (id, unit_id, tenancy_id, title, detail, status, priority, created_date)
-VALUES ('SRV-2026-0891', 'unit-tenant-101', 'tenancy-101', 'صيانة تكييف', 'التبريد ضعيف في غرفة المعيشة.', 'بانتظار الوصول', 'متوسطة', '09 أغسطس 2026');
+INSERT INTO maintenance_records (id, unit_id, tenancy_id, title, detail, status, priority, created_date)
+SELECT 'SRV-2026-0891', 'unit-tenant-101', 'tenancy-101', 'صيانة تكييف', 'التبريد ضعيف في غرفة المعيشة.', 'بانتظار الوصول', 'متوسطة', '09 أغسطس 2026'
+WHERE EXISTS (SELECT 1 FROM tenancies WHERE id = 'tenancy-101')
+  AND NOT EXISTS (SELECT 1 FROM maintenance_records WHERE id = 'SRV-2026-0891');
 
 UPDATE contractor_assignments
 SET maintenance_id = 'SRV-2026-0891', request_id = 'SRV-2026-0891', status = 'بانتظار الوصول',
     details_json = '{"problem":"التبريد ضعيف في غرفة المعيشة. يرجى فحص المكيف وتنظيف الفلاتر وفحص مستوى وسيط التبريد عند الحاجة.","propertyName":"شقة النرجس 101","location":"الرياض — حي النرجس","access":"الدخول من البوابة الرئيسية؛ التنسيق عبر قناة المهمة قبل الوصول.","parking":"موقف الزوار متاح أسفل المبنى.","window":"12 أغسطس 2026 · 10:00 ص — 01:00 م","priority":"متوسطة","attachments":[{"title":"سجل طلب الخدمة","meta":"Service_Report_0891.pdf"},{"title":"مقطع فيديو","meta":"video_20260809.mp4"},{"title":"صورة من البلاغ","meta":"IMG_20260809_1045.jpg"}],"otherAssigned":[{"id":"work-order-501","title":"صيانة تكييف — المهمة الحالية","when":"12 أغسطس · 10:00 ص"}],"permittedContact":"إدارة العمليات — قناة المهمة فقط"}'
-WHERE id = 'work-order-501';
+WHERE id = 'work-order-501' AND EXISTS (SELECT 1 FROM maintenance_records WHERE id = 'SRV-2026-0891');
 
-DELETE FROM maintenance_records WHERE id = 'SRV-2025-0891';
+DELETE FROM maintenance_records
+WHERE id = 'SRV-2025-0891'
+  AND NOT EXISTS (SELECT 1 FROM contractor_assignments WHERE maintenance_id = 'SRV-2025-0891');
 
 UPDATE maintenance_records
 SET unit_id = 'unit-tenant-101', tenancy_id = 'tenancy-101', status = 'بانتظار الوصول', created_date = '09 أغسطس 2026'
@@ -117,4 +143,4 @@ SET property_id = 'property-202', unit_id = 'unit-202',
       '$.propertyName', 'أصل تجريبي خارج النطاق',
       '$.propertyLocation', 'الرياض — نطاق تجريبي'
     )
-WHERE id = 'ops-record-202';
+WHERE id = 'ops-record-202' AND EXISTS (SELECT 1 FROM properties WHERE id = 'property-202');
