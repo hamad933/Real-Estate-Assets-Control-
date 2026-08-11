@@ -24,8 +24,7 @@ export default async function TenantResourcePage({
       <section className="panel detail-panel">
         <span className="status status--good">ضمن صلاحياتك</span>
         <h2>{data.unit.name}</h2>
-        <bdi className="ltr-id ltr-id--large">{id}</bdi>
-        <p>رقم العلاقة: <bdi className="ltr-id">{data.unit.tenancyId}</bdi>.</p>
+        <p>هذه الوحدة مرتبطة بعلاقتك السكنية الحالية ويمكنك مراجعة تفاصيلها من حسابك.</p>
       </section>
     </WorkspaceShell>
   );
