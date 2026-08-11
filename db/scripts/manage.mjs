@@ -68,14 +68,18 @@ function count(db, table) {
   return Number(db.prepare(`SELECT COUNT(*) AS count FROM ${table}`).get().count);
 }
 
+function scalarCount(db, sql) {
+  return Number(db.prepare(sql).get().count);
+}
+
 function verify(db) {
   const expected = {
     profiles: 7,
-    properties: 6,
-    units: 3,
+    properties: 7,
+    units: 7,
     listings: 6,
     tenancies: 2,
-    payment_records: 3,
+    payment_records: 5,
     maintenance_records: 4,
     contractor_assignments: 2,
     operations_records: 2
@@ -89,17 +93,74 @@ function verify(db) {
   }
 
   const migrations = count(db, "schema_migrations");
-  if (migrations !== 1) throw new Error(`Expected 1 migration, found ${migrations}`);
+  if (migrations !== 2) throw new Error(`Expected 2 migrations, found ${migrations}`);
 
   const foreignKeyIssues = db.prepare("PRAGMA foreign_key_check").all();
   if (foreignKeyIssues.length > 0) throw new Error(`Foreign-key check failed: ${JSON.stringify(foreignKeyIssues)}`);
+
+  const coherence = {
+    listingUnitPropertyMismatch: scalarCount(db, `
+      SELECT COUNT(*) AS count
+      FROM listings l
+      JOIN units u ON u.id = l.unit_id
+      WHERE l.property_id <> u.property_id
+         OR l.district <> u.location
+         OR l.bedrooms <> u.bedrooms
+         OR l.bathrooms <> u.bathrooms
+         OR l.area <> u.area
+    `),
+    activeTenancyAvailableNow: scalarCount(db, `
+      SELECT COUNT(*) AS count
+      FROM listings l
+      JOIN tenancies t ON t.unit_id = l.unit_id AND t.status = 'نشط'
+      WHERE l.status = 'available'
+    `),
+    activeTenancyRentMismatch: scalarCount(db, `
+      SELECT COUNT(*) AS count
+      FROM listings l
+      JOIN tenancies t ON t.unit_id = l.unit_id AND t.status = 'نشط'
+      WHERE l.annual_price <> t.annual_rent
+    `),
+    monthlyPaymentMismatch: scalarCount(db, `
+      SELECT COUNT(*) AS count
+      FROM payment_records pr
+      JOIN tenancies t ON t.id = pr.tenancy_id
+      WHERE t.payment_plan = 'دفعات شهرية'
+        AND t.annual_rent % 12 = 0
+        AND pr.amount <> t.annual_rent / 12
+    `),
+    assignmentLifecycleMismatch: scalarCount(db, `
+      SELECT COUNT(*) AS count
+      FROM contractor_assignments a
+      JOIN maintenance_records m ON m.id = a.maintenance_id
+      WHERE a.request_id <> m.id OR a.status <> m.status
+    `),
+    operationsOwnershipMismatch: scalarCount(db, `
+      SELECT COUNT(*) AS count
+      FROM operations_records o
+      JOIN units u ON u.id = o.unit_id
+      WHERE o.property_id <> u.property_id
+    `),
+    portfolioConditionCountMismatch: scalarCount(db, `
+      SELECT COUNT(*) AS count
+      FROM properties
+      WHERE portfolio_visible = 1
+        AND open_conditions <> json_array_length(conditions_json)
+    `)
+  };
+
+  const failedCoherence = Object.entries(coherence).filter(([, value]) => value !== 0);
+  if (failedCoherence.length > 0) {
+    throw new Error(`Cross-surface coherence check failed: ${JSON.stringify(Object.fromEntries(failedCoherence))}`);
+  }
 
   const result = {
     databasePath,
     migrationCount: migrations,
     seedCounts: actual,
     inquiryCount: count(db, "inquiries"),
-    foreignKeyCheck: "PASS"
+    foreignKeyCheck: "PASS",
+    crossSurfaceCoherence: { ...coherence, status: "PASS" }
   };
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
 }
