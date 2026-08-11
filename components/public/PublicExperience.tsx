@@ -253,10 +253,10 @@ export function DiscoveryExperience({ properties }: PublicDataProps) {
           <div>
             <p className={styles.eyebrow}>استكشف حسب الموقع</p>
             <h2>انتقل بين القائمة والخريطة دون فقدان سياقك</h2>
-            <p>الخريطة هنا تمثيل محلي وتركيبي فقط. اختيار أي عقار يظل متزامنًا مع القائمة ويقود إلى نفس صفحة التفاصيل.</p>
+            <p>استكشف مواقع الخيارات بصريًا، ثم انتقل إلى صفحة التفاصيل للعقار الذي يهمك.</p>
             <Link className={styles.secondaryButton} href="/map">فتح عرض الخريطة</Link>
           </div>
-          <div className={styles.miniMap} aria-label="خريطة تركيبية مصغرة">
+          <div className={styles.miniMap} aria-label="معاينة خريطة العقارات">
             <span className={styles.mapRoadOne} /><span className={styles.mapRoadTwo} /><span className={styles.mapRoadThree} />
             {properties.slice(0, 4).map((property, index) => <span key={property.id} className={styles.miniPin} style={{ left: `${property.mapX}%`, top: `${property.mapY}%` }}>{index + 1}</span>)}
           </div>
@@ -288,7 +288,7 @@ export function SearchExperience({ initial, properties }: { initial: InitialQuer
       <main className={styles.pageShell}>
         <div className={styles.breadcrumb}><Link href="/">الرئيسية</Link><span>/</span><strong>نتائج البحث</strong></div>
         <section className={styles.searchTop}>
-          <div><p className={styles.eyebrow}>بحثك الحالي</p><h1>عقارات مطابقة لبحثك</h1><p>عدّل أي خيار، وستتحدث النتائج فورًا باستخدام البيانات التركيبية المحلية.</p></div>
+          <div><p className={styles.eyebrow}>بحثك الحالي</p><h1>عقارات مطابقة لبحثك</h1><p>عدّل خيارات البحث لتحديث النتائج مباشرة.</p></div>
           <div className={styles.searchActions}>
             <Link className={styles.secondaryButton} href={mapHref}>عرض على الخريطة</Link>
             <button className={styles.quietButton} type="button" onClick={clearFilters}>إعادة ضبط</button>
@@ -341,12 +341,12 @@ export function MapExperience({ initial, properties }: { initial: InitialQuery; 
       <PublicHeader active="map" shortlistCount={shortlist.length} shortlistQuery={shortlistQuery} />
       <main className={styles.mapPage}>
         <section className={styles.mapToolbar}>
-          <div><p className={styles.eyebrow}>استكشاف مكاني</p><h1>الخريطة والقائمة</h1><p>تمثيل محلي ثابت؛ لا يوجد مزوّد خرائط أو اتصال خارجي.</p></div>
+          <div><p className={styles.eyebrow}>استكشاف مكاني</p><h1>الخريطة والقائمة</h1><p>استعرض العقارات حسب موقعها وانتقل بين الخريطة والقائمة بسلاسة.</p></div>
           <Link className={styles.secondaryButton} href={queryWithShortlist("/search", shortlist)}>العودة إلى القائمة</Link>
         </section>
         <FilterControls criteria={criteria} setCriteria={(next) => { setCriteria(next); setSelected(""); }} />
         <div className={styles.mapWorkspace}>
-          <section className={styles.mapCanvas} aria-label="خريطة محلية تركيبية للعقارات">
+          <section className={styles.mapCanvas} aria-label="خريطة العقارات">
             <span className={styles.mapLabelNorth}>طريق الملك سلمان</span>
             <span className={styles.mapLabelCenter}>طريق الملك فهد</span>
             <span className={styles.mapRoadOne} /><span className={styles.mapRoadTwo} /><span className={styles.mapRoadThree} /><span className={styles.mapRoadFour} />
@@ -366,7 +366,7 @@ export function MapExperience({ initial, properties }: { initial: InitialQuery; 
           </section>
 
           <aside className={styles.mapList}>
-            <div className={styles.mapListHeading}><div><strong>{visible.length} عقارات على الخريطة</strong><span>اختر بطاقة أو علامة لتوحيد التحديد.</span></div></div>
+            <div className={styles.mapListHeading}><div><strong>{visible.length} عقارات على الخريطة</strong><span>اختر بطاقة أو علامة لعرض العقار نفسه في الجانبين.</span></div></div>
             {visible.length ? visible.map((property) => <PropertyCard key={property.id} property={property} compact selected={selectedProperty?.id === property.id} shortlistQuery={shortlistQuery} onSelect={setSelected} />) : <EmptyState title="لا توجد عقارات هنا" body="وسّع الفلاتر أو ألغِ خيار البحث داخل المنطقة فقط." />}
           </aside>
         </div>
@@ -422,7 +422,7 @@ export function AssetDetailExperience({ property, initial, properties }: { prope
 
         <section className={styles.detailContent}>
           <article><p className={styles.eyebrow}>ما يميز العقار</p><h2>مزايا واضحة قبل التواصل</h2><div className={styles.amenities}>{property.amenities.map((item) => <span key={item}>✓ {item}</span>)}</div></article>
-          <article><p className={styles.eyebrow}>معلومات العرض</p><h2>ما الذي ستراه هنا؟</h2><p>هذه الصفحة تستخدم بيانات تركيبية فقط لإثبات تدفق التصفح. لا توجد عقود، هويات، مدفوعات، أو مستندات حقيقية متاحة للزائر.</p><div className={styles.documentRows}><span>تفاصيل المساحة والتوزيع</span><span>معلومات التوفر الحالية</span><span>وسيلة الانتقال إلى الاستفسار</span></div></article>
+          <article><p className={styles.eyebrow}>معلومات العقار</p><h2>كل ما تحتاجه قبل الاستفسار</h2><p>راجع المساحة والتوزيع وحالة التوفر، ثم انتقل إلى الاستفسار عندما يناسبك الخيار.</p><div className={styles.documentRows}><span>تفاصيل المساحة والتوزيع</span><span>معلومات التوفر الحالية</span><span>وسيلة الانتقال إلى الاستفسار</span></div></article>
           <article><p className={styles.eyebrow}>الموقع التقريبي</p><h2>{property.district}</h2><div className={styles.locationPreview}><span className={styles.mapRoadOne} /><span className={styles.mapRoadTwo} /><span className={styles.miniPin} style={{ left: "52%", top: "46%" }}>⌂</span></div></article>
         </section>
       </main>
@@ -457,7 +457,7 @@ export function ComparisonExperience({ initial, properties: catalog }: { initial
   };
 
   if (properties.length < 2) {
-    return <div className={styles.publicPage}><PublicHeader shortlistCount={properties.length} shortlistQuery={shortlistQuery} /><main className={styles.pageShell}><EmptyState title="أضف عقارين على الأقل للمقارنة" body="المقارنة تعمل فقط على قائمتك المختصرة، ولا نضيف خيارات أو درجات من تلقاء أنفسنا." action={<Link className={styles.primaryButton} href={queryWithShortlist("/search", ids)}>العودة إلى البحث</Link>} /></main><PublicFooter /></div>;
+    return <div className={styles.publicPage}><PublicHeader shortlistCount={properties.length} shortlistQuery={shortlistQuery} /><main className={styles.pageShell}><EmptyState title="أضف عقارين على الأقل للمقارنة" body="أضف الخيارات التي تهمك إلى القائمة المختصرة، ثم عد للمقارنة بينها." action={<Link className={styles.primaryButton} href={queryWithShortlist("/search", ids)}>العودة إلى البحث</Link>} /></main><PublicFooter /></div>;
   }
 
   return (
@@ -465,11 +465,11 @@ export function ComparisonExperience({ initial, properties: catalog }: { initial
       <PublicHeader shortlistCount={properties.length} shortlistQuery={shortlistQuery} />
       <main className={styles.pageShell}>
         <div className={styles.breadcrumb}><Link href={queryWithShortlist("/search", ids)}>نتائج البحث</Link><span>/</span><strong>المقارنة</strong></div>
-        <section className={styles.compareHeading}><div><p className={styles.eyebrow}>مقارنة مباشرة</p><h1>قارن الخيارات التي اخترتها</h1><p>لا توجد درجة إجمالية أو ذكاء اصطناعي. التوصية أدناه تتبع الأولوية التي تختارها أنت فقط.</p></div></section>
+        <section className={styles.compareHeading}><div><p className={styles.eyebrow}>مقارنة مباشرة</p><h1>قارن الخيارات التي اخترتها</h1><p>حدّد العامل الأهم لك لترتيب الخيارات وفق أولويتك الحالية.</p></div></section>
         <div className={styles.compareCards}>{properties.map((property) => <div key={property.id} className={styles.compareCard}><PropertyPhoto propertyId={property.id} alt={`صورة عقارية لـ ${property.title}`} /><div><h2>{property.title}</h2><p>{property.district}</p><strong><span dir="ltr">{formatAnnualPrice(property.price)}</span> ريال / سنة</strong><button type="button" onClick={() => remove(property.id)}>إزالة من المقارنة</button></div></div>)}</div>
 
         <section className={styles.priorityPanel} aria-labelledby="priority-title">
-          <div><p className={styles.eyebrow}>أولويتك</p><h2 id="priority-title">ما العامل الأهم لك الآن؟</h2><p>اختيارك يغيّر التوصية بطريقة معلنة وحتمية.</p></div>
+          <div><p className={styles.eyebrow}>أولويتك</p><h2 id="priority-title">ما العامل الأهم لك الآن؟</h2><p>اختيارك يحدّث التوصية مباشرة.</p></div>
           <div className={styles.priorityOptions}>
             {(Object.keys(priorityLabel) as Priority[]).map((value) => <button key={value} className={priority === value ? styles.priorityActive : ""} type="button" onClick={() => setPriority(value)} aria-pressed={priority === value}>{priorityLabel[value]}</button>)}
           </div>
@@ -490,7 +490,7 @@ export function ComparisonExperience({ initial, properties: catalog }: { initial
 
         {recommended ? (
           <section className={styles.recommendation} data-testid="recommendation">
-            <div><span>وفق أولويتك: {priorityLabel[priority]}</span><h2>{recommended.title}</h2><p>{priority === "cost" ? "هو الأقل تكلفة سنويًا بين الخيارات المختارة." : priority === "space" ? "يوفر أكبر مساحة بين الخيارات المختارة." : priority === "rooms" ? "يوفر أكبر عدد غرف بين الخيارات المختارة." : "متاح الآن، ومع التعادل نعرض الأقل تكلفة سنويًا."}</p><small>هذه قاعدة مقارنة معلنة وليست تقييمًا شاملاً أو درجة مخفية.</small></div>
+            <div><span>وفق أولويتك: {priorityLabel[priority]}</span><h2>{recommended.title}</h2><p>{priority === "cost" ? "هو الأقل تكلفة سنويًا بين الخيارات المختارة." : priority === "space" ? "يوفر أكبر مساحة بين الخيارات المختارة." : priority === "rooms" ? "يوفر أكبر عدد غرف بين الخيارات المختارة." : "متاح الآن، ومع التعادل نعرض الأقل تكلفة سنويًا."}</p><small>التوصية مبنية على العامل الذي اخترته فقط.</small></div>
             <div className={styles.recommendationActions}><Link className={styles.secondaryButton} href={queryWithShortlist(`/assets/${recommended.id}`, ids)}>مراجعة التفاصيل</Link><Link className={styles.primaryButton} href={queryWithShortlist(`/inquiry?property=${recommended.id}`, ids)}>الاستفسار عن هذا الخيار</Link></div>
           </section>
         ) : null}
