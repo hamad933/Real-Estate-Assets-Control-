@@ -17,23 +17,22 @@ export default async function SignInPage({
       <main className="signin-page">
         <section className="signin-card" aria-labelledby="signin-title">
           <div className="signin-intro">
-            <p className="eyebrow">دخول موحّد</p>
-            <h1 id="signin-title">الوصول إلى مساحة RP04</h1>
+            <p className="eyebrow">تسجيل الدخول</p>
+            <h1 id="signin-title">الوصول إلى العقارات والأصول</h1>
             <p>
-              هذه طبقة جلسة تجريبية لـ W01 فقط. يتم التحقق من مساحة العمل والنطاق
-              على الخادم قبل عرض المسارات المحمية.
+              سجّل الدخول للوصول إلى مساحة العمل المناسبة لصلاحياتك.
             </p>
             <div className="demo-note">
-              <strong>بيانات العرض الإداري المعتمدة</strong>
+              <strong>بيانات دخول العرض</strong>
               <span dir="ltr">admin / admin</span>
-              <small>مرجعية تجريبية فقط، وليست مصادقة إنتاجية.</small>
+              <small>مخصّصة لاستعراض مساحة إدارة المحافظ.</small>
             </div>
           </div>
 
           <form className="signin-form" action={signInAction}>
             {authRequired ? (
               <p className="form-notice" role="status">
-                سجّل الدخول للوصول إلى المسار المحمي.
+                سجّل الدخول للوصول إلى هذه الصفحة.
               </p>
             ) : null}
             {invalid ? (
@@ -53,14 +52,9 @@ export default async function SignInPage({
             <button className="button button--primary button--wide" type="submit">
               تسجيل الدخول
             </button>
-            <Link className="text-link" href="/">العودة إلى التجربة العامة</Link>
+            <Link className="text-link" href="/">العودة إلى العقارات</Link>
           </form>
         </section>
-
-        <p className="signin-footnote">
-          جلسات TENANT، CONTRACTOR، و OPERATIONS متاحة للاختبارات البرمجية فقط في W01،
-          ولا توجد لها بيانات دخول عامة مخترعة.
-        </p>
       </main>
     </>
   );
