@@ -118,7 +118,7 @@ export default async function ContractorPage() {
           <div><strong>تم تكليف المهمة إليك</strong><span>09:30 ص</span></div>
           <div><strong>تم تأكيد الاستلام</strong><span>09:45 ص</span></div>
           <div><strong>تمت إضافة مرفقات</strong><span>08:50 ص</span></div>
-          <div><strong>رقم طلب الخدمة</strong><span><bdi className="ltr-id">{data.assignment.requestId}</bdi></span></div>
+          <div><strong>نافذة التنفيذ</strong><span>{data.assignment.window}</span></div>
         </section>
       </div>
     </WorkspaceShell>
