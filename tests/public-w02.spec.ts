@@ -19,7 +19,7 @@ async function shot(page: Page, name: string) {
   await page.screenshot({ path: path.join(evidenceDir, name), fullPage: true, caret: "initial" });
 }
 
-test("complete visitor journey from discovery to synthetic inquiry confirmation", async ({ page }) => {
+test("complete visitor journey from discovery to inquiry confirmation", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "اعثر على المكان المناسب لك" })).toBeVisible();
 
@@ -44,20 +44,20 @@ test("complete visitor journey from discovery to synthetic inquiry confirmation"
   await page.getByRole("link", { name: "الاستفسار عن هذا الخيار" }).click();
 
   await expect(page.getByRole("heading", { name: "طلب زيارة أو استفسار" })).toBeVisible();
-  await page.getByRole("button", { name: "إرسال الطلب التجريبي" }).click();
+  await page.getByRole("button", { name: "إرسال الطلب" }).click();
   await expect(page.getByText("اختر تاريخًا مناسبًا للزيارة.")).toBeVisible();
   await expect(page.getByText("أدخل اسمًا من حرفين على الأقل.")).toBeVisible();
-  await expect(page.getByText("أدخل رقم جوال تجريبيًا بصيغة 05XXXXXXXX.")).toBeVisible();
+  await expect(page.getByText("أدخل رقم جوال بصيغة 05XXXXXXXX.")).toBeVisible();
 
   await page.getByLabel("تاريخ مقترح").fill("2026-08-20");
-  await page.getByLabel("الاسم").fill("مستخدم تجريبي");
+  await page.getByLabel("الاسم").fill("مستخدم استعراضي");
   await page.getByLabel("رقم الجوال").fill("0500000000");
-  await page.getByRole("button", { name: "إرسال الطلب التجريبي" }).click();
-  await expect(page.getByRole("heading", { name: "شكرًا، تم إنشاء تأكيد تجريبي" })).toBeVisible();
-  await expect(page.getByText(/لم يُنشأ رقم CRM/)).toBeVisible();
+  await page.getByRole("button", { name: "إرسال الطلب" }).click();
+  await expect(page.getByRole("heading", { name: "شكرًا، تم تسجيل طلبك" })).toBeVisible();
+  await expect(page.getByText(/لا يتم إرسال بيانات أو إنشاء حجز فعلي/)).toBeVisible();
 });
 
-test("search filters change deterministic synthetic results and expose an empty state", async ({ page }) => {
+test("search filters change deterministic results and expose an empty state", async ({ page }) => {
   await page.goto("/search?district=all&type=all&budget=all&rooms=all&availability=all");
   await expect(page.getByText("6 عقارات", { exact: true })).toBeVisible();
 
@@ -76,7 +76,7 @@ test("negative public states remain visitor-safe", async ({ page }) => {
 
   await page.goto("/assets/not-a-real-property");
   await expect(page.getByRole("heading", { name: "العقار غير موجود" })).toBeVisible();
-  await expect(page.getByText(/بيانات تركيبية|الرابط غير صحيح/)).toBeVisible();
+  await expect(page.getByText(/الرابط غير صحيح/)).toBeVisible();
 
   await page.goto("/map?district=narjis&type=villa&budget=all&rooms=all&availability=all");
   await expect(page.getByText("0 عقارات على الخريطة", { exact: true })).toBeVisible();
