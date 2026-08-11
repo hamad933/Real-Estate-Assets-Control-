@@ -124,7 +124,7 @@ test.describe.serial("RP04-IMP-W06 local persistence foundation", () => {
 
     await setSession(page, "operations-demo");
     await page.goto("/operations/records/ops-record-101");
-    await expect(page.getByText("شقة النرجس 101", { exact: true })).toBeVisible();
+    await expect(page.getByText("شقة النرجس 101", { exact: true }).first()).toBeVisible();
     await page.goto("/operations/records/ops-record-202");
     await expect(page).toHaveURL(/\/access-denied\?reason=scope/);
     await page.goto("/admin");
