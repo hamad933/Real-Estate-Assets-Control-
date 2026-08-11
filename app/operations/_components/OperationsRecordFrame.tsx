@@ -54,6 +54,7 @@ export function OperationsRecordFrame({
         <div className={styles.entityVisual}>
           <PropertyPhoto
             propertyId="narjis-101"
+            compact
             alt={`صورة عقارية لـ ${visualLabel}`}
           />
         </div>
