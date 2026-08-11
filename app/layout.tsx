@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "RP04 — العقارات والأصول",
-  description: "أساس تنفيذي تجريبي مُصرّح به لمساحات RP04."
+  title: {
+    default: "العقارات والأصول",
+    template: "%s | العقارات والأصول"
+  },
+  description: "تجربة متكاملة لاكتشاف العقارات ومتابعة الأصول والسجلات التشغيلية."
 };
 
 export default function RootLayout({

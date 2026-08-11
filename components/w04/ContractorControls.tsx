@@ -63,7 +63,7 @@ export function ContractorControls({
       </button>
       {saved ? (
         <p className={styles.successNotice} role="status">
-          تم تحديث الحالة داخل الجلسة إلى: {status}. وحُفظ التغيير في قاعدة SQLite المحلية.
+          تم تحديث حالة المهمة إلى: {status}.
         </p>
       ) : null}
       {error ? <p className={styles.notice} role="alert">{error}</p> : null}
@@ -78,7 +78,7 @@ export function ContractorControls({
       </button>
       {evidence ? (
         <div className={styles.fileBox} role="status">
-          تمثيل رفع الدليل جاهز. لا يتم إرسال ملفات أو تخزينها خارج الجلسة الحالية.
+          تم تجهيز خطوة إرفاق الدليل لهذه المهمة. رفع الملفات غير متاح في هذه النسخة.
         </div>
       ) : null}
 

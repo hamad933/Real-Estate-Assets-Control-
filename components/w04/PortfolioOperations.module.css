@@ -17,6 +17,15 @@
   font-size: 0.78rem;
 }
 
+.desktopTableWrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.mobileRecordList {
+  display: none;
+}
+
 .rowSelectButton {
   appearance: none;
   width: 100%;
@@ -66,10 +75,140 @@
   font-size: 1rem;
 }
 
-@media (max-width: 560px) {
+.mobileRecordCard,
+.mobileRecordHead,
+.mobileRecordIdentity,
+.mobileStatusGrid {
+  min-width: 0;
+}
+
+@media (max-width: 620px) {
   .searchGroup {
     flex: none;
     min-width: 0;
     width: 100%;
+  }
+
+  .desktopTableWrap {
+    display: none;
+  }
+
+  .mobileRecordList {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .mobileRecordCard {
+    display: grid;
+    gap: 0.9rem;
+    padding: 0.95rem;
+    border: 1px solid #dde5ed;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 6px 18px rgba(9, 37, 70, 0.035);
+  }
+
+  .mobileRecordCard[data-selected="true"] {
+    border-color: #a9c1d9;
+    background: #f5f9fd;
+    box-shadow: inset -3px 0 #0c4179;
+  }
+
+  .mobileRecordHead {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .mobileRecordIdentity {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+  }
+
+  .mobileRecordIdentity > div {
+    min-width: 0;
+  }
+
+  .mobileRecordIdentity strong,
+  .mobileRecordIdentity span {
+    display: block;
+  }
+
+  .mobileRecordIdentity strong {
+    color: #153960;
+    font-size: 0.96rem;
+    line-height: 1.45;
+  }
+
+  .mobileRecordIdentity div > span {
+    margin-top: 0.2rem;
+    color: #718096;
+    font-size: 0.76rem;
+    line-height: 1.5;
+  }
+
+  .mobileSelectButton,
+  .mobileSelectActive {
+    appearance: none;
+    flex: 0 0 auto;
+    min-height: 38px;
+    border-radius: 9px;
+    padding: 0.45rem 0.72rem;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .mobileSelectButton {
+    border: 1px solid #cbd7e3;
+    background: #fff;
+    color: #153960;
+  }
+
+  .mobileSelectActive {
+    border: 1px solid #0c4179;
+    background: #0c4179;
+    color: #fff;
+  }
+
+  .mobileSelectButton:focus-visible,
+  .mobileSelectActive:focus-visible {
+    outline: 2px solid #0c4179;
+    outline-offset: 3px;
+  }
+
+  .mobileStatusGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+
+  .mobileStatusGrid > div {
+    display: grid;
+    align-content: start;
+    gap: 0.35rem;
+    min-width: 0;
+    padding-top: 0.65rem;
+    border-top: 1px solid #e7edf3;
+  }
+
+  .mobileStatusGrid > div > span {
+    color: #718096;
+    font-size: 0.72rem;
+    line-height: 1.35;
+  }
+
+  .mobileStatusGrid > div > strong {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .mobileOpenCount strong {
+    color: #0a2f5b;
+    font-size: 1.35rem;
+    line-height: 1;
   }
 }

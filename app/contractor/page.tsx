@@ -16,9 +16,9 @@ export default async function ContractorPage() {
     <WorkspaceShell
       session={session}
       workspace="CONTRACTOR"
-      eyebrow="S12 — الأعمال المسندة للمقاول"
+      eyebrow="الأعمال المسندة"
       title="تفاصيل المهمة الموكلة إليك"
-      description="عرض وتنفيذ الأعمال المسندة لهذه الجلسة فقط، مع فصل التنفيذ عن اعتماد الإكمال والتكلفة النهائيين."
+      description="راجع المهمة المسندة إليك، حدّث حالة التنفيذ، وارفع تقرير العمل مع بقاء اعتماد الإكمال والتكلفة لدى الجهة المخولة."
     >
       <div className={styles.stack}>
         <section className={styles.contractorHeader}>
@@ -31,7 +31,7 @@ export default async function ContractorPage() {
               </div>
               <p className={styles.muted}>{data.assignment.propertyName} · {data.assignment.location}</p>
               <Link className="button button--quiet" href={`/contractor/assignments/${data.assignment.id}`}>
-                فتح مسار المهمة المصرّح
+                فتح تفاصيل المهمة
               </Link>
             </div>
           </div>
@@ -39,10 +39,10 @@ export default async function ContractorPage() {
             <span className={styles.kicker}>سياق التكليف</span>
             <h2>{data.contractorName}</h2>
             <div className={styles.definitionGrid}>
-              <div><span>رقم الطلب</span><strong><bdi className="ltr-id">{data.assignment.requestId}</bdi></strong></div>
-              <div><span>المهمة</span><strong><bdi className="ltr-id">{data.assignment.id}</bdi></strong></div>
+              <div><span>رقم طلب الخدمة</span><strong><bdi className="ltr-id">{data.assignment.requestId}</bdi></strong></div>
               <div><span>الأولوية</span><strong>{data.assignment.priority}</strong></div>
               <div><span>نافذة التنفيذ</span><strong>{data.assignment.window}</strong></div>
+              <div><span>الحالة</span><strong>{data.assignment.status}</strong></div>
             </div>
           </div>
         </section>
@@ -78,18 +78,18 @@ export default async function ContractorPage() {
                   </div>
                 ))}
               </div>
-              <p className={styles.notice}>تعليمات مهمة: نسّق عبر قناة المهمة، ونفّذ العمل، وارفع تقرير التنفيذ. اعتماد الإكمال النهائي والتكلفة يبقى خارج صلاحيتك.</p>
+              <p className={styles.notice}>نسّق عبر قناة المهمة، ونفّذ العمل، وارفع تقرير التنفيذ. اعتماد الإكمال النهائي والتكلفة يبقى خارج صلاحيتك.</p>
             </section>
 
             <section className={styles.softCard}>
               <span className={styles.kicker}>مهام أخرى موكلة إليك</span>
-              <h2>الأعمال المسندة فقط</h2>
+              <h2>الأعمال المسندة إليك</h2>
               <div className={styles.list}>
                 {data.otherAssigned.map((assignment) => (
                   <div className={styles.listRow} key={assignment.id}>
                     <div>
                       <strong>{assignment.title}</strong>
-                      <span className={styles.miniLabel}><bdi className="ltr-id">{assignment.id}</bdi> · {assignment.when}</span>
+                      <span className={styles.miniLabel}>{assignment.when}</span>
                     </div>
                     <span className={styles.statusNeutral}>موكلة إليك</span>
                   </div>
@@ -118,7 +118,7 @@ export default async function ContractorPage() {
           <div><strong>تم تكليف المهمة إليك</strong><span>09:30 ص</span></div>
           <div><strong>تم تأكيد الاستلام</strong><span>09:45 ص</span></div>
           <div><strong>تمت إضافة مرفقات</strong><span>08:50 ص</span></div>
-          <div><strong>السياق مقيد بالمهمة</strong><span><bdi className="ltr-id">{data.assignment.id}</bdi></span></div>
+          <div><strong>نافذة التنفيذ</strong><span>{data.assignment.window}</span></div>
         </section>
       </div>
     </WorkspaceShell>

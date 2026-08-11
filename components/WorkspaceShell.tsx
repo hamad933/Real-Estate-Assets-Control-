@@ -54,10 +54,7 @@ export function WorkspaceShell({
             <h1 id="page-title">{title}</h1>
             <p className="lede">{description}</p>
           </div>
-          <span className="scope-note">
-            نطاق جلسة تجريبي
-            <bdi className="ltr-id">{session.fixtureId}</bdi>
-          </span>
+          <span className="scope-note">بيانات استعراضية</span>
         </section>
 
         <div className={aside ? "workspace-grid" : "workspace-grid workspace-grid--single"}>

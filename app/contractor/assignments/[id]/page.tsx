@@ -17,17 +17,16 @@ export default async function ContractorAssignmentPage({
     <WorkspaceShell
       session={session}
       workspace="CONTRACTOR"
-      eyebrow="أمر عمل"
-      title="مهمة ضمن نطاق المقاول"
-      description="الوصول مقيد بقائمة المهام المسندة إلى الجلسة التجريبية الحالية."
+      eyebrow="أمر العمل"
+      title="تفاصيل المهمة المسندة"
+      description="راجع تفاصيل المهمة وحالتها الحالية ضمن الأعمال المسندة إليك."
     >
       <section className="panel detail-panel">
         <span className="status status--good">مهمة مسندة</span>
         <h2>{data.assignment.title}</h2>
-        <bdi className="ltr-id ltr-id--large">{id}</bdi>
-        <p>طلب الخدمة: <bdi className="ltr-id">{data.assignment.requestId}</bdi></p>
-        <p>الحالة المحفوظة محليًا: {data.assignment.status}</p>
-        <p>لا توجد هنا صلاحية لاعتماد الإكمال أو التكلفة النهائية.</p>
+        <p>رقم طلب الخدمة: <bdi className="ltr-id">{data.assignment.requestId}</bdi></p>
+        <p>الحالة الحالية: {data.assignment.status}</p>
+        <p>اعتماد الإكمال والتكلفة النهائية متاح للجهة المخولة فقط.</p>
       </section>
     </WorkspaceShell>
   );

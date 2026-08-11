@@ -100,78 +100,113 @@ export function PortfolioOperationsClient({ data }: { data: PortfolioOperationsD
           </div>
 
           <p className={s13Styles.toolbarNote} id="s13-unavailable-actions">
-            تخصيص الأعمدة والإجراءات المجمعة غير متاحة في هذا التنفيذ المحلي؛ لا توجد إعدادات محفوظة أو عمليات خلفية ضمن W04.
+            تخصيص الأعمدة والإجراءات المجمعة غير متاحة في هذه النسخة.
           </p>
 
-          <div className="table-wrap" style={{ maxWidth: "100%", overflowX: "auto" }}>
-            <table className={styles.opsTable} aria-label="سجلات المحفظة">
-              <thead>
-                <tr>
-                  <th>الأولوية</th>
-                  <th>العقار / الوحدة</th>
-                  <th>الحالة التشغيلية</th>
-                  <th>الإشغال</th>
-                  <th>الدفعات</th>
-                  <th>الصيانة</th>
-                  <th>الجاهزية</th>
-                  <th>العناصر المفتوحة</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRecords.length > 0 ? (
-                  filteredRecords.map((record) => {
-                    const isSelected = record.id === selectedRecord.id;
-                    return (
-                      <tr
-                        key={record.id}
-                        data-selected={isSelected ? "true" : "false"}
-                        style={{
-                          background: isSelected ? "#f2f7fc" : "transparent",
-                          boxShadow: isSelected ? "inset -3px 0 #0c4179" : "none"
-                        }}
-                      >
-                        <td><span className={styles.priority}>{record.priority}</span></td>
-                        <td>
-                          <button
-                            className={s13Styles.rowSelectButton}
-                            type="button"
-                            onClick={() => selectRecord(record.id)}
-                            aria-pressed={isSelected}
-                            aria-label={`اختيار ${record.name}`}
-                          >
+          {filteredRecords.length > 0 ? (
+            <>
+              <div className={s13Styles.desktopTableWrap}>
+                <table className={styles.opsTable} aria-label="سجلات المحفظة">
+                  <thead>
+                    <tr>
+                      <th>الأولوية</th>
+                      <th>العقار / الوحدة</th>
+                      <th>الحالة التشغيلية</th>
+                      <th>الإشغال</th>
+                      <th>الدفعات</th>
+                      <th>الصيانة</th>
+                      <th>الجاهزية</th>
+                      <th>العناصر المفتوحة</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredRecords.map((record) => {
+                      const isSelected = record.id === selectedRecord.id;
+                      return (
+                        <tr
+                          key={record.id}
+                          data-selected={isSelected ? "true" : "false"}
+                          style={{
+                            background: isSelected ? "#f2f7fc" : "transparent",
+                            boxShadow: isSelected ? "inset -3px 0 #0c4179" : "none"
+                          }}
+                        >
+                          <td><span className={styles.priority}>{record.priority}</span></td>
+                          <td>
+                            <button
+                              className={s13Styles.rowSelectButton}
+                              type="button"
+                              onClick={() => selectRecord(record.id)}
+                              aria-pressed={isSelected}
+                              aria-label={`اختيار ${record.name}`}
+                            >
+                              <strong>{record.name}</strong>
+                              <span className={styles.miniLabel}>{record.location}</span>
+                            </button>
+                          </td>
+                          <td><span className={stateClass(record.operationalState)}>{record.operationalState}</span></td>
+                          <td><span className={stateClass(record.occupancy)}>{record.occupancy}</span></td>
+                          <td><span className={stateClass(record.payments)}>{record.payments}</span></td>
+                          <td><span className={stateClass(record.maintenance)}>{record.maintenance}</span></td>
+                          <td><span className={stateClass(record.readiness)}>{record.readiness}</span></td>
+                          <td>{record.open}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className={s13Styles.mobileRecordList} aria-label="سجلات المحفظة — عرض الجوال">
+                {filteredRecords.map((record) => {
+                  const isSelected = record.id === selectedRecord.id;
+                  return (
+                    <article className={s13Styles.mobileRecordCard} data-selected={isSelected ? "true" : "false"} key={record.id}>
+                      <div className={s13Styles.mobileRecordHead}>
+                        <div className={s13Styles.mobileRecordIdentity}>
+                          <span className={styles.priority} aria-label={`الأولوية ${record.priority}`}>{record.priority}</span>
+                          <div>
                             <strong>{record.name}</strong>
-                            <span className={styles.miniLabel}>{record.location}</span>
-                          </button>
-                        </td>
-                        <td><span className={stateClass(record.operationalState)}>{record.operationalState}</span></td>
-                        <td><span className={stateClass(record.occupancy)}>{record.occupancy}</span></td>
-                        <td><span className={stateClass(record.payments)}>{record.payments}</span></td>
-                        <td><span className={stateClass(record.maintenance)}>{record.maintenance}</span></td>
-                        <td><span className={stateClass(record.readiness)}>{record.readiness}</span></td>
-                        <td>{record.open}</td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan={8}>
-                      <div className={s13Styles.emptyState} data-testid="s13-no-match">
-                        <strong>لا توجد سجلات مطابقة.</strong>
-                        <span>لم نجد عقارًا أو وحدة تطابق “{query.trim()}”.</span>
-                        <button className={styles.secondaryAction} type="button" onClick={() => setQuery("")}>
-                          مسح البحث
+                            <span>{record.location}</span>
+                          </div>
+                        </div>
+                        <button
+                          className={isSelected ? s13Styles.mobileSelectActive : s13Styles.mobileSelectButton}
+                          type="button"
+                          onClick={() => selectRecord(record.id)}
+                          aria-pressed={isSelected}
+                          aria-label={`اختيار ${record.name}`}
+                        >
+                          {isSelected ? "محدد" : "اختيار"}
                         </button>
                       </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+
+                      <div className={s13Styles.mobileStatusGrid}>
+                        <div><span>الحالة التشغيلية</span><strong className={stateClass(record.operationalState)}>{record.operationalState}</strong></div>
+                        <div><span>الإشغال</span><strong className={stateClass(record.occupancy)}>{record.occupancy}</strong></div>
+                        <div><span>الدفعات</span><strong className={stateClass(record.payments)}>{record.payments}</strong></div>
+                        <div><span>الصيانة</span><strong className={stateClass(record.maintenance)}>{record.maintenance}</strong></div>
+                        <div><span>الجاهزية</span><strong className={stateClass(record.readiness)}>{record.readiness}</strong></div>
+                        <div className={s13Styles.mobileOpenCount}><span>الحالات المفتوحة</span><strong>{record.open}</strong></div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            <div className={s13Styles.emptyState} data-testid="s13-no-match">
+              <strong>لا توجد سجلات مطابقة.</strong>
+              <span>لم نجد عقارًا أو وحدة تطابق “{query.trim()}”.</span>
+              <button className={styles.secondaryAction} type="button" onClick={() => setQuery("")}>
+                مسح البحث
+              </button>
+            </div>
+          )}
 
           <div className={styles.footerMeta}>
             <span>النتائج المعروضة: {filteredRecords.length} من {data.records.length}</span>
-            <span>ADMIN فقط</span>
+            <span>مديرو المحافظ فقط</span>
           </div>
         </div>
 
@@ -201,7 +236,7 @@ export function PortfolioOperationsClient({ data }: { data: PortfolioOperationsD
             <section className={s13Styles.reviewPanel} aria-label="مراجعة الحالات المفتوحة" data-testid="s13-review-mode">
               <div className={styles.rowBetween}>
                 <div>
-                  <span className={styles.kicker}>وضع المراجعة المحلي</span>
+                  <span className={styles.kicker}>مراجعة السجل</span>
                   <h2>الحالات المفتوحة — {selectedRecord.open}</h2>
                 </div>
                 <button className={styles.secondaryAction} type="button" onClick={() => setReviewMode(false)}>
@@ -225,7 +260,7 @@ export function PortfolioOperationsClient({ data }: { data: PortfolioOperationsD
             <div className={styles.softCard}>
               <span className={styles.kicker}>الإجراء التالي الموصى به</span>
               <p>{selectedRecord.nextAction}</p>
-              <p className={styles.muted}>لدى هذا السجل {selectedRecord.open} حالات مفتوحة قابلة للمراجعة محليًا.</p>
+              <p className={styles.muted}>لدى هذا السجل {selectedRecord.open} حالات مفتوحة قابلة للمراجعة.</p>
               <button
                 className={styles.primaryAction}
                 type="button"
@@ -240,8 +275,8 @@ export function PortfolioOperationsClient({ data }: { data: PortfolioOperationsD
       </section>
 
       <section className={styles.footerMeta}>
-        <span>البيانات المعروضة تركيبية ومقيدة بجلسة الإدارة الحالية.</span>
-        <span>آخر تحديث تمثيلي: 09 مايو 2026 · 10:45 ص</span>
+        <span>العرض يشمل السجلات المتاحة لهذه المساحة.</span>
+        <span>آخر تحديث: 09 مايو 2026 · 10:45 ص</span>
       </section>
     </div>
   );

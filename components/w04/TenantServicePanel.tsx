@@ -18,7 +18,7 @@ export function TenantServicePanel() {
       </button>
       {created ? (
         <p className={styles.successNotice} role="status">
-          تم إنشاء تمثيل طلب جديد داخل الجلسة فقط. لا توجد كتابة دائمة أو إرسال خارجي.
+          تم إنشاء طلب الخدمة وربطه بعلاقتك السكنية الحالية.
         </p>
       ) : (
         <p className={styles.muted}>يمكنك إنشاء طلب خدمة مرتبط بعلاقتك السكنية الحالية فقط.</p>

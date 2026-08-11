@@ -48,8 +48,8 @@ export function PersistentInquiryExperience({ property, shortlist, persistedInqu
 
     if (!date) next.date = "اختر تاريخًا مناسبًا للزيارة.";
     if (name.length < 2) next.name = "أدخل اسمًا من حرفين على الأقل.";
-    if (!/^05\d{8}$/.test(phone)) next.phone = "أدخل رقم جوال تجريبيًا بصيغة 05XXXXXXXX.";
-    else if (phone !== "0500000000") next.phone = "استخدم الرقم التجريبي 0500000000 في هذا المختبر المحلي.";
+    if (!/^05\d{8}$/.test(phone)) next.phone = "أدخل رقم جوال بصيغة 05XXXXXXXX.";
+    else if (phone !== "0500000000") next.phone = "استخدم الرقم 0500000000 في النسخة الاستعراضية.";
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       next.email = "أدخل بريدًا إلكترونيًا صحيح الصيغة أو اترك الحقل فارغًا.";
     }
@@ -85,10 +85,10 @@ export function PersistentInquiryExperience({ property, shortlist, persistedInqu
         <main className={styles.pageShell}>
           <section className={styles.confirmation} role="status">
             <span className={styles.confirmationIcon}>✓</span>
-            <p className={styles.eyebrow}>تم تسجيل الطلب محليًا</p>
-            <h1>شكرًا، تم إنشاء تأكيد تجريبي</h1>
+            <p className={styles.eyebrow}>تم استلام الطلب</p>
+            <h1>شكرًا، تم تسجيل طلبك</h1>
             <p>
-              تم حفظ سجل تنسيق تركيبي داخل قاعدة SQLite المحلية فقط. لم يُنشأ رقم CRM، ولم تُرسل البيانات إلى موظف أو نظام أو جهة خارجية.
+              تم إنشاء مرجع استعراضي للطلب. لا يتم إرسال بيانات أو إنشاء حجز فعلي خارج هذه التجربة.
             </p>
             <div className={styles.confirmationProperty}>
               <strong>{persistedInquiry.propertyTitle}</strong>
@@ -120,7 +120,7 @@ export function PersistentInquiryExperience({ property, shortlist, persistedInqu
         <section className={styles.inquiryHeading}>
           <p className={styles.eyebrow}>خطوة واضحة قبل التواصل</p>
           <h1>طلب زيارة أو استفسار</h1>
-          <p>اختر ما تحتاجه وأدخل بيانات تواصل تجريبية. لن تُرسل أي بيانات إلى جهة خارجية.</p>
+          <p>اختر ما تحتاجه وأدخل بيانات التواصل المطلوبة.</p>
         </section>
         <div className={styles.inquiryLayout}>
           <form className={styles.inquiryForm} onSubmit={submit} noValidate>
@@ -201,11 +201,11 @@ export function PersistentInquiryExperience({ property, shortlist, persistedInqu
               </div>
             </fieldset>
             <button className={styles.primaryButton} type="submit" disabled={isPending}>
-              {isPending ? "جارٍ الحفظ محليًا..." : "إرسال الطلب التجريبي"}
+              {isPending ? "جارٍ الإرسال..." : "إرسال الطلب"}
             </button>
             {serverError ? <p className={styles.fieldError} role="alert">{serverError}</p> : null}
             <p className={styles.formFootnote}>
-              الإرسال يحفظ سجل تنسيق تركيبيًا فقط في قاعدة SQLite المحلية. لا تُحفظ بيانات الاسم أو الهاتف أو البريد أو الملاحظات المدخلة، ولا توجد مراسلة أو CRM أو ضمان حجز.
+              بيانات استعراضية فقط؛ لا يتم إرسال الطلب إلى جهة خارجية ولا ينشأ عنه حجز فعلي.
             </p>
           </form>
 

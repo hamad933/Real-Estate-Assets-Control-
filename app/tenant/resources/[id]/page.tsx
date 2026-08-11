@@ -17,15 +17,14 @@ export default async function TenantResourcePage({
     <WorkspaceShell
       session={session}
       workspace="TENANT"
-      eyebrow="مورد علاقة إيجارية"
-      title="مورد مستأجر مصرّح به"
-      description="لا يعرض هذا المسار أي سجل ما لم يكن المعرّف ضمن نطاق المستأجر الحالي."
+      eyebrow="تفاصيل السكن"
+      title="علاقتك السكنية"
+      description="راجع معلومات الوحدة والعلاقة السكنية المتاحة لحسابك."
     >
       <section className="panel detail-panel">
-        <span className="status status--good">ضمن نطاق المستأجر</span>
+        <span className="status status--good">ضمن صلاحياتك</span>
         <h2>{data.unit.name}</h2>
-        <bdi className="ltr-id ltr-id--large">{id}</bdi>
-        <p>علاقة سكنية تركيبية محفوظة محليًا: <bdi className="ltr-id">{data.unit.tenancyId}</bdi>.</p>
+        <p>هذه الوحدة مرتبطة بعلاقتك السكنية الحالية ويمكنك مراجعة تفاصيلها من حسابك.</p>
       </section>
     </WorkspaceShell>
   );

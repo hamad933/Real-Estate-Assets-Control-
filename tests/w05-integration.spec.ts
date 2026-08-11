@@ -42,7 +42,7 @@ test("W05 assembled product exposes every reviewed surface family together", asy
   await page.goto("/operations");
   await expect(page.getByRole("heading", { name: "الجاهزية التشغيلية" })).toBeVisible();
   await page.getByTestId("readiness-review-action").click();
-  await expect(page.getByTestId("readiness-review-state")).toHaveText("تمت محليًا");
+  await expect(page.getByTestId("readiness-review-state")).toHaveText("تمت المراجعة");
 
   await setSession(page, "tenant-demo");
   await page.goto("/tenant");
