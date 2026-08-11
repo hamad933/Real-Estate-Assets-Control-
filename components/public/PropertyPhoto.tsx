@@ -29,6 +29,7 @@ export function PropertyPhoto({ propertyId, variant = "main", alt }: PropertyPho
 
   return (
     <div
+      className="property-visual"
       data-testid="property-photo"
       role="img"
       aria-label={alt}
