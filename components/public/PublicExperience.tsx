@@ -186,6 +186,8 @@ function EmptyState({ title, body, action }: { title: string; body: string; acti
 }
 
 export function DiscoveryExperience({ properties }: PublicDataProps) {
+  const heroProperty = properties[0];
+
   return (
     <div className={styles.publicPage}>
       <PublicHeader />
@@ -227,7 +229,13 @@ export function DiscoveryExperience({ properties }: PublicDataProps) {
           </div>
           <div className={styles.heroImage}>
             <PropertyPhoto variant="hero" alt="واجهة سكنية معاصرة بإضاءة دافئة" />
-            <div className={styles.heroCaption}><span>خيار مميز</span><strong>شقة النرجس 101</strong><small>الرياض — حي النرجس</small></div>
+            {heroProperty ? (
+              <div className={styles.heroCaption}>
+                <span>خيار مميز</span>
+                <strong>{heroProperty.title}</strong>
+                <small>{heroProperty.district}</small>
+              </div>
+            ) : null}
           </div>
         </section>
 
