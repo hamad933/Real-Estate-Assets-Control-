@@ -293,7 +293,23 @@ test("W08 representative journeys have clean runtime console and requests", asyn
     if (message.type() === "error") consoleErrors.push(message.text());
   });
   page.on("pageerror", (error) => pageErrors.push(error.message));
-  page.on("requestfailed", (request) => requestFailures.push(`${request.method()} ${request.url()} ${request.failure()?.errorText ?? "failed"}`));
+  page.on("requestfailed", (request) => {
+    const failureText = request.failure()?.errorText ?? "failed";
+    let isCancelledNextPrefetch = false;
+    try {
+      const parsed = new URL(request.url());
+      isCancelledNextPrefetch =
+        request.method() === "GET" &&
+        failureText === "net::ERR_ABORTED" &&
+        parsed.searchParams.has("_rsc");
+    } catch {
+      isCancelledNextPrefetch = false;
+    }
+
+    if (!isCancelledNextPrefetch) {
+      requestFailures.push(`${request.method()} ${request.url()} ${failureText}`);
+    }
+  });
 
   const journey: Array<{ route: string; fixtureId?: string }> = [
     { route: "/" },
