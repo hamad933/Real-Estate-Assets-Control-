@@ -24,6 +24,15 @@ const forbiddenVisibleTerms = [
   "fixture"
 ] as const;
 
+const forbiddenVisiblePatterns = [
+  /\bops-record-[a-z0-9-]+\b/i,
+  /\bunit-tenant-[a-z0-9-]+\b/i,
+  /\btenant-resource-[a-z0-9-]+\b/i,
+  /\btenancy-[a-z0-9-]+\b/i,
+  /\bwork-order-[a-z0-9-]+\b/i,
+  /\bproperty-[a-z0-9-]+\b/i
+] as const;
+
 async function setSession(page: Page, fixtureId?: string) {
   await page.context().clearCookies();
   if (!fixtureId) return;
@@ -51,12 +60,20 @@ async function expectNoInternalVocabulary(page: Page) {
   for (const term of forbiddenVisibleTerms) {
     expect(visibleText, `visible internal term leaked: ${term}`).not.toContain(term);
   }
+  for (const pattern of forbiddenVisiblePatterns) {
+    expect(visibleText, `visible internal identifier leaked: ${pattern}`).not.toMatch(pattern);
+  }
+}
+
+async function expectNoDevelopmentArtifacts(page: Page) {
+  await expect(page.locator("nextjs-portal"), "Next.js development portal must not exist in final evidence").toHaveCount(0);
 }
 
 async function capture(page: Page, name: string) {
   fs.mkdirSync(evidenceDir, { recursive: true });
   await expectNoOverflow(page);
   await expectNoInternalVocabulary(page);
+  await expectNoDevelopmentArtifacts(page);
   await page.screenshot({ path: path.join(evidenceDir, name), fullPage: true, caret: "initial" });
 }
 
@@ -146,12 +163,30 @@ test("W08 S12 desktop tablet and mobile evidence", async ({ page }) => {
   await openAndCapture(page, { route: "/contractor", name: "S12-contractor-work-mobile.png", viewport: mobile, fixtureId: "contractor-demo", heading: "تفاصيل المهمة الموكلة إليك" });
 });
 
-test("W08 S13 desktop and mobile evidence", async ({ page }) => {
+test("W08 S13 desktop and deliberately composed mobile evidence", async ({ page }) => {
   await openAndCapture(page, { route: "/admin", name: "S13-portfolio-operations-desktop.png", viewport: desktop, fixtureId: "admin-demo", heading: "عمليات المحافظ" });
-  await openAndCapture(page, { route: "/admin", name: "S13-portfolio-operations-mobile.png", viewport: mobile, fixtureId: "admin-demo", heading: "عمليات المحافظ" });
+
+  await setSession(page, "admin-demo");
+  await page.setViewportSize(mobile);
+  await page.goto("/admin");
+  await expect(page.getByRole("heading", { name: "عمليات المحافظ" })).toBeVisible();
+
+  const mobileRecords = page.locator('[aria-label="سجلات المحفظة — عرض الجوال"]');
+  await expect(mobileRecords).toBeVisible();
+  await expect(page.locator('table[aria-label="سجلات المحفظة"]')).not.toBeVisible();
+  await expect(mobileRecords).toContainText("الحالة التشغيلية");
+  await expect(mobileRecords).toContainText("الإشغال");
+  await expect(mobileRecords).toContainText("الدفعات");
+  await expect(mobileRecords).toContainText("الصيانة");
+  await expect(mobileRecords).toContainText("الجاهزية");
+  await expect(mobileRecords).toContainText("الحالات المفتوحة");
+
+  await mobileRecords.getByRole("button", { name: "اختيار فيلا الياسمين" }).click();
+  await expect(page.getByTestId("s13-selected-context").getByRole("heading", { name: "فيلا الياسمين" })).toBeVisible();
+  await capture(page, "S13-portfolio-operations-mobile.png");
 });
 
-test("W08 customer-facing surfaces do not leak internal build vocabulary", async ({ page }) => {
+test("W08 customer-facing surfaces do not leak internal build vocabulary or storage identifiers", async ({ page }) => {
   const routes: Array<{ route: string; fixtureId?: string }> = [
     { route: "/" },
     { route: "/search?district=all&type=all&budget=all&rooms=all&availability=all" },
@@ -161,11 +196,14 @@ test("W08 customer-facing surfaces do not leak internal build vocabulary", async
     { route: "/inquiry?property=narjis-101" },
     { route: "/sign-in" },
     { route: "/operations", fixtureId: "operations-demo" },
+    { route: `/operations/records/${operationsRecord}`, fixtureId: "operations-demo" },
     { route: `/operations/records/${operationsRecord}/occupancy`, fixtureId: "operations-demo" },
     { route: `/operations/records/${operationsRecord}/payments`, fixtureId: "operations-demo" },
     { route: `/operations/records/${operationsRecord}/maintenance`, fixtureId: "operations-demo" },
     { route: "/tenant", fixtureId: "tenant-demo" },
+    { route: "/tenant/resources/tenant-resource-101", fixtureId: "tenant-demo" },
     { route: "/contractor", fixtureId: "contractor-demo" },
+    { route: "/contractor/assignments/work-order-501", fixtureId: "contractor-demo" },
     { route: "/admin", fixtureId: "admin-demo" }
   ];
 
@@ -173,6 +211,7 @@ test("W08 customer-facing surfaces do not leak internal build vocabulary", async
     await setSession(page, item.fixtureId);
     await page.goto(item.route);
     await expectNoInternalVocabulary(page);
+    await expectNoDevelopmentArtifacts(page);
   }
 });
 
@@ -271,6 +310,7 @@ test("W08 representative journeys have clean runtime console and requests", asyn
     await setSession(page, item.fixtureId);
     await page.goto(item.route);
     await expectNoOverflow(page);
+    await expectNoDevelopmentArtifacts(page);
   }
 
   expect(consoleErrors).toEqual([]);
