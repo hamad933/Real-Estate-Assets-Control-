@@ -18,15 +18,15 @@ export function AppHeader({ session = null, publicMode = false }: AppHeaderProps
   return (
     <header className="app-header">
       <div className="header-inner">
-        <Link className="brand" href="/" aria-label="RP04 — الصفحة الرئيسية">
+        <Link className="brand" href="/" aria-label="العقارات والأصول — الصفحة الرئيسية">
           <span className="brand-mark" aria-hidden="true">⌂</span>
-          <span className="brand-code" dir="ltr">RP04</span>
+          <span className="brand-code">العقارات والأصول</span>
         </Link>
 
         {publicMode ? (
           <nav className="public-nav" aria-label="التنقل العام">
             <Link href="/#discovery">العقارات</Link>
-            <Link href="/#experience">كيف تعمل التجربة</Link>
+            <Link href="/#experience">الخدمات</Link>
             <Link href="/sign-in">تسجيل الدخول</Link>
           </nav>
         ) : session ? (
