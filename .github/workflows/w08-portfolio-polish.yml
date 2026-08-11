@@ -87,6 +87,17 @@ jobs:
           set -o pipefail
           npm run build | tee evidence/w08-build.txt
 
+      - name: Verify production-mode evidence server
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'npm run start' playwright.config.ts
+          if grep -q 'npm run dev' playwright.config.ts; then
+            echo 'Development-mode Playwright server is forbidden for final W08 evidence.' >&2
+            exit 1
+          fi
+          printf '%s\n' 'production-next-start' > evidence/w08-browser-server-mode.txt
+
       - name: Reset database for deterministic regression
         shell: bash
         run: |
@@ -125,6 +136,7 @@ jobs:
             echo "head=$(git rev-parse HEAD)"
             echo "node=$(node --version)"
             echo "npm=$(npm --version)"
+            echo "browser_server_mode=$(cat evidence/w08-browser-server-mode.txt 2>/dev/null || echo unknown)"
             echo "screenshots=$(wc -l < evidence/w08-screenshot-index.txt | tr -d ' ')"
           } > evidence/w08-manifest.txt
 
@@ -139,6 +151,7 @@ jobs:
             evidence/w08-exact-baseline.txt
             evidence/w08-changed-paths.txt
             evidence/w08-final-head-sha.txt
+            evidence/w08-browser-server-mode.txt
             evidence/w08-manifest.txt
             evidence/w08-npm-ci.txt
             evidence/w08-npm-audit.txt
