@@ -12,6 +12,9 @@ export default async function TenantPage() {
   const data = getTenantWorkspace(session);
   if (!data) redirect("/access-denied?reason=scope");
 
+  const recentServices = data.serviceRequests.slice(0, 3);
+  const lastReceivedPayment = [...data.paymentHistory].reverse().find((payment) => payment.status === "مستلمة");
+
   return (
     <WorkspaceShell
       session={session}
@@ -141,10 +144,18 @@ export default async function TenantPage() {
 
         <section className={styles.activityStrip} aria-label="آخر الأنشطة">
           <strong>آخر الأنشطة</strong>
-          <div><strong>إصدار فاتورة جديدة</strong><span>15 مايو 2026</span></div>
-          <div><strong>تنفيذ طلب خدمة</strong><span>01 مايو 2026</span></div>
-          <div><strong>استلام دفعة</strong><span>15 سبتمبر 2025</span></div>
-          <div><strong>إنشاء طلب خدمة</strong><span>28 أبريل 2026</span></div>
+          {recentServices.map((request) => (
+            <div key={request.id}>
+              <strong>{request.title}</strong>
+              <span>{request.date} · {request.status}</span>
+            </div>
+          ))}
+          {lastReceivedPayment ? (
+            <div>
+              <strong>آخر دفعة مستلمة</strong>
+              <span>{lastReceivedPayment.date}</span>
+            </div>
+          ) : null}
         </section>
 
         <section className={styles.helpBar}>
