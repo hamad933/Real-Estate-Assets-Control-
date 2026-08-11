@@ -9,30 +9,21 @@ const disabledActionStyle = { cursor: "not-allowed", opacity: 0.5 } as const;
 export function ReadinessDemoActions() {
   const [reviewed, setReviewed] = useState(false);
   const [followUpScheduled, setFollowUpScheduled] = useState(false);
-  const [feedback, setFeedback] = useState(
-    "لم يُنفّذ إجراء محلي في هذه الجلسة بعد."
-  );
+  const [feedback, setFeedback] = useState("لم يتم تنفيذ إجراء بعد.");
 
   function reviewOpenItem() {
     setReviewed(true);
-    setFeedback(
-      "تمت مراجعة العنصر المفتوح محليًا داخل هذه الجلسة التجريبية فقط."
-    );
+    setFeedback("تمت مراجعة العنصر المفتوح وتحديث حالته في هذه الجلسة.");
   }
 
   function scheduleFollowUp() {
     setFollowUpScheduled(true);
-    setFeedback(
-      "تمت جدولة متابعة تركيبية محلية: 12 أغسطس 2026، 10:00 ص. لا توجد رسالة أو مزامنة خارجية."
-    );
+    setFeedback("تمت جدولة المتابعة ليوم 12 أغسطس 2026، الساعة 10:00 ص.");
   }
 
   return (
     <div style={{ marginTop: 14, display: "grid", gap: 12 }}>
-      <div
-        className={styles.actionStack}
-        aria-label="إجراءات محلية للسجل التجريبي"
-      >
+      <div className={styles.actionStack} aria-label="إجراءات الجاهزية">
         <button
           className={styles.actionButtonPrimary}
           style={enabledActionStyle}
@@ -54,7 +45,7 @@ export function ReadinessDemoActions() {
           تحديث الوثائق — غير متاح
         </button>
         <p id="documents-action-unavailable" className={styles.noticeNote}>
-          غير متاح في النموذج التركيبي الحالي: تحديث الوثائق يتطلب حفظًا أو مخزن مستندات، وهما خارج نطاق W03.
+          تحديث الوثائق غير متاح في هذه النسخة لأن إدارة المستندات غير مفعّلة.
         </p>
 
         <button
@@ -68,17 +59,17 @@ export function ReadinessDemoActions() {
         </button>
       </div>
 
-      <div className={styles.keyValueList} aria-label="الحالة المحلية للإجراءات">
+      <div className={styles.keyValueList} aria-label="حالة الإجراءات">
         <div className={styles.keyValueRow}>
           <span>مراجعة العنصر</span>
           <strong data-testid="readiness-review-state">
-            {reviewed ? "تمت محليًا" : "لم تتم بعد"}
+            {reviewed ? "تمت المراجعة" : "لم تتم بعد"}
           </strong>
         </div>
         <div className={styles.keyValueRow}>
           <span>المتابعة</span>
           <strong data-testid="readiness-followup-state">
-            {followUpScheduled ? "12 أغسطس 2026، 10:00 ص" : "غير مجدولة محليًا"}
+            {followUpScheduled ? "12 أغسطس 2026، 10:00 ص" : "غير مجدولة"}
           </strong>
         </div>
       </div>
@@ -98,27 +89,21 @@ export function ReadinessDemoActions() {
 export function CollectionDemoActions() {
   const [followUpUpdated, setFollowUpUpdated] = useState(false);
   const [noteAdded, setNoteAdded] = useState(false);
-  const [feedback, setFeedback] = useState(
-    "لم يُنفّذ إجراء محلي في هذه الجلسة بعد."
-  );
+  const [feedback, setFeedback] = useState("لم يتم تنفيذ إجراء بعد.");
 
   function updateFollowUp() {
     setFollowUpUpdated(true);
-    setFeedback(
-      "تم تحديث حالة المتابعة محليًا إلى: متابعة داخلية مطلوبة. لم يُرسل أي اتصال خارجي."
-    );
+    setFeedback("تم تحديث حالة المتابعة إلى: متابعة داخلية مطلوبة.");
   }
 
   function addCollectionNote() {
     setNoteAdded(true);
-    setFeedback(
-      "تمت إضافة ملاحظة تحصيل تركيبية محليًا داخل هذه الجلسة فقط."
-    );
+    setFeedback("تمت إضافة ملاحظة التحصيل إلى السجل الحالي.");
   }
 
   return (
     <div style={{ marginTop: 14, display: "grid", gap: 12 }}>
-      <div className={styles.actionStack} aria-label="إجراءات التحصيل المحلية">
+      <div className={styles.actionStack} aria-label="إجراءات التحصيل">
         <button
           className={styles.actionButtonPrimary}
           style={enabledActionStyle}
@@ -139,19 +124,17 @@ export function CollectionDemoActions() {
         </button>
       </div>
 
-      <div className={styles.keyValueList} aria-label="الحالة المحلية للتحصيل">
+      <div className={styles.keyValueList} aria-label="حالة التحصيل">
         <div className={styles.keyValueRow}>
-          <span>حالة المتابعة المحلية</span>
+          <span>حالة المتابعة</span>
           <strong data-testid="collection-followup-state">
             {followUpUpdated ? "متابعة داخلية مطلوبة" : "لم تتغير"}
           </strong>
         </div>
         <div className={styles.keyValueRow}>
-          <span>الملاحظة المحلية</span>
+          <span>ملاحظة التحصيل</span>
           <strong data-testid="collection-note-state">
-            {noteAdded
-              ? "تمت مراجعة الاستحقاق؛ لا يوجد اتصال خارجي."
-              : "لا توجد ملاحظة مضافة في هذه الجلسة"}
+            {noteAdded ? "تمت مراجعة الاستحقاق." : "لا توجد ملاحظة مضافة"}
           </strong>
         </div>
       </div>
