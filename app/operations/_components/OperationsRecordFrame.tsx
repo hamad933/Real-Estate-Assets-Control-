@@ -60,12 +60,6 @@ export function OperationsRecordFrame({
           <p className={styles.kicker}>{isProperty ? "أصل تشغيلي" : "وحدة مرتبطة بالسجل"}</p>
           <h2>{visualLabel}</h2>
           <p>{isProperty ? record.propertyLocation : record.unitLocation}</p>
-          <div className={styles.idRow}>
-            <span>السجل</span>
-            <bdi className="ltr-id">{record.recordId}</bdi>
-            <span>•</span>
-            <bdi className="ltr-id">{isProperty ? record.propertyId : record.unitId}</bdi>
-          </div>
         </div>
         <dl className={styles.entityFacts}>
           <div><dt>{isProperty ? "نوع الأصل" : "نوع الوحدة"}</dt><dd>{record.unitMeta.type}</dd></div>
