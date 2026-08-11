@@ -57,7 +57,7 @@ export default async function TenantPage() {
           <div className={styles.softCard}>
             <span className={styles.kicker}>الحالة الحالية</span>
             <h2>أنت مسجل حاليًا بوحدتك</h2>
-            <p className={styles.muted}>رقم العلاقة: <bdi className="ltr-id">{data.unit.tenancyId}</bdi></p>
+            <p className={styles.muted}>علاقتك السكنية الحالية فعّالة حتى تاريخ نهاية العقد الموضح أدناه.</p>
             <div className={styles.definitionGrid}>
               <div><span>بداية العقد</span><strong>{data.unit.startDate}</strong></div>
               <div><span>نهاية العقد</span><strong>{data.unit.endDate}</strong></div>
