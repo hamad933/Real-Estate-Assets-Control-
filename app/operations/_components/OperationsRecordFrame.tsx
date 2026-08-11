@@ -68,21 +68,10 @@ export function OperationsRecordFrame({
           </div>
         </div>
         <dl className={styles.entityFacts}>
-          {isProperty ? (
-            <>
-              <div><dt>نوع الأصل</dt><dd>فيلا</dd></div>
-              <div><dt>المساحة</dt><dd>350 م²</dd></div>
-              <div><dt>غرف النوم</dt><dd>5</dd></div>
-              <div><dt>الحمامات</dt><dd>5</dd></div>
-            </>
-          ) : (
-            <>
-              <div><dt>نوع الوحدة</dt><dd>{record.unitMeta.type}</dd></div>
-              <div><dt>غرف النوم</dt><dd>{record.unitMeta.bedrooms}</dd></div>
-              <div><dt>الحمامات</dt><dd>{record.unitMeta.bathrooms}</dd></div>
-              <div><dt>المساحة</dt><dd>{record.unitMeta.area}</dd></div>
-            </>
-          )}
+          <div><dt>{isProperty ? "نوع الأصل" : "نوع الوحدة"}</dt><dd>{record.unitMeta.type}</dd></div>
+          <div><dt>المساحة</dt><dd>{record.unitMeta.area}</dd></div>
+          <div><dt>غرف النوم</dt><dd>{record.unitMeta.bedrooms}</dd></div>
+          <div><dt>الحمامات</dt><dd>{record.unitMeta.bathrooms}</dd></div>
         </dl>
       </section>
 
