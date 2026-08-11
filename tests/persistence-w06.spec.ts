@@ -111,7 +111,7 @@ test.describe.serial("RP04-IMP-W06 local persistence foundation", () => {
     await setSession(page, "tenant-demo");
     await page.goto("/tenant/resources/tenant-resource-101");
     await expect(page.getByText("شقة النرجس 101", { exact: true })).toBeVisible();
-    await expect(page.getByText(/tenancy-101/)).toBeVisible();
+    await expect(page.getByText("هذه الوحدة مرتبطة بعلاقتك السكنية الحالية ويمكنك مراجعة تفاصيلها من حسابك.", { exact: true })).toBeVisible();
     await page.goto("/tenant/resources/tenant-resource-202");
     await expect(page).toHaveURL(/\/access-denied\?reason=scope/);
 
