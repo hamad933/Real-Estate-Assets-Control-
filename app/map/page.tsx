@@ -1,4 +1,5 @@
 import { MapExperience } from "@/components/public/PublicExperience";
+import { listPublicPropertiesFromDatabase } from "@/lib/data/repository";
 
 type MapPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -11,5 +12,6 @@ function first(value: string | string[] | undefined) {
 export default async function MapPage({ searchParams }: MapPageProps) {
   const params = await searchParams;
   const initial = Object.fromEntries(Object.entries(params).map(([key, value]) => [key, first(value)]));
-  return <MapExperience initial={initial} />;
+  const properties = listPublicPropertiesFromDatabase();
+  return <MapExperience initial={initial} properties={properties} />;
 }
