@@ -26,10 +26,9 @@ export default async function OperationsPage() {
       session={session}
       record={operationsRecord}
       current="readiness"
-      surfaceCode="S05"
       entity="property"
       title="الجاهزية التشغيلية"
-      description="مراجعة فئوية للجاهزية تربط العوائق والمتابعة والأدلة والإجراءات داخل سجل تشغيلي واحد، دون نسب أو درجات محسوبة."
+      description="راجع جاهزية العقار والعناصر التي تحتاج متابعة قبل الانتقال إلى الخطوة التالية."
     >
       <section className={styles.heroState} aria-labelledby="readiness-state-title">
         <span className={styles.stateIcon} aria-hidden="true">!</span>
@@ -66,7 +65,7 @@ export default async function OperationsPage() {
           <section className={styles.panel} aria-labelledby="evidence-title">
             <div className={styles.panelTitle}>
               <h2 id="evidence-title">الأدلة الداعمة</h2>
-              <span>أدلة تجريبية فقط</span>
+              <span>مستندات مرتبطة بالسجل</span>
             </div>
             <div className={styles.documentList}>
               {readiness.evidence.map((item) => (
