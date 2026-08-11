@@ -79,7 +79,7 @@ test("W07 captures empty, error, disabled, interaction, and confirmation states"
   await stateShot(page, "S02-empty-search-desktop.png");
 
   await page.goto("/inquiry?property=narjis-101");
-  await page.getByRole("button", { name: "إرسال الطلب التجريبي" }).click();
+  await page.getByRole("button", { name: "إرسال الطلب" }).click();
   await expect(page.getByText("اختر تاريخًا مناسبًا للزيارة.")).toBeVisible();
   await stateShot(page, "S07-validation-error-desktop.png");
 
@@ -87,13 +87,13 @@ test("W07 captures empty, error, disabled, interaction, and confirmation states"
   await page.goto("/operations");
   await expect(page.getByTestId("readiness-documents-action")).toBeDisabled();
   await page.getByTestId("readiness-review-action").click();
-  await expect(page.getByTestId("readiness-review-state")).toHaveText("تمت محليًا");
+  await expect(page.getByTestId("readiness-review-state")).toHaveText("تمت المراجعة");
   await stateShot(page, "S05-reviewed-and-disabled-desktop.png");
 
   await setSession(page, "tenant-demo");
   await page.goto("/tenant");
   await page.getByTestId("tenant-create-service-request").first().click();
-  await expect(page.getByRole("status").filter({ hasText: "تم إنشاء تمثيل طلب جديد" }).first()).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: "تم إنشاء طلب الخدمة" }).first()).toBeVisible();
   await stateShot(page, "S11-service-confirmation-desktop.png");
 
   await setSession(page, "contractor-demo");
