@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { PropertyVisual } from "@/components/PropertyVisual";
+import { PropertyPhoto } from "@/components/public/PropertyPhoto";
 import { WorkspaceShell } from "@/components/WorkspaceShell";
 import { ContractorControls } from "@/components/w04/ContractorControls";
 import styles from "@/components/w04/RoleWorkspaces.module.css";
@@ -23,7 +23,7 @@ export default async function ContractorPage() {
       <div className={styles.stack}>
         <section className={styles.contractorHeader}>
           <div className={styles.heroCard}>
-            <PropertyVisual compact label={`تصوير تمثيلي لـ ${data.assignment.propertyName}`} />
+            <PropertyPhoto propertyId="narjis-101" alt={`صورة عقارية لـ ${data.assignment.propertyName}`} />
             <div className={styles.heroMeta}>
               <div className={styles.taskTitle}>
                 <span className={styles.statusWarn}>{data.assignment.status}</span>
@@ -74,7 +74,7 @@ export default async function ContractorPage() {
                 {data.attachments.map((attachment) => (
                   <div className={styles.attachment} key={attachment.meta}>
                     <strong>{attachment.title}</strong>
-                    <span dir="ltr">{attachment.meta}</span>
+                    <bdi className="ltr-id">{attachment.meta}</bdi>
                   </div>
                 ))}
               </div>
