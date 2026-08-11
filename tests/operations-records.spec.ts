@@ -86,7 +86,7 @@ test("record navigation preserves the authorized record context", async ({ page 
 
   await page.getByRole("link", { name: /S05.*الجاهزية التشغيلية/ }).click();
   await expect(page).toHaveURL(/\/operations$/);
-  await expect(page.getByText("شهادة السلامة غير محدثة", { exact: true })).toBeVisible();
+  await expect(page.getByText("دفعة أغسطس ومسارات خدمة مفتوحة", { exact: true })).toBeVisible();
 });
 
 test("deterministic occupancy, payment, and maintenance states do not drift", async ({ page }) => {
