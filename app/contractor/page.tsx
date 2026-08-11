@@ -39,10 +39,10 @@ export default async function ContractorPage() {
             <span className={styles.kicker}>سياق التكليف</span>
             <h2>{data.contractorName}</h2>
             <div className={styles.definitionGrid}>
-              <div><span>رقم الطلب</span><strong><bdi className="ltr-id">{data.assignment.requestId}</bdi></strong></div>
-              <div><span>المهمة</span><strong><bdi className="ltr-id">{data.assignment.id}</bdi></strong></div>
+              <div><span>رقم طلب الخدمة</span><strong><bdi className="ltr-id">{data.assignment.requestId}</bdi></strong></div>
               <div><span>الأولوية</span><strong>{data.assignment.priority}</strong></div>
               <div><span>نافذة التنفيذ</span><strong>{data.assignment.window}</strong></div>
+              <div><span>الحالة</span><strong>{data.assignment.status}</strong></div>
             </div>
           </div>
         </section>
@@ -89,7 +89,7 @@ export default async function ContractorPage() {
                   <div className={styles.listRow} key={assignment.id}>
                     <div>
                       <strong>{assignment.title}</strong>
-                      <span className={styles.miniLabel}><bdi className="ltr-id">{assignment.id}</bdi> · {assignment.when}</span>
+                      <span className={styles.miniLabel}>{assignment.when}</span>
                     </div>
                     <span className={styles.statusNeutral}>موكلة إليك</span>
                   </div>
@@ -118,7 +118,7 @@ export default async function ContractorPage() {
           <div><strong>تم تكليف المهمة إليك</strong><span>09:30 ص</span></div>
           <div><strong>تم تأكيد الاستلام</strong><span>09:45 ص</span></div>
           <div><strong>تمت إضافة مرفقات</strong><span>08:50 ص</span></div>
-          <div><strong>مرجع المهمة</strong><span><bdi className="ltr-id">{data.assignment.id}</bdi></span></div>
+          <div><strong>رقم طلب الخدمة</strong><span><bdi className="ltr-id">{data.assignment.requestId}</bdi></span></div>
         </section>
       </div>
     </WorkspaceShell>
