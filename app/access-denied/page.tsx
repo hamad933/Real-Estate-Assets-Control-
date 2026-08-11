@@ -17,16 +17,16 @@ export default async function AccessDeniedPage({
       <main className="state-page">
         <section className="state-card" aria-labelledby="denied-title">
           <span className="state-icon" aria-hidden="true">!</span>
-          <p className="eyebrow">حدود الوصول</p>
-          <h1 id="denied-title">ليس لديك صلاحية للوصول</h1>
+          <p className="eyebrow">صلاحيات الوصول</p>
+          <h1 id="denied-title">لا يمكنك الوصول إلى هذه الصفحة</h1>
           <p>
             {scopeDenied
-              ? "هذا السجل خارج النطاق المصرّح به للجلسة الحالية."
-              : "مساحة العمل المطلوبة لا تتوافق مع حالة الوصول أو الملف الحالي."}
+              ? "هذا السجل خارج صلاحيات حسابك الحالية."
+              : "هذه المساحة غير متاحة لصلاحيات حسابك الحالية."}
           </p>
           <div className="state-actions">
             <Link className="button button--primary" href="/">العودة إلى الرئيسية</Link>
-            <Link className="button button--quiet" href="/sign-in">صفحة الدخول</Link>
+            <Link className="button button--quiet" href="/sign-in">تسجيل الدخول</Link>
           </div>
         </section>
       </main>
