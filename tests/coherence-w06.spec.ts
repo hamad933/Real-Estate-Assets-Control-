@@ -238,7 +238,7 @@ test.describe.serial("RP04-IMP-W06 cross-surface domain coherence", () => {
 
     await setSession(page, "operations-demo");
     await page.goto("/operations/records/ops-record-101");
-    await expect(page.getByText("شقة النرجس 101", { exact: true })).toBeVisible();
+    await expect(page.getByText("شقة النرجس 101", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("الرياض — حي النرجس", { exact: true })).toBeVisible();
   });
 });
