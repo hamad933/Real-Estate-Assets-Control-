@@ -26,42 +26,71 @@ function parseInquiryDisplayId(displayId: string) {
   return match ? Number(match[1]) : null;
 }
 
+type PublicRow = {
+  id: string;
+  district_key: string;
+  listing_type: string;
+  type_label: string;
+  annual_price: number;
+  status: string;
+  status_label: string;
+  summary: string;
+  amenities_json: string;
+  map_x: number;
+  map_y: number;
+  title: string;
+  district: string;
+  bedrooms: number;
+  bathrooms: number;
+  area: number;
+};
+
+function publicPropertyFromRow(row: PublicRow): PublicProperty {
+  return {
+    id: row.id,
+    title: row.title,
+    district: row.district,
+    districtKey: row.district_key as PublicProperty["districtKey"],
+    type: row.listing_type as PublicProperty["type"],
+    typeLabel: row.type_label,
+    price: Number(row.annual_price),
+    bedrooms: Number(row.bedrooms),
+    bathrooms: Number(row.bathrooms),
+    area: Number(row.area),
+    status: row.status as PublicProperty["status"],
+    statusLabel: row.status_label,
+    summary: row.summary,
+    amenities: parseJson<string[]>(row.amenities_json),
+    mapX: Number(row.map_x),
+    mapY: Number(row.map_y)
+  };
+}
+
+const publicListingQuery = `
+  SELECT l.id, l.district_key, l.listing_type, l.type_label, l.annual_price,
+         l.status, l.status_label, l.summary, l.amenities_json, l.map_x, l.map_y,
+         u.name AS title, u.location AS district,
+         u.bedrooms, u.bathrooms, u.area
+  FROM listings l
+  JOIN units u ON u.id = l.unit_id
+  JOIN properties p ON p.id = l.property_id AND p.id = u.property_id
+`;
+
+export function listPublicPropertiesFromDatabase(): PublicProperty[] {
+  return withDatabase((db) => {
+    const rows = db.prepare(`${publicListingQuery} ORDER BY l.rowid`).all() as PublicRow[];
+    return rows.map(publicPropertyFromRow);
+  });
+}
+
 export function getPublicPropertyFromDatabase(id: string): PublicProperty | undefined {
   return withDatabase((db) => {
-    const row = db.prepare(`
-      SELECT id, district, district_key, listing_type, type_label, annual_price,
-             bedrooms, bathrooms, area, status, status_label, summary,
-             amenities_json, map_x, map_y
-      FROM listings
-      WHERE id = ?
-    `).get(id) as Record<string, unknown> | undefined;
-
-    if (!row) return undefined;
-    const propertyRow = db.prepare("SELECT name FROM properties WHERE id = (SELECT property_id FROM listings WHERE id = ?)").get(id) as { name: string };
-
-    return {
-      id: String(row.id),
-      title: propertyRow.name,
-      district: String(row.district),
-      districtKey: String(row.district_key) as PublicProperty["districtKey"],
-      type: String(row.listing_type) as PublicProperty["type"],
-      typeLabel: String(row.type_label),
-      price: Number(row.annual_price),
-      bedrooms: Number(row.bedrooms),
-      bathrooms: Number(row.bathrooms),
-      area: Number(row.area),
-      status: String(row.status) as PublicProperty["status"],
-      statusLabel: String(row.status_label),
-      summary: String(row.summary),
-      amenities: parseJson<string[]>(String(row.amenities_json)),
-      mapX: Number(row.map_x),
-      mapY: Number(row.map_y)
-    };
+    const row = db.prepare(`${publicListingQuery} WHERE l.id = ?`).get(id) as PublicRow | undefined;
+    return row ? publicPropertyFromRow(row) : undefined;
   });
 }
 
 type TenantDetails = {
-  serviceRequests?: TenantWorkspaceData["serviceRequests"];
   documents?: TenantWorkspaceData["documents"];
   notifications?: string[];
 };
@@ -92,6 +121,13 @@ function tenantWorkspaceFromRow(db: Parameters<Parameters<typeof withDatabase>[0
 
   if (!nextPayment) throw new Error(`Seeded tenancy ${row.id} has no payment records.`);
 
+  const serviceRequests = db.prepare(`
+    SELECT id, title, created_date, status
+    FROM maintenance_records
+    WHERE tenancy_id = ?
+    ORDER BY rowid DESC
+  `).all(row.id) as Array<{ id: string; title: string; created_date: string; status: string }>;
+
   return {
     resourceId: row.resource_id,
     unit: {
@@ -116,7 +152,12 @@ function tenantWorkspaceFromRow(db: Parameters<Parameters<typeof withDatabase>[0
       amount: formatRiyals(Number(payment.amount)),
       status: payment.status
     })),
-    serviceRequests: details.serviceRequests ?? [],
+    serviceRequests: serviceRequests.map((request) => ({
+      id: request.id,
+      title: request.title,
+      date: request.created_date,
+      status: request.status
+    })),
     documents: details.documents ?? [],
     notifications: details.notifications ?? []
   };
@@ -179,7 +220,7 @@ type ContractorDetails = {
 type AssignmentRow = {
   id: string;
   request_id: string;
-  status: string;
+  maintenance_status: string;
   details_json: string;
   contractor_name: string;
   title: string;
@@ -200,7 +241,7 @@ function contractorWorkspaceFromRow(row: AssignmentRow): ContractorWorkspaceData
       parking: details.parking ?? "لا توجد ملاحظات إضافية.",
       window: details.window ?? "موعد تجريبي",
       priority: details.priority ?? "منخفضة",
-      status: row.status
+      status: row.maintenance_status
     },
     attachments: details.attachments ?? [],
     otherAssigned: details.otherAssigned ?? [],
@@ -208,20 +249,20 @@ function contractorWorkspaceFromRow(row: AssignmentRow): ContractorWorkspaceData
   };
 }
 
+const assignmentQuery = `
+  SELECT a.id, a.request_id, a.details_json,
+         p.label AS contractor_name, m.title, m.status AS maintenance_status
+  FROM contractor_assignments a
+  JOIN profiles p ON p.id = a.contractor_profile_id
+  JOIN maintenance_records m ON m.id = a.maintenance_id AND m.id = a.request_id
+`;
+
 export function getContractorWorkspace(session: AuthenticatedSession): ContractorWorkspaceData | null {
   if (session.accessState !== "USER" || session.profile !== "CONTRACTOR") return null;
   const allowed = new Set(session.scope.assignmentIds);
 
   return withDatabase((db) => {
-    const rows = db.prepare(`
-      SELECT a.id, a.request_id, a.status, a.details_json,
-             p.label AS contractor_name, m.title
-      FROM contractor_assignments a
-      JOIN profiles p ON p.id = a.contractor_profile_id
-      JOIN maintenance_records m ON m.id = a.maintenance_id
-      WHERE p.fixture_id = ?
-      ORDER BY a.id
-    `).all(session.fixtureId) as AssignmentRow[];
+    const rows = db.prepare(`${assignmentQuery} WHERE p.fixture_id = ? ORDER BY a.id`).all(session.fixtureId) as AssignmentRow[];
     const row = rows.find((candidate) => allowed.has(candidate.id));
     return row ? contractorWorkspaceFromRow(row) : null;
   });
@@ -235,14 +276,7 @@ export function getContractorAssignment(session: AuthenticatedSession, assignmen
   ) return null;
 
   return withDatabase((db) => {
-    const row = db.prepare(`
-      SELECT a.id, a.request_id, a.status, a.details_json,
-             p.label AS contractor_name, m.title
-      FROM contractor_assignments a
-      JOIN profiles p ON p.id = a.contractor_profile_id
-      JOIN maintenance_records m ON m.id = a.maintenance_id
-      WHERE p.fixture_id = ? AND a.id = ?
-    `).get(session.fixtureId, assignmentId) as AssignmentRow | undefined;
+    const row = db.prepare(`${assignmentQuery} WHERE p.fixture_id = ? AND a.id = ?`).get(session.fixtureId, assignmentId) as AssignmentRow | undefined;
     return row ? contractorWorkspaceFromRow(row) : null;
   });
 }
@@ -259,14 +293,38 @@ export function updateContractorAssignmentStatus(
   ) return false;
 
   return withDatabase((db) => {
-    const result = db.prepare(`
-      UPDATE contractor_assignments
-      SET status = ?
-      WHERE id = ?
-        AND contractor_profile_id = (SELECT id FROM profiles WHERE fixture_id = ?)
-    `).run(status, assignmentId, session.fixtureId);
-    return Number(result.changes) === 1;
+    const assignment = db.prepare(`
+      SELECT a.maintenance_id
+      FROM contractor_assignments a
+      JOIN profiles p ON p.id = a.contractor_profile_id
+      WHERE a.id = ? AND p.fixture_id = ?
+    `).get(assignmentId, session.fixtureId) as { maintenance_id: string } | undefined;
+    if (!assignment) return false;
+
+    db.exec("BEGIN IMMEDIATE");
+    try {
+      const assignmentResult = db.prepare("UPDATE contractor_assignments SET status = ? WHERE id = ?").run(status, assignmentId);
+      const maintenanceResult = db.prepare("UPDATE maintenance_records SET status = ? WHERE id = ?").run(status, assignment.maintenance_id);
+      if (Number(assignmentResult.changes) !== 1 || Number(maintenanceResult.changes) !== 1) {
+        throw new Error("Unable to keep assignment and maintenance status aligned.");
+      }
+      db.exec("COMMIT");
+      return true;
+    } catch (error) {
+      db.exec("ROLLBACK");
+      throw error;
+    }
   });
+}
+
+function cadenceLabel(plan: string) {
+  if (plan.includes("شهرية")) return "شهري";
+  if (plan.includes("سنوية")) return "سنوي";
+  return plan;
+}
+
+function operationsPaymentState(status: string) {
+  return status === "مستلمة" ? "مدفوعة" : status;
 }
 
 export function getOperationsRecord(
@@ -288,12 +346,56 @@ export function getOperationsRecord(
       FROM operations_records o
       JOIN profiles profile ON profile.id = o.operations_profile_id
       JOIN properties p ON p.id = o.property_id
-      JOIN units u ON u.id = o.unit_id
+      JOIN units u ON u.id = o.unit_id AND u.property_id = p.id
       WHERE profile.fixture_id = ? AND o.id = ?
     `).get(session.fixtureId, recordId) as Record<string, unknown> | undefined;
     if (!row) return null;
 
     const payload = parseJson<OperationsRecordData>(String(row.payload_json));
+    const tenancy = db.prepare(`
+      SELECT id, contract_type, start_date, end_date, payment_plan, status
+      FROM tenancies
+      WHERE unit_id = ? AND status = 'نشط'
+      ORDER BY rowid
+      LIMIT 1
+    `).get(String(row.unit_id)) as {
+      id: string;
+      contract_type: string;
+      start_date: string;
+      end_date: string;
+      payment_plan: string;
+      status: string;
+    } | undefined;
+
+    const payments = tenancy
+      ? db.prepare(`
+          SELECT period, due_date, amount, status, paid_date
+          FROM payment_records
+          WHERE tenancy_id = ?
+          ORDER BY rowid
+        `).all(tenancy.id) as Array<{ period: string; due_date: string; amount: number; status: string; paid_date: string | null }>
+      : [];
+    const nextPayment = payments.find((payment) => payment.status !== "مستلمة");
+    const lastPayment = [...payments].reverse().find((payment) => payment.status === "مستلمة");
+
+    const maintenance = db.prepare(`
+      SELECT m.id, m.title, m.detail, m.status, m.priority, m.created_date,
+             COALESCE(cp.label, 'مزود الخدمة المعتمد') AS assignee
+      FROM maintenance_records m
+      LEFT JOIN contractor_assignments a ON a.maintenance_id = m.id
+      LEFT JOIN profiles cp ON cp.id = a.contractor_profile_id
+      WHERE m.unit_id = ? AND m.status NOT IN ('مغلق', 'مكتمل')
+      ORDER BY m.rowid
+    `).all(String(row.unit_id)) as Array<{
+      id: string;
+      title: string;
+      detail: string;
+      status: string;
+      priority: string;
+      created_date: string;
+      assignee: string;
+    }>;
+
     return {
       ...payload,
       recordId,
@@ -308,6 +410,57 @@ export function getOperationsRecord(
         bedrooms: String(row.bedrooms),
         bathrooms: String(row.bathrooms),
         area: `${String(row.area)} م²`
+      },
+      occupancy: tenancy
+        ? {
+            ...payload.occupancy,
+            status: "مشغول",
+            relationType: tenancy.contract_type,
+            startDate: tenancy.start_date,
+            endDate: tenancy.end_date,
+            recordState: tenancy.status,
+            term: {
+              ...payload.occupancy.term,
+              cadence: cadenceLabel(tenancy.payment_plan)
+            }
+          }
+        : {
+            ...payload.occupancy,
+            status: "شاغر",
+            recordState: "غير مشغول"
+          },
+      payments: {
+        ...payload.payments,
+        status: nextPayment?.status === "متأخرة" ? "يوجد مبلغ متأخر" : nextPayment ? "يوجد مبلغ مستحق" : "لا يوجد مبلغ مستحق",
+        dueAmount: nextPayment ? formatRiyals(Number(nextPayment.amount)) : "0 ريال",
+        dueDate: nextPayment?.due_date ?? "—",
+        lastPayment: lastPayment ? formatRiyals(Number(lastPayment.amount)) : "—",
+        lastPaymentDate: lastPayment?.paid_date ?? "—",
+        linkedBalance: nextPayment ? formatRiyals(Number(nextPayment.amount)) : "0 ريال",
+        cadence: tenancy ? cadenceLabel(tenancy.payment_plan) : "—",
+        rows: payments.map((payment) => ({
+          period: payment.period,
+          due: payment.due_date,
+          amount: formatRiyals(Number(payment.amount)),
+          status: operationsPaymentState(payment.status),
+          paid: payment.paid_date ?? "—"
+        }))
+      },
+      maintenance: {
+        ...payload.maintenance,
+        status: maintenance.length > 0 ? "تحت المعالجة" : "مستقر",
+        inProgress: maintenance.filter((item) => ["في الموقع", "قيد التنفيذ", "تم رفع تقرير التنفيذ"].includes(item.status)).length,
+        awaitingFollowUp: maintenance.filter((item) => item.status === "بانتظار المتابعة").length,
+        openWork: maintenance.map((item) => ({
+          id: item.id,
+          title: item.title,
+          detail: item.detail,
+          priority: item.priority,
+          priorityTone: item.priority === "منخفضة" ? "good" : "warn",
+          assignee: item.assignee,
+          created: item.created_date,
+          state: item.status
+        }))
       }
     };
   });
@@ -326,24 +479,33 @@ export function getAdminPortfolio(session: AuthenticatedSession): PortfolioOpera
       ORDER BY priority, id
     `).all() as Array<Record<string, unknown>>;
 
+    const records = rows.map((row) => ({
+      id: String(row.id),
+      name: String(row.name),
+      location: String(row.location),
+      operationalState: String(row.operational_state),
+      occupancy: String(row.occupancy_state),
+      payments: String(row.payment_state),
+      maintenance: String(row.maintenance_state),
+      readiness: String(row.readiness_state),
+      open: Number(row.open_conditions),
+      priority: Number(row.priority),
+      reason: String(row.reason),
+      conditions: parseJson<PortfolioOperationsData["records"][number]["conditions"]>(String(row.conditions_json)),
+      nextAction: String(row.next_action)
+    }));
+
     return {
       portfolioName: "جميع المحافظ",
-      totals: { openConditions: 27, activeRecords: 48, followUp: 12 },
-      records: rows.map((row) => ({
-        id: String(row.id),
-        name: String(row.name),
-        location: String(row.location),
-        operationalState: String(row.operational_state),
-        occupancy: String(row.occupancy_state),
-        payments: String(row.payment_state),
-        maintenance: String(row.maintenance_state),
-        readiness: String(row.readiness_state),
-        open: Number(row.open_conditions),
-        priority: Number(row.priority),
-        reason: String(row.reason),
-        conditions: parseJson<PortfolioOperationsData["records"][number]["conditions"]>(String(row.conditions_json)),
-        nextAction: String(row.next_action)
-      }))
+      totals: {
+        openConditions: records.reduce((sum, record) => sum + record.open, 0),
+        activeRecords: records.length,
+        followUp: records.reduce(
+          (sum, record) => sum + record.conditions.filter((condition) => condition.severity !== "منخفض").length,
+          0
+        )
+      },
+      records
     };
   });
 }
@@ -359,9 +521,9 @@ export type CreateInquiryInput = {
 export function createInquiry(input: CreateInquiryInput): PersistedInquiry {
   return withDatabase((db) => {
     const listing = db.prepare(`
-      SELECT l.id, l.district, p.name AS property_title
+      SELECT l.id, u.location AS district, u.name AS property_title
       FROM listings l
-      JOIN properties p ON p.id = l.property_id
+      JOIN units u ON u.id = l.unit_id
       WHERE l.id = ?
     `).get(input.listingId) as { id: string; district: string; property_title: string } | undefined;
     if (!listing) throw new Error("Unknown synthetic listing.");
@@ -406,10 +568,10 @@ export function getInquiry(displayId: string): PersistedInquiry | null {
   return withDatabase((db) => {
     const row = db.prepare(`
       SELECT i.listing_id, i.purpose, i.proposed_date, i.period, i.contact_method,
-             i.created_at, l.district, p.name AS property_title
+             i.created_at, u.location AS district, u.name AS property_title
       FROM inquiries i
       JOIN listings l ON l.id = i.listing_id
-      JOIN properties p ON p.id = l.property_id
+      JOIN units u ON u.id = l.unit_id
       WHERE i.id = ?
     `).get(id) as Record<string, unknown> | undefined;
     if (!row) return null;
