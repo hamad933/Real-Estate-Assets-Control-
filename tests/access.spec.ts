@@ -47,7 +47,7 @@ test("TENANT sees only own relationship and cross-scope access is denied", async
   await expect(page.getByText(/تم إنشاء طلب الخدمة وربطه/).first()).toBeVisible();
 
   await page.goto("/tenant/resources/tenant-resource-101");
-  await expect(page.getByText("ضمن نطاق المستأجر", { exact: true })).toBeVisible();
+  await expect(page.getByText("ضمن صلاحياتك", { exact: true })).toBeVisible();
 
   await page.goto("/tenant/resources/tenant-resource-202");
   await expect(page).toHaveURL(/\/access-denied\?reason=scope/);
