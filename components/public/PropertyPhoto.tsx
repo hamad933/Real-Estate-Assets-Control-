@@ -4,6 +4,7 @@ type PropertyPhotoProps = {
   propertyId?: string;
   variant?: PropertyPhotoVariant;
   alt: string;
+  compact?: boolean;
 };
 
 const mainPositions: Record<string, string> = {
@@ -22,14 +23,14 @@ const variantPositions: Record<PropertyPhotoVariant, string> = {
   tertiary: "33.333% 0%"
 };
 
-export function PropertyPhoto({ propertyId, variant = "main", alt }: PropertyPhotoProps) {
+export function PropertyPhoto({ propertyId, variant = "main", alt, compact = false }: PropertyPhotoProps) {
   const position = variant === "main" && propertyId
     ? mainPositions[propertyId] ?? variantPositions.main
     : variantPositions[variant];
 
   return (
     <div
-      className="property-visual"
+      className={compact ? "property-visual property-visual--compact" : "property-visual"}
       data-testid="property-photo"
       role="img"
       aria-label={alt}
