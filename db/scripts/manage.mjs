@@ -93,7 +93,7 @@ function verify(db) {
   }
 
   const migrations = count(db, "schema_migrations");
-  if (migrations !== 2) throw new Error(`Expected 2 migrations, found ${migrations}`);
+  if (migrations !== 3) throw new Error(`Expected 3 migrations, found ${migrations}`);
 
   const foreignKeyIssues = db.prepare("PRAGMA foreign_key_check").all();
   if (foreignKeyIssues.length > 0) throw new Error(`Foreign-key check failed: ${JSON.stringify(foreignKeyIssues)}`);
