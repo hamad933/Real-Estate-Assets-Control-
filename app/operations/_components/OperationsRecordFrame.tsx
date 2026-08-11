@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { PropertyVisual } from "@/components/PropertyVisual";
+import { PropertyPhoto } from "@/components/public/PropertyPhoto";
 import { WorkspaceShell } from "@/components/WorkspaceShell";
 import type { AuthenticatedSession } from "@/lib/auth/types";
 import type { OperationsRecordData, OperationsSection } from "@/app/operations/_data/records";
@@ -40,6 +40,7 @@ export function OperationsRecordFrame({
   children
 }: OperationsRecordFrameProps) {
   const isProperty = entity === "property";
+  const visualLabel = isProperty ? record.propertyName : record.unitName;
 
   return (
     <WorkspaceShell
@@ -51,14 +52,14 @@ export function OperationsRecordFrame({
     >
       <section className={styles.entityCard} aria-label="سياق السجل التشغيلي">
         <div className={styles.entityVisual}>
-          <PropertyVisual
-            compact
-            label={`تصوير تمثيلي لـ ${isProperty ? record.propertyName : record.unitName}`}
+          <PropertyPhoto
+            propertyId="narjis-101"
+            alt={`صورة عقارية لـ ${visualLabel}`}
           />
         </div>
         <div className={styles.entityIdentity}>
           <p className={styles.kicker}>{isProperty ? "أصل تشغيلي" : "وحدة مرتبطة بالسجل"}</p>
-          <h2>{isProperty ? record.propertyName : record.unitName}</h2>
+          <h2>{visualLabel}</h2>
           <p>{isProperty ? record.propertyLocation : record.unitLocation}</p>
           <div className={styles.idRow}>
             <span>السجل</span>
