@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { PropertyVisual } from "@/components/PropertyVisual";
+import { PropertyPhoto } from "@/components/public/PropertyPhoto";
 import { WorkspaceShell } from "@/components/WorkspaceShell";
 import { TenantServicePanel } from "@/components/w04/TenantServicePanel";
 import styles from "@/components/w04/RoleWorkspaces.module.css";
@@ -43,7 +43,7 @@ export default async function TenantPage() {
       <div className={styles.stack}>
         <section className={styles.heroGrid} id="unit">
           <div className={styles.heroCard}>
-            <PropertyVisual compact label={`تصوير تمثيلي لـ ${data.unit.name}`} />
+            <PropertyPhoto propertyId="narjis-101" alt={`صورة عقارية لـ ${data.unit.name}`} />
             <div className={styles.heroMeta}>
               <span className={styles.statusGood}>سجل السكن نشط</span>
               <h2>{data.unit.name}</h2>
