@@ -42,9 +42,9 @@ test("TENANT sees only own relationship and cross-scope access is denied", async
   await page.goto("/tenant");
   await expect(page.getByRole("heading", { name: "خدمات المستأجر" })).toBeVisible();
   await expect(page.getByText("شقة النرجس 101", { exact: true }).first()).toBeVisible();
-  await expect(page.getByText("مستندات شخصية مرتبطة بالعلاقة")).toBeVisible();
+  await expect(page.getByText("مستندات مرتبطة بالعلاقة")).toBeVisible();
   await page.getByTestId("tenant-create-service-request").first().click();
-  await expect(page.getByText(/تم إنشاء تمثيل طلب جديد/).first()).toBeVisible();
+  await expect(page.getByText(/تم إنشاء طلب الخدمة وربطه/).first()).toBeVisible();
 
   await page.goto("/tenant/resources/tenant-resource-101");
   await expect(page.getByText("ضمن نطاق المستأجر", { exact: true })).toBeVisible();
@@ -63,15 +63,15 @@ test("CONTRACTOR sees assigned work, can update execution representation, and ca
 
   await page.goto("/contractor");
   await expect(page.getByRole("heading", { name: "تفاصيل المهمة الموكلة إليك" })).toBeVisible();
-  await expect(page.getByText("الأعمال المسندة فقط")).toBeVisible();
+  await expect(page.getByText("الأعمال المسندة إليك")).toBeVisible();
   await expect(page.getByTestId("approve-completion")).toBeDisabled();
   await expect(page.getByTestId("approve-cost")).toBeDisabled();
 
   await page.getByLabel("حالة المهمة").selectOption({ label: "قيد التنفيذ" });
   await page.getByTestId("contractor-update-status").click();
-  await expect(page.getByText(/تم تحديث الحالة داخل الجلسة إلى: قيد التنفيذ/)).toBeVisible();
+  await expect(page.getByText(/تم تحديث حالة المهمة إلى: قيد التنفيذ/)).toBeVisible();
   await page.getByTestId("contractor-upload-evidence").click();
-  await expect(page.getByText(/تمثيل رفع الدليل جاهز/)).toBeVisible();
+  await expect(page.getByText(/تم تجهيز خطوة إرفاق الدليل/)).toBeVisible();
 
   await page.goto("/contractor/assignments/work-order-501");
   await expect(page.getByText("مهمة مسندة")).toBeVisible();
@@ -92,7 +92,7 @@ test("existing OPERATIONS user remains scoped and is denied from S13", async ({ 
   await expect(page.getByRole("heading", { name: "الجاهزية التشغيلية" })).toBeVisible();
 
   await page.goto("/operations/records/ops-record-101");
-  await expect(page.getByText("ضمن النطاق")).toBeVisible();
+  await expect(page.getByText("متاح لك")).toBeVisible();
 
   await page.goto("/operations/records/ops-record-202");
   await expect(page).toHaveURL(/\/access-denied\?reason=scope/);
@@ -111,7 +111,7 @@ test("S13 is ADMIN only and all USER profiles are denied", async ({ page }) => {
   await setSession(page, "admin-demo");
   await page.goto("/admin");
   await expect(page.getByRole("heading", { name: "عمليات المحافظ" })).toBeVisible();
-  await expect(page.getByText("ADMIN فقط", { exact: true })).toBeVisible();
+  await expect(page.getByText("مديرو المحافظ فقط", { exact: true })).toBeVisible();
   await expect(page.getByText("سبب الأولوية الحالية")).toBeVisible();
 });
 
