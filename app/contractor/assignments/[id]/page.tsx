@@ -25,6 +25,7 @@ export default async function ContractorAssignmentPage({
         <span className="status status--good">مهمة مسندة</span>
         <h2>{data.assignment.title}</h2>
         <bdi className="ltr-id ltr-id--large">{id}</bdi>
+        <p>طلب الخدمة: <bdi className="ltr-id">{data.assignment.requestId}</bdi></p>
         <p>الحالة المحفوظة محليًا: {data.assignment.status}</p>
         <p>لا توجد هنا صلاحية لاعتماد الإكمال أو التكلفة النهائية.</p>
       </section>
