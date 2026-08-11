@@ -148,9 +148,9 @@ test.describe.serial("RP04-IMP-W06 local persistence foundation", () => {
     await page.getByLabel("رقم الجوال").fill("0500000000");
     await page.getByLabel("البريد الإلكتروني (اختياري)").fill("entered-value@example.test");
     await page.getByLabel("ملاحظات (اختياري)").fill("هذه الملاحظة لا ينبغي تخزينها.");
-    await page.getByRole("button", { name: "إرسال الطلب التجريبي" }).click();
+    await page.getByRole("button", { name: "إرسال الطلب" }).click();
 
-    await expect(page.getByRole("heading", { name: "شكرًا، تم إنشاء تأكيد تجريبي" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "شكرًا، تم تسجيل طلبك" })).toBeVisible();
     const displayId = await page.getByTestId("persisted-inquiry-id").textContent();
     expect(displayId).toMatch(/^INQ-LOCAL-\d{4}$/);
 
@@ -168,7 +168,7 @@ test.describe.serial("RP04-IMP-W06 local persistence foundation", () => {
     expect(persisted.notes_summary).not.toContain("entered-value@example.test");
 
     await page.reload();
-    await expect(page.getByRole("heading", { name: "شكرًا، تم إنشاء تأكيد تجريبي" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "شكرًا، تم تسجيل طلبك" })).toBeVisible();
     await expect(page.getByTestId("persisted-inquiry-id")).toHaveText(displayId ?? "");
   });
 
@@ -178,7 +178,7 @@ test.describe.serial("RP04-IMP-W06 local persistence foundation", () => {
     await page.goto("/contractor");
     await page.getByLabel("حالة المهمة").selectOption({ label: "قيد التنفيذ" });
     await page.getByTestId("contractor-update-status").click();
-    await expect(page.getByText(/تم تحديث الحالة داخل الجلسة إلى: قيد التنفيذ/)).toBeVisible();
+    await expect(page.getByText(/تم تحديث حالة المهمة إلى: قيد التنفيذ/)).toBeVisible();
 
     const lifecycle = readDatabase((db) => ({
       assignment: String((db.prepare("SELECT status FROM contractor_assignments WHERE id = 'work-order-501'").get() as { status: string }).status),
