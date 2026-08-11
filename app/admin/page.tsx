@@ -13,9 +13,9 @@ export default async function AdminPage() {
     <WorkspaceShell
       session={session}
       workspace="ADMIN"
-      eyebrow="S13 — عمليات المحافظ"
+      eyebrow="إدارة المحافظ"
       title="عمليات المحافظ"
-      description="رؤية تشغيلية على مستوى المحفظة لتحديد الحالات المفتوحة ذات الأولوية، ثم الانتقال إلى سياق السجل والإجراء المبرر."
+      description="تابع الحالات المفتوحة ذات الأولوية عبر المحفظة وانتقل مباشرة إلى السجل المطلوب للمراجعة."
     >
       <PortfolioOperationsClient data={data} />
     </WorkspaceShell>
