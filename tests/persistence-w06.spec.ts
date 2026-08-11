@@ -51,27 +51,34 @@ test.describe.serial("RP04-IMP-W06 local persistence foundation", () => {
   test("clean init, migration, deterministic seed, idempotent seed, and reset are proven", () => {
     runDb("db:reset");
     const verification = runDb("db:verify");
-    expect(verification).toContain('"migrationCount": 1');
+    expect(verification).toContain('"migrationCount": 2');
     expect(verification).toContain('"foreignKeyCheck": "PASS"');
+    expect(verification).toContain('"status": "PASS"');
 
     const baseline = readDatabase((db) => ({
       migrations: Number((db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get() as { count: number }).count),
       properties: Number((db.prepare("SELECT COUNT(*) AS count FROM properties").get() as { count: number }).count),
+      units: Number((db.prepare("SELECT COUNT(*) AS count FROM units").get() as { count: number }).count),
       listings: Number((db.prepare("SELECT COUNT(*) AS count FROM listings").get() as { count: number }).count),
+      payments: Number((db.prepare("SELECT COUNT(*) AS count FROM payment_records").get() as { count: number }).count),
       inquiries: Number((db.prepare("SELECT COUNT(*) AS count FROM inquiries").get() as { count: number }).count),
-      assignmentStatus: String((db.prepare("SELECT status FROM contractor_assignments WHERE id = 'work-order-501'").get() as { status: string }).status)
+      assignmentStatus: String((db.prepare("SELECT status FROM contractor_assignments WHERE id = 'work-order-501'").get() as { status: string }).status),
+      maintenanceStatus: String((db.prepare("SELECT status FROM maintenance_records WHERE id = 'SRV-2026-0891'").get() as { status: string }).status)
     }));
 
     expect(baseline).toEqual({
-      migrations: 1,
-      properties: 6,
+      migrations: 2,
+      properties: 7,
+      units: 7,
       listings: 6,
+      payments: 5,
       inquiries: 0,
-      assignmentStatus: "بانتظار الوصول"
+      assignmentStatus: "بانتظار الوصول",
+      maintenanceStatus: "بانتظار الوصول"
     });
 
     runDb("db:seed");
-    expect(readDatabase((db) => Number((db.prepare("SELECT COUNT(*) AS count FROM properties").get() as { count: number }).count))).toBe(6);
+    expect(readDatabase((db) => Number((db.prepare("SELECT COUNT(*) AS count FROM properties").get() as { count: number }).count))).toBe(7);
 
     const writable = new DatabaseSync(databasePath);
     writable.exec("PRAGMA foreign_keys = ON;");
@@ -90,9 +97,14 @@ test.describe.serial("RP04-IMP-W06 local persistence foundation", () => {
     runDb("db:reset");
     const resetState = readDatabase((db) => ({
       inquiries: Number((db.prepare("SELECT COUNT(*) AS count FROM inquiries").get() as { count: number }).count),
-      assignmentStatus: String((db.prepare("SELECT status FROM contractor_assignments WHERE id = 'work-order-501'").get() as { status: string }).status)
+      assignmentStatus: String((db.prepare("SELECT status FROM contractor_assignments WHERE id = 'work-order-501'").get() as { status: string }).status),
+      maintenanceStatus: String((db.prepare("SELECT status FROM maintenance_records WHERE id = 'SRV-2026-0891'").get() as { status: string }).status)
     }));
-    expect(resetState).toEqual({ inquiries: 0, assignmentStatus: "بانتظار الوصول" });
+    expect(resetState).toEqual({
+      inquiries: 0,
+      assignmentStatus: "بانتظار الوصول",
+      maintenanceStatus: "بانتظار الوصول"
+    });
   });
 
   test("key Tenant, Contractor, Operations, and Admin records are served from SQLite under existing scope", async ({ page }) => {
@@ -106,12 +118,13 @@ test.describe.serial("RP04-IMP-W06 local persistence foundation", () => {
     await setSession(page, "contractor-demo");
     await page.goto("/contractor/assignments/work-order-501");
     await expect(page.getByText("صيانة تكييف", { exact: true })).toBeVisible();
+    await expect(page.getByText("SRV-2026-0891", { exact: true })).toBeVisible();
     await page.goto("/contractor/assignments/work-order-502");
     await expect(page).toHaveURL(/\/access-denied\?reason=scope/);
 
     await setSession(page, "operations-demo");
     await page.goto("/operations/records/ops-record-101");
-    await expect(page.getByText("فيلا الياسمين", { exact: true })).toBeVisible();
+    await expect(page.getByText("شقة النرجس 101", { exact: true })).toBeVisible();
     await page.goto("/operations/records/ops-record-202");
     await expect(page).toHaveURL(/\/access-denied\?reason=scope/);
     await page.goto("/admin");
@@ -167,8 +180,11 @@ test.describe.serial("RP04-IMP-W06 local persistence foundation", () => {
     await page.getByTestId("contractor-update-status").click();
     await expect(page.getByText(/تم تحديث الحالة داخل الجلسة إلى: قيد التنفيذ/)).toBeVisible();
 
-    const status = readDatabase((db) => String((db.prepare("SELECT status FROM contractor_assignments WHERE id = 'work-order-501'").get() as { status: string }).status));
-    expect(status).toBe("قيد التنفيذ");
+    const lifecycle = readDatabase((db) => ({
+      assignment: String((db.prepare("SELECT status FROM contractor_assignments WHERE id = 'work-order-501'").get() as { status: string }).status),
+      maintenance: String((db.prepare("SELECT status FROM maintenance_records WHERE id = 'SRV-2026-0891'").get() as { status: string }).status)
+    }));
+    expect(lifecycle).toEqual({ assignment: "قيد التنفيذ", maintenance: "قيد التنفيذ" });
 
     await page.reload();
     await expect(page.getByLabel("حالة المهمة")).toHaveValue("قيد التنفيذ");
