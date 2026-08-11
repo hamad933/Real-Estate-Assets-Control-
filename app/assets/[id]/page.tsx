@@ -1,4 +1,5 @@
 import { AssetDetailExperience } from "@/components/public/PublicExperience";
+import { getPublicPropertyFromDatabase, listPublicPropertiesFromDatabase } from "@/lib/data/repository";
 
 type AssetDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -13,5 +14,7 @@ export default async function AssetDetailPage({ params, searchParams }: AssetDet
   const { id } = await params;
   const rawSearch = await searchParams;
   const initial = Object.fromEntries(Object.entries(rawSearch).map(([key, value]) => [key, first(value)]));
-  return <AssetDetailExperience propertyId={id} initial={initial} />;
+  const properties = listPublicPropertiesFromDatabase();
+  const property = getPublicPropertyFromDatabase(id);
+  return <AssetDetailExperience property={property} initial={initial} properties={properties} />;
 }
