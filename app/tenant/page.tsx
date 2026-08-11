@@ -19,15 +19,15 @@ export default async function TenantPage() {
     <WorkspaceShell
       session={session}
       workspace="TENANT"
-      eyebrow="S11 — الخدمة الذاتية للمستأجر"
+      eyebrow="الخدمة الذاتية للمستأجر"
       title="خدمات المستأجر"
-      description="إدارة معلومات السكن، والمدفوعات، وطلبات الخدمة، والمستندات الخاصة بعلاقتك الحالية فقط."
+      description="راجع معلومات السكن والمدفوعات وطلبات الخدمة والمستندات المرتبطة بعلاقتك الحالية."
       aside={
         <div className={styles.darkRail}>
           <div>
             <p>مرحبًا بك</p>
             <h2>ملخص علاقتك السكنية</h2>
-            <small>لا تظهر هنا أي بيانات خارج نطاق المستأجر الحالي.</small>
+            <small>تعرض هذه الصفحة معلومات علاقتك السكنية الحالية فقط.</small>
           </div>
           <nav className={styles.darkMenu} aria-label="تنقل خدمات المستأجر">
             <a href="#unit">وحدتي</a>
@@ -50,14 +50,14 @@ export default async function TenantPage() {
               <p className={styles.muted}>{data.unit.location}</p>
               <p>{data.unit.contractType}</p>
               <Link className="button button--quiet" href={`/tenant/resources/${data.resourceId}`}>
-                عرض تفاصيل العلاقة المصرّح بها
+                عرض تفاصيل السكن
               </Link>
             </div>
           </div>
           <div className={styles.softCard}>
             <span className={styles.kicker}>الحالة الحالية</span>
             <h2>أنت مسجل حاليًا بوحدتك</h2>
-            <p className={styles.muted}>النطاق الحالي: <bdi className="ltr-id">{data.unit.tenancyId}</bdi></p>
+            <p className={styles.muted}>رقم العلاقة: <bdi className="ltr-id">{data.unit.tenancyId}</bdi></p>
             <div className={styles.definitionGrid}>
               <div><span>بداية العقد</span><strong>{data.unit.startDate}</strong></div>
               <div><span>نهاية العقد</span><strong>{data.unit.endDate}</strong></div>
@@ -96,7 +96,7 @@ export default async function TenantPage() {
                 <span className={styles.kicker}>طلبات الخدمة</span>
                 <h2>آخر الطلبات</h2>
               </div>
-              <span className={styles.statusGood}>ضمن نطاق وحدتك</span>
+              <span className={styles.statusGood}>مرتبط بوحدتك</span>
             </div>
             <div className={styles.list}>
               {data.serviceRequests.map((request) => (
@@ -115,7 +115,7 @@ export default async function TenantPage() {
         <section className={styles.grid2}>
           <div className={styles.softCard} id="documents">
             <span className={styles.kicker}>مستنداتي</span>
-            <h2>مستندات شخصية مرتبطة بالعلاقة</h2>
+            <h2>مستندات مرتبطة بالعلاقة</h2>
             <div className={styles.list}>
               {data.documents.map((document) => (
                 <div className={styles.listRow} key={document.id}>
