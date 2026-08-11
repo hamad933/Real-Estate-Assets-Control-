@@ -100,7 +100,7 @@ export function PortfolioOperationsClient({ data }: { data: PortfolioOperationsD
           </div>
 
           <p className={s13Styles.toolbarNote} id="s13-unavailable-actions">
-            تخصيص الأعمدة والإجراءات المجمعة غير متاحة في هذا التنفيذ المحلي؛ لا توجد إعدادات محفوظة أو عمليات خلفية ضمن W04.
+            تخصيص الأعمدة والإجراءات المجمعة غير متاحة في هذه النسخة.
           </p>
 
           <div className="table-wrap" style={{ maxWidth: "100%", overflowX: "auto" }}>
@@ -171,7 +171,7 @@ export function PortfolioOperationsClient({ data }: { data: PortfolioOperationsD
 
           <div className={styles.footerMeta}>
             <span>النتائج المعروضة: {filteredRecords.length} من {data.records.length}</span>
-            <span>ADMIN فقط</span>
+            <span>مديرو المحافظ فقط</span>
           </div>
         </div>
 
@@ -201,7 +201,7 @@ export function PortfolioOperationsClient({ data }: { data: PortfolioOperationsD
             <section className={s13Styles.reviewPanel} aria-label="مراجعة الحالات المفتوحة" data-testid="s13-review-mode">
               <div className={styles.rowBetween}>
                 <div>
-                  <span className={styles.kicker}>وضع المراجعة المحلي</span>
+                  <span className={styles.kicker}>مراجعة السجل</span>
                   <h2>الحالات المفتوحة — {selectedRecord.open}</h2>
                 </div>
                 <button className={styles.secondaryAction} type="button" onClick={() => setReviewMode(false)}>
@@ -225,7 +225,7 @@ export function PortfolioOperationsClient({ data }: { data: PortfolioOperationsD
             <div className={styles.softCard}>
               <span className={styles.kicker}>الإجراء التالي الموصى به</span>
               <p>{selectedRecord.nextAction}</p>
-              <p className={styles.muted}>لدى هذا السجل {selectedRecord.open} حالات مفتوحة قابلة للمراجعة محليًا.</p>
+              <p className={styles.muted}>لدى هذا السجل {selectedRecord.open} حالات مفتوحة قابلة للمراجعة.</p>
               <button
                 className={styles.primaryAction}
                 type="button"
@@ -240,8 +240,8 @@ export function PortfolioOperationsClient({ data }: { data: PortfolioOperationsD
       </section>
 
       <section className={styles.footerMeta}>
-        <span>البيانات المعروضة تركيبية ومقيدة بجلسة الإدارة الحالية.</span>
-        <span>آخر تحديث تمثيلي: 09 مايو 2026 · 10:45 ص</span>
+        <span>العرض يشمل السجلات المتاحة لهذه المساحة.</span>
+        <span>آخر تحديث: 09 مايو 2026 · 10:45 ص</span>
       </section>
     </div>
   );
