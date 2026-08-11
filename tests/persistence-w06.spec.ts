@@ -51,7 +51,7 @@ test.describe.serial("RP04-IMP-W06 local persistence foundation", () => {
   test("clean init, migration, deterministic seed, idempotent seed, and reset are proven", () => {
     runDb("db:reset");
     const verification = runDb("db:verify");
-    expect(verification).toContain('"migrationCount": 2');
+    expect(verification).toContain('"migrationCount": 3');
     expect(verification).toContain('"foreignKeyCheck": "PASS"');
     expect(verification).toContain('"status": "PASS"');
 
@@ -67,7 +67,7 @@ test.describe.serial("RP04-IMP-W06 local persistence foundation", () => {
     }));
 
     expect(baseline).toEqual({
-      migrations: 2,
+      migrations: 3,
       properties: 7,
       units: 7,
       listings: 6,
