@@ -1,12 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { updateContractorAssignmentStatusAction } from "@/app/contractor/actions";
 import styles from "@/components/w04/RoleWorkspaces.module.css";
 
-export function ContractorControls() {
-  const [status, setStatus] = useState("بانتظار الوصول");
+export function ContractorControls({
+  assignmentId,
+  initialStatus
+}: {
+  assignmentId: string;
+  initialStatus: string;
+}) {
+  const [status, setStatus] = useState(initialStatus);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
   const [evidence, setEvidence] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  function persistStatus() {
+    setSaved(false);
+    setError("");
+    startTransition(async () => {
+      const result = await updateContractorAssignmentStatusAction(assignmentId, status);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      setSaved(true);
+    });
+  }
 
   return (
     <div className={styles.actionStack}>
@@ -15,9 +37,11 @@ export function ContractorControls() {
         <select
           className={styles.select}
           value={status}
+          disabled={isPending}
           onChange={(event) => {
             setStatus(event.target.value);
             setSaved(false);
+            setError("");
           }}
           aria-label="حالة المهمة"
         >
@@ -31,12 +55,18 @@ export function ContractorControls() {
       <button
         className={styles.primaryAction}
         type="button"
-        onClick={() => setSaved(true)}
+        onClick={persistStatus}
+        disabled={isPending}
         data-testid="contractor-update-status"
       >
-        تحديث حالة المهمة
+        {isPending ? "جارٍ الحفظ..." : "تحديث حالة المهمة"}
       </button>
-      {saved ? <p className={styles.successNotice} role="status">تم تحديث الحالة داخل الجلسة إلى: {status}</p> : null}
+      {saved ? (
+        <p className={styles.successNotice} role="status">
+          تم تحديث الحالة داخل الجلسة إلى: {status}. وحُفظ التغيير في قاعدة SQLite المحلية.
+        </p>
+      ) : null}
+      {error ? <p className={styles.notice} role="alert">{error}</p> : null}
 
       <button
         className={styles.secondaryAction}

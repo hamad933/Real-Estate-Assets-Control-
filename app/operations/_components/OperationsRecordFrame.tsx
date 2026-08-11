@@ -3,11 +3,12 @@ import type { ReactNode } from "react";
 import { PropertyVisual } from "@/components/PropertyVisual";
 import { WorkspaceShell } from "@/components/WorkspaceShell";
 import type { AuthenticatedSession } from "@/lib/auth/types";
-import { operationsRecord, type OperationsSection } from "@/app/operations/_data/records";
+import type { OperationsRecordData, OperationsSection } from "@/app/operations/_data/records";
 import styles from "@/app/operations/operations.module.css";
 
 type OperationsRecordFrameProps = {
   session: AuthenticatedSession;
+  record: OperationsRecordData;
   current: OperationsSection;
   title: string;
   description: string;
@@ -23,13 +24,14 @@ const tabs: Array<{ key: OperationsSection; label: string; code: string }> = [
   { key: "maintenance", label: "الصيانة والخدمة", code: "S10" }
 ];
 
-function tabHref(section: OperationsSection) {
+function tabHref(section: OperationsSection, recordId: string) {
   if (section === "readiness") return "/operations";
-  return `/operations/records/${operationsRecord.recordId}/${section}`;
+  return `/operations/records/${recordId}/${section}`;
 }
 
 export function OperationsRecordFrame({
   session,
+  record,
   current,
   title,
   description,
@@ -51,36 +53,25 @@ export function OperationsRecordFrame({
         <div className={styles.entityVisual}>
           <PropertyVisual
             compact
-            label={`تصوير تمثيلي لـ ${isProperty ? operationsRecord.propertyName : operationsRecord.unitName}`}
+            label={`تصوير تمثيلي لـ ${isProperty ? record.propertyName : record.unitName}`}
           />
         </div>
         <div className={styles.entityIdentity}>
           <p className={styles.kicker}>{isProperty ? "أصل تشغيلي" : "وحدة مرتبطة بالسجل"}</p>
-          <h2>{isProperty ? operationsRecord.propertyName : operationsRecord.unitName}</h2>
-          <p>{isProperty ? operationsRecord.propertyLocation : operationsRecord.unitLocation}</p>
+          <h2>{isProperty ? record.propertyName : record.unitName}</h2>
+          <p>{isProperty ? record.propertyLocation : record.unitLocation}</p>
           <div className={styles.idRow}>
             <span>السجل</span>
-            <bdi className="ltr-id">{operationsRecord.recordId}</bdi>
+            <bdi className="ltr-id">{record.recordId}</bdi>
             <span>•</span>
-            <bdi className="ltr-id">{isProperty ? operationsRecord.propertyId : operationsRecord.unitId}</bdi>
+            <bdi className="ltr-id">{isProperty ? record.propertyId : record.unitId}</bdi>
           </div>
         </div>
         <dl className={styles.entityFacts}>
-          {isProperty ? (
-            <>
-              <div><dt>نوع الأصل</dt><dd>فيلا</dd></div>
-              <div><dt>المساحة</dt><dd>350 م²</dd></div>
-              <div><dt>غرف النوم</dt><dd>5</dd></div>
-              <div><dt>الحمامات</dt><dd>5</dd></div>
-            </>
-          ) : (
-            <>
-              <div><dt>نوع الوحدة</dt><dd>{operationsRecord.unitMeta.type}</dd></div>
-              <div><dt>غرف النوم</dt><dd>{operationsRecord.unitMeta.bedrooms}</dd></div>
-              <div><dt>الحمامات</dt><dd>{operationsRecord.unitMeta.bathrooms}</dd></div>
-              <div><dt>المساحة</dt><dd>{operationsRecord.unitMeta.area}</dd></div>
-            </>
-          )}
+          <div><dt>{isProperty ? "نوع الأصل" : "نوع الوحدة"}</dt><dd>{record.unitMeta.type}</dd></div>
+          <div><dt>المساحة</dt><dd>{record.unitMeta.area}</dd></div>
+          <div><dt>غرف النوم</dt><dd>{record.unitMeta.bedrooms}</dd></div>
+          <div><dt>الحمامات</dt><dd>{record.unitMeta.bathrooms}</dd></div>
         </dl>
       </section>
 
@@ -88,7 +79,7 @@ export function OperationsRecordFrame({
         {tabs.map((tab) => (
           <Link
             key={tab.key}
-            href={tabHref(tab.key)}
+            href={tabHref(tab.key, record.recordId)}
             className={tab.key === current ? styles.recordTabActive : styles.recordTab}
             aria-current={tab.key === current ? "page" : undefined}
           >

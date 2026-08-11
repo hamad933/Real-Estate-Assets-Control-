@@ -142,13 +142,13 @@ test("S13 Admin search selection review and unsupported controls are determinist
 
   const context = page.getByTestId("s13-selected-context");
   await expect(context.getByRole("heading", { name: "شقة النرجس 101" })).toBeVisible();
-  await expect(context).toContainText("دفعة متأخرة وطلبا صيانة مفتوحان");
+  await expect(context).toContainText("دفعة شهرية متأخرة وثلاثة طلبات خدمة مفتوحة");
 
   await page.getByTestId("s13-review-open-conditions").click();
   const review = page.getByTestId("s13-review-mode");
   await expect(review).toBeVisible();
-  await expect(review).toContainText("الحالات المفتوحة — 3");
-  await expect(review).toContainText("دفعة شهرية متأخرة");
+  await expect(review).toContainText("الحالات المفتوحة — 4");
+  await expect(review).toContainText("دفعة أغسطس الشهرية متأخرة");
 });
 
 test("logout clears W04 access", async ({ page }) => {

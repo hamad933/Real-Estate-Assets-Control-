@@ -1,0 +1,129 @@
+name: W06 validation
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, reopened, synchronize]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: exact-head-persistence-regression
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.ref == 'feature/rp04-imp-w06-persistence-foundation'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      BASELINE: fc5504cadb636f43719ddba86fe2065c25eabcb3
+      RP04_DB_PATH: ${{ github.workspace }}/.runtime/rp04-ci.sqlite
+
+    steps:
+      - name: Checkout exact W06 head
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Checkout dispatched ref
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Verify exact head and W06 baseline ancestry
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACTUAL_HEAD="$(git rev-parse HEAD)"
+          EXPECTED_HEAD="${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}"
+          test "$ACTUAL_HEAD" = "$EXPECTED_HEAD"
+          git merge-base --is-ancestor "$BASELINE" HEAD
+          test "$(git merge-base "$BASELINE" HEAD)" = "$BASELINE"
+          mkdir -p evidence
+          printf '%s\n' "$ACTUAL_HEAD" > evidence/w06-validated-head-sha.txt
+          printf '%s\n' "$BASELINE" > evidence/w06-exact-baseline.txt
+          git diff --name-only "$BASELINE" HEAD | sort > evidence/w06-changed-paths.txt
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies from committed lockfile
+        run: npm ci
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
+      - name: Review persistence dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE' | tee evidence/w06-dependency-review.txt
+          const pkg = require('./package.json');
+          const all = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) };
+          const persistence = ['better-sqlite3', 'sqlite3', 'prisma', '@prisma/client', 'drizzle-orm', 'typeorm', 'sequelize', 'mikro-orm'];
+          const found = persistence.filter((name) => Object.prototype.hasOwnProperty.call(all, name));
+          console.log(JSON.stringify({ persistenceDependencies: found, count: found.length, driver: 'node:sqlite (Node.js 22 built-in)' }, null, 2));
+          if (found.length > 1) process.exit(1);
+          if (found.some((name) => name !== 'better-sqlite3')) process.exit(1);
+          NODE
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Production build
+        run: npm run build
+
+      - name: Clean init, migrate, seed, and reset verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run db:reset | tee evidence/w06-db-reset.txt
+          npm run db:verify | tee evidence/w06-db-verification.txt
+          npm run db:seed | tee evidence/w06-db-idempotent-seed.txt
+          npm run db:verify >> evidence/w06-db-verification.txt
+
+      - name: Full W01-W06 Playwright regression
+        run: npm run test:e2e
+
+      - name: Final database integrity verification
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p evidence
+          npm run db:verify | tee evidence/w06-db-final-verification.txt || true
+          find evidence/screenshots -type f -name '*.png' -print 2>/dev/null | sort > evidence/w06-evidence-index.txt || true
+
+      - name: Upload W06 exact-head evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rp04-w06-evidence
+          if-no-files-found: error
+          path: |
+            evidence/w06-validated-head-sha.txt
+            evidence/w06-exact-baseline.txt
+            evidence/w06-changed-paths.txt
+            evidence/w06-dependency-review.txt
+            evidence/w06-db-reset.txt
+            evidence/w06-db-verification.txt
+            evidence/w06-db-idempotent-seed.txt
+            evidence/w06-db-final-verification.txt
+            evidence/w06-evidence-index.txt
+            evidence/screenshots
+            playwright-report
+            test-results
+            package.json
+            package-lock.json

@@ -61,7 +61,7 @@ test("W05 assembled product exposes every reviewed surface family together", asy
   await page.getByRole("searchbox", { name: "ابحث باسم العقار أو الوحدة" }).fill("النرجس");
   await page.getByRole("button", { name: "اختيار شقة النرجس 101" }).click();
   await page.getByTestId("s13-review-open-conditions").click();
-  await expect(page.getByTestId("s13-review-mode")).toContainText("الحالات المفتوحة — 3");
+  await expect(page.getByTestId("s13-review-mode")).toContainText("الحالات المفتوحة — 4");
 });
 
 test("W05 authorization matrix preserves visitor, profile, workspace, and resource boundaries", async ({ page }) => {

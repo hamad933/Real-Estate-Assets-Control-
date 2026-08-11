@@ -1,13 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState } from "react";
 import { PropertyPhoto } from "./PropertyPhoto";
 import {
   filterPublicProperties,
+  findPublicProperty,
   formatAnnualPrice,
-  getPublicProperty,
-  publicProperties,
   type PublicProperty,
   type SearchCriteria
 } from "@/lib/public-data";
@@ -15,6 +14,7 @@ import { PublicFooter, PublicHeader } from "./PublicHeader";
 import styles from "./PublicExperience.module.css";
 
 type InitialQuery = Record<string, string | undefined>;
+type PublicDataProps = { properties: PublicProperty[] };
 
 type PropertyCardProps = {
   property: PublicProperty;
@@ -56,9 +56,9 @@ const availabilities = [
   ["soon", "متاح قريبًا"]
 ] as const;
 
-function parseShortlist(value?: string) {
+function parseShortlist(properties: PublicProperty[], value?: string) {
   if (!value) return [] as string[];
-  return value.split(",").filter((id) => Boolean(getPublicProperty(id)));
+  return value.split(",").filter((id) => Boolean(findPublicProperty(properties, id)));
 }
 
 function shortlistValue(ids: string[]) {
@@ -185,7 +185,9 @@ function EmptyState({ title, body, action }: { title: string; body: string; acti
   );
 }
 
-export function DiscoveryExperience() {
+export function DiscoveryExperience({ properties }: PublicDataProps) {
+  const heroProperty = properties[0];
+
   return (
     <div className={styles.publicPage}>
       <PublicHeader />
@@ -227,7 +229,13 @@ export function DiscoveryExperience() {
           </div>
           <div className={styles.heroImage}>
             <PropertyPhoto variant="hero" alt="واجهة سكنية معاصرة بإضاءة دافئة" />
-            <div className={styles.heroCaption}><span>خيار مميز</span><strong>شقة النرجس 101</strong><small>الرياض — حي النرجس</small></div>
+            {heroProperty ? (
+              <div className={styles.heroCaption}>
+                <span>خيار مميز</span>
+                <strong>{heroProperty.title}</strong>
+                <small>{heroProperty.district}</small>
+              </div>
+            ) : null}
           </div>
         </section>
 
@@ -237,7 +245,7 @@ export function DiscoveryExperience() {
             <Link className={styles.inlineLink} href="/search?district=all&type=all&budget=all&availability=all">عرض جميع العقارات</Link>
           </div>
           <div className={styles.threeGrid}>
-            {publicProperties.slice(0, 3).map((property) => <PropertyCard key={property.id} property={property} />)}
+            {properties.slice(0, 3).map((property) => <PropertyCard key={property.id} property={property} />)}
           </div>
         </section>
 
@@ -250,7 +258,7 @@ export function DiscoveryExperience() {
           </div>
           <div className={styles.miniMap} aria-label="خريطة تركيبية مصغرة">
             <span className={styles.mapRoadOne} /><span className={styles.mapRoadTwo} /><span className={styles.mapRoadThree} />
-            {publicProperties.slice(0, 4).map((property, index) => <span key={property.id} className={styles.miniPin} style={{ left: `${property.mapX}%`, top: `${property.mapY}%` }}>{index + 1}</span>)}
+            {properties.slice(0, 4).map((property, index) => <span key={property.id} className={styles.miniPin} style={{ left: `${property.mapX}%`, top: `${property.mapY}%` }}>{index + 1}</span>)}
           </div>
         </section>
       </main>
@@ -259,10 +267,10 @@ export function DiscoveryExperience() {
   );
 }
 
-export function SearchExperience({ initial }: { initial: InitialQuery }) {
+export function SearchExperience({ initial, properties }: { initial: InitialQuery; properties: PublicProperty[] }) {
   const [criteria, setCriteria] = useState<SearchCriteria>(() => initialCriteria(initial));
-  const [shortlist, setShortlist] = useState<string[]>(() => parseShortlist(initial.shortlist));
-  const results = useMemo(() => filterPublicProperties(criteria), [criteria]);
+  const [shortlist, setShortlist] = useState<string[]>(() => parseShortlist(properties, initial.shortlist));
+  const results = useMemo(() => filterPublicProperties(properties, criteria), [properties, criteria]);
   const shortlistQuery = shortlistValue(shortlist);
 
   const toggle = (id: string) => {
@@ -303,7 +311,7 @@ export function SearchExperience({ initial }: { initial: InitialQuery }) {
             {shortlist.length ? (
               <div className={styles.shortlistItems}>
                 {shortlist.map((id) => {
-                  const property = getPublicProperty(id);
+                  const property = findPublicProperty(properties, id);
                   if (!property) return null;
                   return <div className={styles.shortlistItem} key={id}><div><strong>{property.title}</strong><span>{formatAnnualPrice(property.price)} ريال</span></div><button type="button" onClick={() => toggle(id)} aria-label={`إزالة ${property.title}`}>×</button></div>;
                 })}
@@ -318,11 +326,11 @@ export function SearchExperience({ initial }: { initial: InitialQuery }) {
   );
 }
 
-export function MapExperience({ initial }: { initial: InitialQuery }) {
+export function MapExperience({ initial, properties }: { initial: InitialQuery; properties: PublicProperty[] }) {
   const [criteria, setCriteria] = useState<SearchCriteria>(() => initialCriteria(initial));
-  const shortlist = parseShortlist(initial.shortlist);
+  const shortlist = parseShortlist(properties, initial.shortlist);
   const shortlistQuery = shortlistValue(shortlist);
-  const results = useMemo(() => filterPublicProperties(criteria), [criteria]);
+  const results = useMemo(() => filterPublicProperties(properties, criteria), [properties, criteria]);
   const [selected, setSelected] = useState<string>(() => results[0]?.id ?? "");
   const [areaOnly, setAreaOnly] = useState(false);
   const visible = areaOnly ? results.filter((_, index) => index % 2 === 0) : results;
@@ -368,9 +376,8 @@ export function MapExperience({ initial }: { initial: InitialQuery }) {
   );
 }
 
-export function AssetDetailExperience({ propertyId, initial }: { propertyId: string; initial: InitialQuery }) {
-  const property = getPublicProperty(propertyId);
-  const [shortlist, setShortlist] = useState<string[]>(() => parseShortlist(initial.shortlist));
+export function AssetDetailExperience({ property, initial, properties }: { property?: PublicProperty; initial: InitialQuery; properties: PublicProperty[] }) {
+  const [shortlist, setShortlist] = useState<string[]>(() => parseShortlist(properties, initial.shortlist));
   const shortlistQuery = shortlistValue(shortlist);
 
   if (!property) {
@@ -436,10 +443,10 @@ function recommendation(properties: PublicProperty[], priority: Priority) {
   return sorted[0];
 }
 
-export function ComparisonExperience({ initial }: { initial: InitialQuery }) {
-  const [ids, setIds] = useState<string[]>(() => parseShortlist(initial.shortlist));
+export function ComparisonExperience({ initial, properties: catalog }: { initial: InitialQuery; properties: PublicProperty[] }) {
+  const [ids, setIds] = useState<string[]>(() => parseShortlist(catalog, initial.shortlist));
   const [priority, setPriority] = useState<Priority>("cost");
-  const properties = ids.map((id) => getPublicProperty(id)).filter((item): item is PublicProperty => Boolean(item));
+  const properties = ids.map((id) => findPublicProperty(catalog, id)).filter((item): item is PublicProperty => Boolean(item));
   const recommended = properties.length ? recommendation(properties, priority) : undefined;
   const shortlistQuery = shortlistValue(ids);
 
@@ -487,74 +494,6 @@ export function ComparisonExperience({ initial }: { initial: InitialQuery }) {
             <div className={styles.recommendationActions}><Link className={styles.secondaryButton} href={queryWithShortlist(`/assets/${recommended.id}`, ids)}>مراجعة التفاصيل</Link><Link className={styles.primaryButton} href={queryWithShortlist(`/inquiry?property=${recommended.id}`, ids)}>الاستفسار عن هذا الخيار</Link></div>
           </section>
         ) : null}
-      </main>
-      <PublicFooter />
-    </div>
-  );
-}
-
-type InquiryErrors = Partial<Record<"date" | "name" | "phone" | "email", string>>;
-
-export function InquiryExperience({ initial }: { initial: InitialQuery }) {
-  const property = getPublicProperty(initial.property ?? "") ?? publicProperties[0];
-  const shortlist = parseShortlist(initial.shortlist);
-  const shortlistQuery = shortlistValue(shortlist);
-  const [purpose, setPurpose] = useState("visit");
-  const [contact, setContact] = useState("phone");
-  const [errors, setErrors] = useState<InquiryErrors>({});
-  const [submitted, setSubmitted] = useState(false);
-
-  const submit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const date = String(data.get("date") ?? "");
-    const name = String(data.get("name") ?? "").trim();
-    const phone = String(data.get("phone") ?? "").trim();
-    const email = String(data.get("email") ?? "").trim();
-    const next: InquiryErrors = {};
-    if (!date) next.date = "اختر تاريخًا مناسبًا للزيارة.";
-    if (name.length < 2) next.name = "أدخل اسمًا من حرفين على الأقل.";
-    if (!/^05\d{8}$/.test(phone)) next.phone = "أدخل رقم جوال تجريبيًا بصيغة 05XXXXXXXX.";
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) next.email = "أدخل بريدًا إلكترونيًا صحيح الصيغة أو اترك الحقل فارغًا.";
-    setErrors(next);
-    if (Object.keys(next).length === 0) setSubmitted(true);
-  };
-
-  if (submitted) {
-    return (
-      <div className={styles.publicPage}>
-        <PublicHeader shortlistCount={shortlist.length} shortlistQuery={shortlistQuery} />
-        <main className={styles.pageShell}>
-          <section className={styles.confirmation} role="status">
-            <span className={styles.confirmationIcon}>✓</span><p className={styles.eyebrow}>تم تسجيل الطلب محليًا</p><h1>شكرًا، تم إنشاء تأكيد تجريبي</h1><p>تم قبول بيانات النموذج داخل هذه التجربة التركيبية فقط. لم يُنشأ رقم CRM، ولم تُرسل البيانات إلى موظف أو نظام أو جهة خارجية.</p><div className={styles.confirmationProperty}><strong>{property.title}</strong><span>{property.district}</span></div><div className={styles.confirmationActions}><Link className={styles.primaryButton} href={queryWithShortlist(`/assets/${property.id}`, shortlist)}>العودة إلى العقار</Link><Link className={styles.secondaryButton} href="/search">استكشاف عقارات أخرى</Link></div>
-          </section>
-        </main>
-        <PublicFooter />
-      </div>
-    );
-  }
-
-  return (
-    <div className={styles.publicPage}>
-      <PublicHeader shortlistCount={shortlist.length} shortlistQuery={shortlistQuery} />
-      <main className={styles.pageShell}>
-        <div className={styles.breadcrumb}><Link href={queryWithShortlist(`/assets/${property.id}`, shortlist)}>{property.title}</Link><span>/</span><strong>الاستفسار والتنسيق</strong></div>
-        <section className={styles.inquiryHeading}><p className={styles.eyebrow}>خطوة واضحة قبل التواصل</p><h1>طلب زيارة أو استفسار</h1><p>اختر ما تحتاجه وأدخل بيانات تواصل تجريبية. لن تُرسل أي بيانات إلى جهة خارجية.</p></section>
-        <div className={styles.inquiryLayout}>
-          <form className={styles.inquiryForm} onSubmit={submit} noValidate>
-            <fieldset><legend><span>01</span>ما الذي تريده؟</legend><div className={styles.choiceGrid}>{[["visit", "طلب زيارة"], ["question", "استفسار عن العقار"], ["availability", "تأكيد التوفر"]].map(([value, label]) => <label key={value} className={purpose === value ? styles.choiceActive : ""}><input type="radio" name="purpose" value={value} checked={purpose === value} onChange={() => setPurpose(value)} />{label}</label>)}</div></fieldset>
-            <fieldset><legend><span>02</span>موعد مناسب</legend><div className={styles.formGrid}><label>تاريخ مقترح<input name="date" type="date" aria-invalid={Boolean(errors.date)} />{errors.date ? <small className={styles.fieldError}>{errors.date}</small> : null}</label><label>الفترة<select name="period" defaultValue="evening"><option value="morning">صباحًا</option><option value="afternoon">بعد الظهر</option><option value="evening">مساءً</option></select></label></div></fieldset>
-            <fieldset><legend><span>03</span>طريقة التواصل المفضلة</legend><div className={styles.choiceGrid}>{[["phone", "اتصال هاتفي"], ["message", "رسالة نصية"], ["email", "بريد إلكتروني"]].map(([value, label]) => <label key={value} className={contact === value ? styles.choiceActive : ""}><input type="radio" name="contact" value={value} checked={contact === value} onChange={() => setContact(value)} />{label}</label>)}</div></fieldset>
-            <fieldset><legend><span>04</span>بيانات التواصل</legend><div className={styles.formGrid}><label>الاسم<input name="name" type="text" autoComplete="name" aria-invalid={Boolean(errors.name)} />{errors.name ? <small className={styles.fieldError}>{errors.name}</small> : null}</label><label>رقم الجوال<input name="phone" type="tel" inputMode="tel" placeholder="05XXXXXXXX" dir="ltr" aria-invalid={Boolean(errors.phone)} />{errors.phone ? <small className={styles.fieldError}>{errors.phone}</small> : null}</label><label className={styles.fullField}>البريد الإلكتروني (اختياري)<input name="email" type="email" dir="ltr" placeholder="name@example.test" aria-invalid={Boolean(errors.email)} />{errors.email ? <small className={styles.fieldError}>{errors.email}</small> : null}</label><label className={styles.fullField}>ملاحظات (اختياري)<textarea name="notes" rows={4} placeholder="اكتب سؤالًا أو تفاصيل توقيت تساعد على التنسيق." /></label></div></fieldset>
-            <button className={styles.primaryButton} type="submit">إرسال الطلب التجريبي</button>
-            <p className={styles.formFootnote}>الإرسال ينشئ حالة تأكيد تركيبية داخل المتصفح فقط؛ لا توجد مراسلة أو CRM أو ضمان حجز.</p>
-          </form>
-
-          <aside className={styles.inquirySummary}>
-            <div className={styles.summaryVisual}><PropertyPhoto propertyId={property.id} alt={`صورة عقارية لـ ${property.title}`} /></div>
-            <span className={styles.statusPill}>{property.statusLabel}</span><h2>{property.title}</h2><p>{property.district}</p><div className={styles.bigPrice}><strong dir="ltr">{formatAnnualPrice(property.price)}</strong><span>ريال / سنة</span></div><dl><div><dt>النوع</dt><dd>{property.typeLabel}</dd></div><div><dt>الغرف</dt><dd>{property.bedrooms}</dd></div><div><dt>المساحة</dt><dd dir="ltr">{property.area} m²</dd></div></dl><Link className={styles.inlineLink} href={queryWithShortlist(`/assets/${property.id}`, shortlist)}>مراجعة تفاصيل العقار</Link>
-          </aside>
-        </div>
       </main>
       <PublicFooter />
     </div>

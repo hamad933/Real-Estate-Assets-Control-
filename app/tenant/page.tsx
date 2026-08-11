@@ -1,14 +1,19 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { PropertyVisual } from "@/components/PropertyVisual";
 import { WorkspaceShell } from "@/components/WorkspaceShell";
 import { TenantServicePanel } from "@/components/w04/TenantServicePanel";
 import styles from "@/components/w04/RoleWorkspaces.module.css";
 import { requireWorkspace } from "@/lib/auth/guards";
-import { tenantFixture } from "@/lib/fixtures";
-import { tenantWorkspaceFixture as data } from "@/lib/w04-fixtures";
+import { getTenantWorkspace } from "@/lib/data/repository";
 
 export default async function TenantPage() {
   const session = await requireWorkspace("TENANT");
+  const data = getTenantWorkspace(session);
+  if (!data) redirect("/access-denied?reason=scope");
+
+  const recentServices = data.serviceRequests.slice(0, 3);
+  const lastReceivedPayment = [...data.paymentHistory].reverse().find((payment) => payment.status === "مستلمة");
 
   return (
     <WorkspaceShell
@@ -44,7 +49,7 @@ export default async function TenantPage() {
               <h2>{data.unit.name}</h2>
               <p className={styles.muted}>{data.unit.location}</p>
               <p>{data.unit.contractType}</p>
-              <Link className="button button--quiet" href={`/tenant/resources/${tenantFixture.resourceId}`}>
+              <Link className="button button--quiet" href={`/tenant/resources/${data.resourceId}`}>
                 عرض تفاصيل العلاقة المصرّح بها
               </Link>
             </div>
@@ -139,10 +144,18 @@ export default async function TenantPage() {
 
         <section className={styles.activityStrip} aria-label="آخر الأنشطة">
           <strong>آخر الأنشطة</strong>
-          <div><strong>إصدار فاتورة جديدة</strong><span>15 مايو 2026</span></div>
-          <div><strong>تنفيذ طلب خدمة</strong><span>01 مايو 2026</span></div>
-          <div><strong>استلام دفعة</strong><span>15 سبتمبر 2025</span></div>
-          <div><strong>إنشاء طلب خدمة</strong><span>28 أبريل 2026</span></div>
+          {recentServices.map((request) => (
+            <div key={request.id}>
+              <strong>{request.title}</strong>
+              <span>{request.date} · {request.status}</span>
+            </div>
+          ))}
+          {lastReceivedPayment ? (
+            <div>
+              <strong>آخر دفعة مستلمة</strong>
+              <span>{lastReceivedPayment.date}</span>
+            </div>
+          ) : null}
         </section>
 
         <section className={styles.helpBar}>

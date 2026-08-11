@@ -1,13 +1,16 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { PropertyVisual } from "@/components/PropertyVisual";
 import { WorkspaceShell } from "@/components/WorkspaceShell";
 import { ContractorControls } from "@/components/w04/ContractorControls";
 import styles from "@/components/w04/RoleWorkspaces.module.css";
 import { requireWorkspace } from "@/lib/auth/guards";
-import { contractorWorkspaceFixture as data } from "@/lib/w04-fixtures";
+import { getContractorWorkspace } from "@/lib/data/repository";
 
 export default async function ContractorPage() {
   const session = await requireWorkspace("CONTRACTOR");
+  const data = getContractorWorkspace(session);
+  if (!data) redirect("/access-denied?reason=scope");
 
   return (
     <WorkspaceShell
@@ -98,7 +101,7 @@ export default async function ContractorPage() {
           <aside className={styles.softCard} dir="rtl">
             <span className={styles.kicker}>حالتك الحالية</span>
             <h2>التنفيذ والتقرير</h2>
-            <ContractorControls />
+            <ContractorControls assignmentId={data.assignment.id} initialStatus={data.assignment.status} />
             <div className={styles.list}>
               <div className={styles.listRow}>
                 <div>
