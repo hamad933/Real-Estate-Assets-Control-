@@ -55,17 +55,17 @@ test.describe.serial("RP04-IMP-W06 cross-surface domain coherence", () => {
 
   test("S01-S06 public property truth is served from SQLite rather than a competing static copy", async ({ page }) => {
     writeDatabase((db) => {
-      db.prepare("UPDATE units SET name = ? WHERE id = ?").run("شقة الياسمين 12 — مصدر SQLite", "unit-104");
+      db.prepare("UPDATE units SET name = ? WHERE id = ?").run("شقة الياسمين 12 — مصدر موحّد", "unit-104");
       db.prepare("UPDATE listings SET annual_price = ? WHERE id = ?").run(67000, "yasmin-12");
     });
 
     await page.goto("/search?district=all&type=all&budget=all&rooms=all&availability=all");
-    await expect(page.getByText("شقة الياسمين 12 — مصدر SQLite", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("شقة الياسمين 12 — مصدر موحّد", { exact: true }).first()).toBeVisible();
     const card = page.getByTestId("property-yasmin-12");
     await expect(card).toContainText("67,000");
 
     await page.goto("/assets/yasmin-12");
-    await expect(page.getByRole("heading", { name: "شقة الياسمين 12 — مصدر SQLite", level: 1 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "شقة الياسمين 12 — مصدر موحّد", level: 1 })).toBeVisible();
     await expect(page.locator("main")).toContainText("67,000");
   });
 
@@ -177,7 +177,7 @@ test.describe.serial("RP04-IMP-W06 cross-surface domain coherence", () => {
     await expect(page.getByLabel("حالة المهمة")).toHaveValue("بانتظار الوصول");
     await page.getByLabel("حالة المهمة").selectOption({ label: "قيد التنفيذ" });
     await page.getByTestId("contractor-update-status").click();
-    await expect(page.getByText(/تم تحديث الحالة داخل الجلسة إلى: قيد التنفيذ/)).toBeVisible();
+    await expect(page.getByText(/تم تحديث حالة المهمة إلى: قيد التنفيذ/)).toBeVisible();
 
     await setSession(page, "tenant-demo");
     await page.goto("/tenant");
