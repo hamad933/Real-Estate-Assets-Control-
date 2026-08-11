@@ -55,31 +55,55 @@ jobs:
           node-version: 22
 
       - name: npm ci
-        run: npm ci | tee evidence/w08-npm-ci.txt
+        shell: bash
+        run: |
+          set -o pipefail
+          npm ci | tee evidence/w08-npm-ci.txt
 
       - name: npm audit high
-        run: npm audit --audit-level=high | tee evidence/w08-npm-audit.txt
+        shell: bash
+        run: |
+          set -o pipefail
+          npm audit --audit-level=high | tee evidence/w08-npm-audit.txt
 
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
       - name: npm run lint
-        run: npm run lint | tee evidence/w08-lint.txt
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run lint | tee evidence/w08-lint.txt
 
       - name: npm run typecheck
-        run: npm run typecheck | tee evidence/w08-typecheck.txt
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run typecheck | tee evidence/w08-typecheck.txt
 
       - name: npm run build
-        run: npm run build | tee evidence/w08-build.txt
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run build | tee evidence/w08-build.txt
 
       - name: Reset database for deterministic regression
-        run: npm run db:reset | tee evidence/w08-db-reset.txt
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run db:reset | tee evidence/w08-db-reset.txt
 
       - name: npm run db:verify
-        run: npm run db:verify | tee evidence/w08-db-verify.txt
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run db:verify | tee evidence/w08-db-verify.txt
 
       - name: Full Playwright regression
-        run: npm run test:e2e | tee evidence/w08-playwright.txt
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run test:e2e | tee evidence/w08-playwright.txt
 
       - name: Final exact-head evidence index
         if: always()
