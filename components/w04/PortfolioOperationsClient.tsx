@@ -184,6 +184,7 @@ export function PortfolioOperationsClient({ data }: { data: PortfolioOperationsD
           <div className={styles.heroMeta}>
             <PropertyPhoto
               propertyId={photoIdByRecordName[selectedRecord.name]}
+              compact
               alt={`صورة عقارية لـ ${selectedRecord.name}`}
             />
             <span className={stateClass(selectedRecord.operationalState)}>{selectedRecord.operationalState}</span>
