@@ -16,7 +16,6 @@ export default async function OperationsRecordPage({ params }: { params: Promise
       <section className={styles.heroStateGood} aria-labelledby="record-scope-title">
         <span className={styles.stateIconGood} aria-hidden="true">✓</span>
         <div><p className={styles.kicker}>حالة الوصول</p><h2 id="record-scope-title">متاح لك</h2><p>يمكنك مراجعة السجلات المرتبطة بهذا الأصل ضمن صلاحياتك الحالية.</p></div>
-        <bdi className="ltr-id ltr-id--large">{id}</bdi>
       </section>
       <section className={styles.panel} aria-labelledby="record-index-title">
         <div className={styles.panelTitle}><h2 id="record-index-title">السجلات المتاحة</h2><span>سياق موحّد للأصل</span></div>
@@ -33,7 +32,6 @@ export default async function OperationsRecordPage({ params }: { params: Promise
         <div className={styles.keyValueList}>
           <div className={styles.keyValueRow}><span>الأصل</span><strong>{operationsRecord.propertyName}</strong></div>
           <div className={styles.keyValueRow}><span>الوحدة</span><strong>{operationsRecord.unitName}</strong></div>
-          <div className={styles.keyValueRow}><span>المعرّف</span><strong><bdi className="ltr-id">{operationsRecord.recordId}</bdi></strong></div>
         </div>
       </section>
     </WorkspaceShell>
