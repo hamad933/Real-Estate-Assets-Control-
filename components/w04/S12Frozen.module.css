@@ -14,16 +14,19 @@
 
 .locationRail {
   grid-column: 3;
+  grid-row: 1;
   min-width: 0;
 }
 
 .assignmentMain {
   grid-column: 2;
+  grid-row: 1;
   min-width: 0;
 }
 
 .executionRail {
   grid-column: 1;
+  grid-row: 1;
   min-width: 0;
 }
 
@@ -62,9 +65,18 @@
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
   }
 
-  .locationRail { grid-column: 2; }
-  .assignmentMain { grid-column: 1; }
-  .executionRail { grid-column: 1 / -1; }
+  .locationRail {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .assignmentMain {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .executionRail {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
 }
 
 @media (max-width: 820px) {
@@ -77,6 +89,7 @@
   .assignmentMain,
   .executionRail {
     grid-column: auto;
+    grid-row: auto;
   }
 
   .actionBand {
