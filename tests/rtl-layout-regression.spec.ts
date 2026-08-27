@@ -14,13 +14,21 @@ test("public structural layouts remain semantically RTL without physical hero of
 
   await page.goto("/search?district=all&type=all&budget=all&availability=all");
   const resultSection = page.locator('section[aria-label="نتائج العقارات"]');
+  const shortlist = page.locator('aside[aria-label="القائمة المختصرة"]');
   await expect(resultSection).toBeVisible();
+  await expect(shortlist).toBeVisible();
   expect(await resultSection.evaluate((node) => getComputedStyle(node.parentElement!).direction)).toBe("rtl");
+  expect(await resultSection.evaluate((node) => getComputedStyle(node).gridColumnStart)).toBe("2");
+  expect(await shortlist.evaluate((node) => getComputedStyle(node).gridColumnStart)).toBe("1");
 
   await page.goto("/map");
   const mapSection = page.locator('section[aria-label="خريطة العقارات"]');
+  const mapList = page.locator('aside').filter({ hasText: "عقارات على الخريطة" }).first();
   await expect(mapSection).toBeVisible();
+  await expect(mapList).toBeVisible();
   expect(await mapSection.evaluate((node) => getComputedStyle(node.parentElement!).direction)).toBe("rtl");
+  expect(await mapSection.evaluate((node) => getComputedStyle(node).gridColumnStart)).toBe("2");
+  expect(await mapList.evaluate((node) => getComputedStyle(node).gridColumnStart)).toBe("1");
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
