@@ -34,7 +34,8 @@
   min-height: 74px;
   margin: auto;
   display: flex;
-  direction: ltr;
+  direction: rtl;
+  flex-direction: row-reverse;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
@@ -159,8 +160,10 @@
 .filters { padding: 13px; display: grid; grid-template-columns: 1.12fr .88fr 1fr .72fr .9fr; gap: 10px; border: 1px solid var(--w02-line); border-radius: 15px; background: #fff; }
 .resultsMeta { display: flex; justify-content: space-between; gap: 16px; padding: 19px 2px 12px; color: var(--w02-muted); font-size: .82rem; }
 .resultsMeta strong { color: var(--w02-ink); }
-.searchLayout { display: grid; direction: ltr; grid-template-columns: minmax(0,1fr) 285px; gap: 24px; align-items: start; }
+.searchLayout { display: grid; direction: rtl; grid-template-columns: 285px minmax(0,1fr); gap: 24px; align-items: start; }
 .resultList, .shortlistRail { direction: rtl; }
+.resultList { grid-column: 2; }
+.shortlistRail { grid-column: 1; }
 .resultList { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 19px; }
 .shortlistRail { position: sticky; top: 98px; padding: 19px; border: 1px solid var(--w02-line); border-radius: 18px; background: #fff; }
 .railHeading { padding-bottom: 15px; border-bottom: 1px solid #ecece8; }
@@ -180,8 +183,10 @@
 
 .mapPage { width: min(1420px, calc(100% - 30px)); margin: auto; padding: 24px 0 12px; }
 .mapPage .filters { margin-bottom: 15px; }
-.mapWorkspace { height: 720px; display: grid; direction: ltr; grid-template-columns: minmax(0,1.35fr) minmax(350px,.65fr); gap: 14px; }
+.mapWorkspace { height: 720px; display: grid; direction: rtl; grid-template-columns: minmax(350px,.65fr) minmax(0,1.35fr); gap: 14px; }
 .mapCanvas, .mapList { direction: rtl; }
+.mapCanvas { grid-column: 2; }
+.mapList { grid-column: 1; }
 .mapCanvas { position: relative; overflow: hidden; border: 1px solid #d5d6cf; border-radius: 19px; background: #e6e6df; background-image: radial-gradient(circle at 17% 25%, rgba(184,193,174,.35) 0 8%, transparent 9%), radial-gradient(circle at 77% 67%, rgba(184,193,174,.35) 0 11%, transparent 12%); }
 .mapLabelNorth, .mapLabelCenter { position: absolute; z-index: 2; color: #888d89; font-size: .72rem; }
 .mapLabelNorth { top: 15%; left: 39%; }
@@ -201,11 +206,11 @@
 .mapList .propertyCard { margin-bottom: 11px; }
 
 .detailHero { display: grid; grid-template-columns: minmax(0,1.15fr) minmax(280px,.68fr) minmax(225px,.42fr); gap: 23px; align-items: stretch; }
-.detailGallery { min-width: 0; display: grid; grid-template-columns: 1fr 180px; gap: 10px; direction: ltr; }
+.detailGallery { min-width: 0; display: grid; grid-template-columns: 180px 1fr; gap: 10px; direction: rtl; }
 .galleryMain, .gallerySmall > * { overflow: hidden; border-radius: 17px; background: #e8e2d7; }
-.galleryMain { min-height: 430px; }
+.galleryMain { min-height: 430px; grid-column: 2; }
 .galleryMain svg, .gallerySmall svg { width: 100%; height: 100%; }
-.gallerySmall { display: grid; grid-template-rows: 1fr 1fr; gap: 10px; min-width: 0; }
+.gallerySmall { display: grid; grid-column: 1; grid-template-rows: 1fr 1fr; gap: 10px; min-width: 0; }
 .gallerySmall > svg { min-height: 0; object-fit: cover; }
 .detailIdentity { padding: 22px 2px; }
 .detailIdentity h1 { margin: 14px 0 9px; font-size: clamp(2.2rem,3.6vw,3.5rem); }
@@ -256,8 +261,10 @@
 .recommendation .primaryButton { background: #fff; color: var(--w02-navy); }
 
 .inquiryHeading { max-width: 760px; margin-bottom: 25px; }
-.inquiryLayout { display: grid; direction: ltr; grid-template-columns: minmax(0,1fr) 330px; gap: 25px; align-items: start; }
+.inquiryLayout { display: grid; direction: rtl; grid-template-columns: 330px minmax(0,1fr); gap: 25px; align-items: start; }
 .inquiryForm, .inquirySummary { direction: rtl; }
+.inquiryForm { grid-column: 2; }
+.inquirySummary { grid-column: 1; }
 .inquiryForm { display: grid; gap: 16px; }
 .inquiryForm fieldset { margin: 0; padding: 22px; border: 1px solid var(--w02-line); border-radius: 17px; background: #fff; }
 .inquiryForm legend { padding: 0 5px; font-weight: 900; }
@@ -289,7 +296,7 @@
   .heroSearch { width: 112%; grid-template-columns: 1fr 1fr; }
   .heroSearch .primaryButton { grid-column: 1 / -1; }
   .threeGrid { grid-template-columns: repeat(2,minmax(0,1fr)); }
-  .searchLayout { grid-template-columns: minmax(0,1fr) 250px; }
+  .searchLayout { grid-template-columns: 250px minmax(0,1fr); }
   .resultList { grid-template-columns: 1fr; }
   .detailHero { grid-template-columns: 1fr 1fr; }
   .detailGallery { grid-column: 1 / -1; }
@@ -310,15 +317,18 @@
   .discoveryMapSection { grid-template-columns: 1fr; padding: 25px; }
   .filters { grid-template-columns: 1fr 1fr; }
   .searchLayout { grid-template-columns: 1fr; }
+  .resultList, .shortlistRail { grid-column: auto; }
   .shortlistRail { position: static; order: -1; }
   .mapPage { width: min(100% - 20px, 1420px); }
   .mapWorkspace { height: auto; grid-template-columns: 1fr; }
+  .mapCanvas, .mapList { grid-column: auto; }
   .mapCanvas { min-height: 500px; }
   .mapList { max-height: none; overflow: visible; }
-  .detailGallery { grid-template-columns: 1fr 140px; }
+  .detailGallery { grid-template-columns: 140px 1fr; }
   .detailContent { grid-template-columns: 1fr; }
   .detailContent article:last-child { grid-column: auto; }
   .inquiryLayout { grid-template-columns: 1fr; }
+  .inquiryForm, .inquirySummary { grid-column: auto; }
   .inquirySummary { position: static; order: -1; }
   .priorityOptions { grid-template-columns: 1fr 1fr; }
   .recommendation { align-items: start; flex-direction: column; }
@@ -333,7 +343,7 @@
   .footer { width: min(100% - 28px, 1280px); flex-direction: column; gap: 5px; }
   .hero { width: min(100% - 24px, 1370px); padding-top: 18px; gap: 25px; }
   .heroImage { height: 280px; border-radius: 20px; }
-  .heroCaption { left: 12px; bottom: 12px; min-width: 190px; padding: 10px 12px; }
+  .heroCaption { inset-inline-start: 12px; bottom: 12px; min-width: 190px; padding: 10px 12px; }
   .heroCopy h1 { font-size: 2.35rem; }
   .heroSearch { padding: 10px; grid-template-columns: 1fr; }
   .heroSearch .primaryButton { grid-column: auto; }
@@ -354,6 +364,7 @@
   .areaToggle { top: 10px; right: 10px; }
   .detailHero { grid-template-columns: 1fr; }
   .detailGallery { grid-template-columns: 1fr; }
+  .galleryMain, .gallerySmall { grid-column: auto; }
   .galleryMain { min-height: 270px; }
   .gallerySmall { display: none; }
   .detailIdentity, .factsPanel { padding: 18px; }
