@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { OperationsRecordFrame } from "@/app/operations/_components/OperationsRecordFrame";
 import styles from "@/app/operations/operations.module.css";
+import frozenStyles from "@/app/operations/frozen-fidelity.module.css";
 import { requireResource } from "@/lib/auth/guards";
 import { getOperationsRecord } from "@/lib/data/repository";
 
@@ -14,33 +15,24 @@ export default async function OccupancyRecordPage({ params }: { params: Promise<
 
   return (
     <OperationsRecordFrame session={session} record={operationsRecord} current="occupancy" entity="unit" title="سجل الإشغال والسكن" description="تابع حالة الإشغال ومدة العلاقة والمستندات والتنبيهات المرتبطة بالوحدة، مع إخفاء بيانات التواصل الحساسة.">
-      <section className={styles.heroStateGood} aria-labelledby="occupancy-state-title">
-        <span className={styles.stateIconGood} aria-hidden="true">✓</span>
-        <div><p className={styles.kicker}>حالة الإشغال</p><h2 id="occupancy-state-title">{occupancy.status}</h2><p>سجل الإشغال نشط ومرتبط بهذه الوحدة.</p></div>
-        <span className={styles.badgeGood}>{occupancy.recordState}</span>
-      </section>
-      <section className={styles.recordSummary} aria-label="ملخص سجل الإشغال">
-        <div className={styles.factCell}><span>حالة الإشغال</span><strong>{occupancy.status}</strong></div>
-        <div className={styles.factCell}><span>تاريخ البداية</span><strong>{occupancy.startDate}</strong></div>
-        <div className={styles.factCell}><span>تاريخ النهاية</span><strong>{occupancy.endDate}</strong></div>
-        <div className={styles.factCell}><span>نوع العلاقة</span><strong>{occupancy.relationType}</strong></div>
-        <div className={styles.factCell}><span>عدد الشاغلين</span><strong>{occupancy.occupants}</strong></div>
-        <div className={styles.factCell}><span>حالة السجل</span><strong>{occupancy.recordState}</strong></div>
-      </section>
-      <div className={styles.twoColumnReverse}>
-        <section className={styles.panel} aria-labelledby="occupancy-term-title">
-          <div className={styles.panelTitle}><h2 id="occupancy-term-title">مدة الإشغال</h2><span>بيانات العلاقة الحالية</span></div>
-          <div className={styles.keyValueList}>
-            <div className={styles.keyValueRow}><span>تاريخ البداية</span><strong>{occupancy.startDate}</strong></div>
-            <div className={styles.keyValueRow}><span>تاريخ النهاية</span><strong>{occupancy.endDate}</strong></div>
-            <div className={styles.keyValueRow}><span>مدة السجل</span><strong>{occupancy.term.duration}</strong></div>
-            <div className={styles.keyValueRow}><span>مراجعة التجديد</span><strong>{occupancy.term.renewalReview}</strong></div>
-            <div className={styles.keyValueRow}><span>إشعار الإخلاء المطلوب</span><strong>{occupancy.term.notice}</strong></div>
-            <div className={styles.keyValueRow}><span>طريقة السداد المسجلة</span><strong>{occupancy.term.paymentMethod}</strong></div>
-            <div className={styles.keyValueRow}><span>دورية السداد</span><strong>{occupancy.term.cadence}</strong></div>
-          </div>
+      <div className={frozenStyles.occupancyLead} data-rp04-surface="s08-occupancy-lead">
+        <section className={styles.heroStateGood} aria-labelledby="occupancy-state-title">
+          <span className={styles.stateIconGood} aria-hidden="true">✓</span>
+          <div><p className={styles.kicker}>حالة الإشغال</p><h2 id="occupancy-state-title">{occupancy.status}</h2><p>سجل الإشغال نشط ومرتبط بهذه الوحدة.</p></div>
+          <span className={styles.badgeGood}>{occupancy.recordState}</span>
         </section>
-        <div className={styles.surfaceBody}>
+        <section className={styles.recordSummary} aria-label="ملخص سجل الإشغال">
+          <div className={styles.factCell}><span>حالة الإشغال</span><strong>{occupancy.status}</strong></div>
+          <div className={styles.factCell}><span>تاريخ البداية</span><strong>{occupancy.startDate}</strong></div>
+          <div className={styles.factCell}><span>تاريخ النهاية</span><strong>{occupancy.endDate}</strong></div>
+          <div className={styles.factCell}><span>نوع العلاقة</span><strong>{occupancy.relationType}</strong></div>
+          <div className={styles.factCell}><span>عدد الشاغلين</span><strong>{occupancy.occupants}</strong></div>
+          <div className={styles.factCell}><span>حالة السجل</span><strong>{occupancy.recordState}</strong></div>
+        </section>
+      </div>
+
+      <div className={frozenStyles.occupancyWorkspace} data-rp04-surface="s08-occupancy-workspace">
+        <div className={frozenStyles.occupancyMain}>
           <section className={styles.panel} aria-labelledby="tenant-context-title">
             <div className={styles.panelTitle}><h2 id="tenant-context-title">معلومات المستأجر</h2><span>عرض محدود للعمليات</span></div>
             <div className={styles.tenantGrid}>
@@ -56,13 +48,29 @@ export default async function OccupancyRecordPage({ params }: { params: Promise<
             <div className={styles.noticeNote}>{occupancy.alert}</div>
           </section>
         </div>
-      </div>
-      <section className={styles.panel} aria-labelledby="occupancy-documents-title">
-        <div className={styles.panelTitle}><h2 id="occupancy-documents-title">المستندات والإثباتات</h2><span>مراجع مرتبطة بالسجل</span></div>
-        <div className={styles.documentList}>
-          {occupancy.documents.map((document) => <div className={styles.documentRow} key={document.name}><div><strong>{document.name}</strong><small>{document.meta}</small></div><span className={styles.badgeNeutral}>موثق</span></div>)}
+
+        <div className={frozenStyles.occupancySide}>
+          <section className={styles.panel} aria-labelledby="occupancy-term-title">
+            <div className={styles.panelTitle}><h2 id="occupancy-term-title">مدة الإشغال</h2><span>بيانات العلاقة الحالية</span></div>
+            <div className={styles.keyValueList}>
+              <div className={styles.keyValueRow}><span>تاريخ البداية</span><strong>{occupancy.startDate}</strong></div>
+              <div className={styles.keyValueRow}><span>تاريخ النهاية</span><strong>{occupancy.endDate}</strong></div>
+              <div className={styles.keyValueRow}><span>مدة السجل</span><strong>{occupancy.term.duration}</strong></div>
+              <div className={styles.keyValueRow}><span>مراجعة التجديد</span><strong>{occupancy.term.renewalReview}</strong></div>
+              <div className={styles.keyValueRow}><span>إشعار الإخلاء المطلوب</span><strong>{occupancy.term.notice}</strong></div>
+              <div className={styles.keyValueRow}><span>طريقة السداد المسجلة</span><strong>{occupancy.term.paymentMethod}</strong></div>
+              <div className={styles.keyValueRow}><span>دورية السداد</span><strong>{occupancy.term.cadence}</strong></div>
+            </div>
+          </section>
+          <section className={styles.panel} aria-labelledby="occupancy-documents-title">
+            <div className={styles.panelTitle}><h2 id="occupancy-documents-title">المستندات والإثباتات</h2><span>مراجع مرتبطة بالسجل</span></div>
+            <div className={styles.documentList}>
+              {occupancy.documents.map((document) => <div className={styles.documentRow} key={document.name}><div><strong>{document.name}</strong><small>{document.meta}</small></div><span className={styles.badgeNeutral}>موثق</span></div>)}
+            </div>
+          </section>
         </div>
-      </section>
+      </div>
+
       <section className={styles.activityRail} aria-labelledby="occupancy-activity-title">
         <h2 id="occupancy-activity-title">آخر الأنشطة المتعلقة بالإشغال</h2>
         <div className={styles.activityList}>{occupancy.activity.map((item) => <div className={styles.activityItem} key={item}>{item}</div>)}</div>
