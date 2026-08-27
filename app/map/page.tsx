@@ -13,5 +13,24 @@ export default async function MapPage({ searchParams }: MapPageProps) {
   const params = await searchParams;
   const initial = Object.fromEntries(Object.entries(params).map(([key, value]) => [key, first(value)]));
   const properties = listPublicPropertiesFromDatabase();
-  return <MapExperience initial={initial} properties={properties} />;
+
+  return (
+    <>
+      <MapExperience initial={initial} properties={properties} />
+      <style>{`
+        [aria-label="خريطة العقارات"] {
+          pointer-events: none;
+        }
+        [aria-label="خريطة العقارات"] > button,
+        [aria-label="خريطة العقارات"] > label,
+        [aria-label="خريطة العقارات"] > [data-testid="map-selected-card"] {
+          pointer-events: auto;
+        }
+        [aria-label="خريطة العقارات"] > button {
+          z-index: 40;
+          scroll-margin-block-start: 96px;
+        }
+      `}</style>
+    </>
+  );
 }
