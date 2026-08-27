@@ -30,6 +30,12 @@ test("public structural layouts remain semantically RTL without physical hero of
   expect(await mapSection.evaluate((node) => getComputedStyle(node).gridColumnStart)).toBe("2");
   expect(await mapList.evaluate((node) => getComputedStyle(node).gridColumnStart)).toBe("1");
 
+  const yasminPin = page.getByRole("button", { name: "تحديد فيلا الياسمين" });
+  await expect(yasminPin).toBeVisible();
+  expect(await yasminPin.evaluate((node) => getComputedStyle(node).pointerEvents)).toBe("auto");
+  await yasminPin.click();
+  await expect(page.getByTestId("map-selected-card")).toContainText("فيلا الياسمين");
+
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   const caption = page.getByText("خيار مميز").locator("..");
