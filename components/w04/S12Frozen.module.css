@@ -1,0 +1,98 @@
+.contractorHeaderFrozen {
+  grid-template-columns: minmax(0, 1.45fr) minmax(300px, .72fr);
+  align-items: stretch;
+}
+
+.workBodyFrozen {
+  display: grid;
+  direction: rtl;
+  grid-template-columns: minmax(290px, .72fr) minmax(0, 1.5fr) minmax(280px, .76fr);
+  gap: 1rem;
+  align-items: start;
+  min-width: 0;
+}
+
+.locationRail {
+  grid-column: 3;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.assignmentMain {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.executionRail {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.actionBand {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: .9rem 1rem;
+  border: 1px solid rgba(15, 45, 82, .11);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.actionBand p {
+  margin: 0;
+  color: #64748b;
+  font-size: .84rem;
+}
+
+.actionBand a {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  padding: .65rem 1rem;
+  background: #092f5d;
+  color: #fff;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (max-width: 1080px) {
+  .workBodyFrozen {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  }
+
+  .locationRail {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .assignmentMain {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .executionRail {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 820px) {
+  .contractorHeaderFrozen,
+  .workBodyFrozen {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .locationRail,
+  .assignmentMain,
+  .executionRail {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .actionBand {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

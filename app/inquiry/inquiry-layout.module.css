@@ -1,0 +1,11 @@
+.scope :global(main form),
+.scope :global(main aside) {
+  grid-row: 1;
+}
+
+@media (max-width: 820px) {
+  .scope :global(main form),
+  .scope :global(main aside) {
+    grid-row: auto;
+  }
+}
