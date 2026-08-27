@@ -187,7 +187,7 @@
 .mapCanvas, .mapList { direction: rtl; }
 .mapCanvas { grid-column: 2; }
 .mapList { grid-column: 1; }
-.mapCanvas { position: relative; overflow: hidden; pointer-events: none; isolation: isolate; border: 1px solid #d5d6cf; border-radius: 19px; background: #e6e6df; background-image: radial-gradient(circle at 17% 25%, rgba(184,193,174,.35) 0 8%, transparent 9%), radial-gradient(circle at 77% 67%, rgba(184,193,174,.35) 0 11%, transparent 12%); }
+.mapCanvas { position: relative; overflow: hidden; isolation: isolate; border: 1px solid #d5d6cf; border-radius: 19px; background: #e6e6df; background-image: radial-gradient(circle at 17% 25%, rgba(184,193,174,.35) 0 8%, transparent 9%), radial-gradient(circle at 77% 67%, rgba(184,193,174,.35) 0 11%, transparent 12%); }
 .mapLabelNorth, .mapLabelCenter { position: absolute; z-index: 2; color: #888d89; font-size: .72rem; }
 .mapLabelNorth { top: 15%; left: 39%; }
 .mapLabelCenter { top: 50%; left: 58%; rotate: -23deg; }
