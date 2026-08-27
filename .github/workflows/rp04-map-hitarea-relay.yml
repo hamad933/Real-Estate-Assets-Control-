@@ -1,0 +1,49 @@
+name: RP04 map hit-area correction relay
+
+on:
+  push:
+    branches:
+      - fix/rp04-map-pin-readability-20260827
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/rp04-map-pin-readability-20260827
+      - name: Preserve map controls above noninteractive map surface
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('components/public/PublicExperience.module.css')
+          s=p.read_text()
+          old='.mapCanvas { position: relative; overflow: hidden; border: 1px solid #d5d6cf;'
+          new='.mapCanvas { position: relative; overflow: hidden; pointer-events: none; isolation: isolate; border: 1px solid #d5d6cf;'
+          if old not in s: raise SystemExit('mapCanvas anchor missing')
+          s=s.replace(old,new,1)
+          old='.mapPin { z-index: 6; border: 0; cursor: pointer; box-shadow: 0 4px 12px rgba(18,44,58,.2); }'
+          new='.mapPin { z-index: 20; pointer-events: auto; border: 0; cursor: pointer; box-shadow: 0 4px 12px rgba(18,44,58,.2); }'
+          if old not in s: raise SystemExit('mapPin anchor missing')
+          s=s.replace(old,new,1)
+          old='.mapPopup { position: absolute; z-index: 10;'
+          new='.mapPopup { position: absolute; z-index: 21; pointer-events: auto;'
+          if old not in s: raise SystemExit('mapPopup anchor missing')
+          s=s.replace(old,new,1)
+          old='.areaToggle { position: absolute; z-index: 11;'
+          new='.areaToggle { position: absolute; z-index: 22; pointer-events: auto;'
+          if old not in s: raise SystemExit('areaToggle anchor missing')
+          s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+          rm .github/workflows/rp04-map-hitarea-relay.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add components/public/PublicExperience.module.css .github/workflows/rp04-map-hitarea-relay.yml
+          git commit -m 'RP04: preserve map pin interaction hit areas'
+          git push origin HEAD:fix/rp04-map-pin-readability-20260827
