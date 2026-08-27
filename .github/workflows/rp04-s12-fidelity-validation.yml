@@ -1,0 +1,59 @@
+name: RP04 S12 frozen fidelity validation
+
+on:
+  pull_request:
+    branches:
+      - feature/rp04-imp-w08-human-grade-portfolio-polish
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    if: github.event.pull_request.head.ref == 'fix/rp04-s12-frozen-fidelity-20260827'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      BASELINE: 53c7ee4801ed76983b45a8e245f41dbe268a6ee1
+      RP04_DB_PATH: ${{ github.workspace }}/.runtime/rp04-ci.sqlite
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: Bind exact correction head
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+          git merge-base --is-ancestor "$BASELINE" HEAD
+          test "$(git merge-base "$BASELINE" HEAD)" = "$BASELINE"
+          mkdir -p evidence
+          git rev-parse HEAD > evidence/rp04-s12-head.txt
+          git diff --name-only "$BASELINE" HEAD | sort > evidence/rp04-s12-paths.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm audit --audit-level=high
+      - run: npx playwright install --with-deps chromium
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm run db:reset
+      - run: npm run db:verify
+      - name: Full exact-head Playwright regression
+        run: npm run test:e2e
+      - name: Verify targeted frozen-fidelity regression is present
+        run: test -s tests/frozen-fidelity-rp04-s12.spec.ts
+      - name: Preserve exact-head evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rp04-s12-frozen-fidelity-${{ github.event.pull_request.head.sha }}
+          if-no-files-found: warn
+          path: |
+            evidence
+            tests/frozen-fidelity-rp04-s12.spec.ts
+            playwright-report
+            test-results
