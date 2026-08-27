@@ -4,6 +4,7 @@ import { PropertyPhoto } from "@/components/public/PropertyPhoto";
 import { WorkspaceShell } from "@/components/WorkspaceShell";
 import { ContractorControls } from "@/components/w04/ContractorControls";
 import styles from "@/components/w04/RoleWorkspaces.module.css";
+import frozenStyles from "@/components/w04/S12Frozen.module.css";
 import { requireWorkspace } from "@/lib/auth/guards";
 import { getContractorWorkspace } from "@/lib/data/repository";
 
@@ -20,8 +21,8 @@ export default async function ContractorPage() {
       title="تفاصيل المهمة الموكلة إليك"
       description="راجع المهمة المسندة إليك، حدّث حالة التنفيذ، وارفع تقرير العمل مع بقاء اعتماد الإكمال والتكلفة لدى الجهة المخولة."
     >
-      <div className={styles.stack}>
-        <section className={styles.contractorHeader}>
+      <div className={styles.stack} data-rp04-surface="s12-contractor-workspace">
+        <section className={`${styles.contractorHeader} ${frozenStyles.contractorHeaderFrozen}`} data-rp04-surface="s12-task-summary">
           <div className={styles.heroCard}>
             <PropertyPhoto propertyId="narjis-101" alt={`صورة عقارية لـ ${data.assignment.propertyName}`} />
             <div className={styles.heroMeta}>
@@ -54,8 +55,8 @@ export default async function ContractorPage() {
           <div><span className={styles.miniLabel}>التواصل المسموح</span><strong>{data.permittedContact}</strong></div>
         </section>
 
-        <section className={styles.workBody} style={{ direction: "ltr" }}>
-          <aside className={styles.softCard} dir="rtl">
+        <section className={frozenStyles.workBodyFrozen} data-rp04-surface="s12-three-column-work">
+          <aside className={`${styles.softCard} ${frozenStyles.locationRail}`} dir="rtl">
             <span className={styles.kicker}>الموقع والوصول</span>
             <h2>سياق الوصول</h2>
             <div className={styles.list}>
@@ -65,7 +66,7 @@ export default async function ContractorPage() {
             </div>
           </aside>
 
-          <div className={styles.stack} dir="rtl">
+          <div className={`${styles.stack} ${frozenStyles.assignmentMain}`} dir="rtl">
             <section className={styles.softCard}>
               <span className={styles.kicker}>تفاصيل المشكلة</span>
               <h2>{data.assignment.title}</h2>
@@ -98,7 +99,7 @@ export default async function ContractorPage() {
             </section>
           </div>
 
-          <aside className={styles.softCard} dir="rtl">
+          <aside className={`${styles.softCard} ${frozenStyles.executionRail}`} dir="rtl">
             <span className={styles.kicker}>حالتك الحالية</span>
             <h2>التنفيذ والتقرير</h2>
             <ContractorControls assignmentId={data.assignment.id} initialStatus={data.assignment.status} />
@@ -120,6 +121,11 @@ export default async function ContractorPage() {
           <div><strong>تمت إضافة مرفقات</strong><span>08:50 ص</span></div>
           <div><strong>نافذة التنفيذ</strong><span>{data.assignment.window}</span></div>
         </section>
+
+        <div className={frozenStyles.actionBand}>
+          <p>يمكنك تحديث حالة التنفيذ ورفع تقرير العمل فقط؛ اعتماد الإكمال والتكلفة النهائية يبقى لدى الجهة المخولة.</p>
+          <Link href={`/contractor/assignments/${data.assignment.id}`}>فتح سجل المهمة</Link>
+        </div>
       </div>
     </WorkspaceShell>
   );
