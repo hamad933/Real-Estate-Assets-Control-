@@ -26,13 +26,13 @@ test("S08 approved composition keeps entity visual left and occupancy main/side 
   await page.goto(`/operations/records/${recordId}/occupancy`);
 
   const entity = page.locator('[data-rp04-surface="operations-entity-summary"]');
-  const image = entity.locator('img').first();
+  const visual = entity.locator('[data-testid="property-photo"]').first();
   const title = entity.getByRole("heading").first();
   await expect(entity).toBeVisible();
-  await expect(image).toBeVisible();
-  const imageBox = await image.boundingBox();
+  await expect(visual).toBeVisible();
+  const visualBox = await visual.boundingBox();
   const titleBox = await title.boundingBox();
-  expect(imageBox && titleBox && imageBox.x < titleBox.x).toBeTruthy();
+  expect(visualBox && titleBox && visualBox.x < titleBox.x).toBeTruthy();
 
   const workspace = page.locator('[data-rp04-surface="s08-occupancy-workspace"]');
   await expect(workspace).toBeVisible();
@@ -50,9 +50,10 @@ test("S10 approved composition keeps work stream primary and summary rail bounde
 
   const workspace = page.locator('[data-rp04-surface="s10-maintenance-workspace"]');
   const openWork = page.getByRole("heading", { name: "الطلبات والأعمال المفتوحة" });
-  const summary = page.getByRole("heading", { name: "حالة الصيانة والخدمة" });
+  const summary = page.locator("#maintenance-state-title");
   await expect(workspace).toBeVisible();
   await expect(openWork).toBeVisible();
+  await expect(summary).toHaveText("تحت المعالجة");
   await expect(summary).toBeVisible();
   const workBox = await openWork.boundingBox();
   const summaryBox = await summary.boundingBox();
