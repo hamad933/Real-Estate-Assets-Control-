@@ -1,20 +1,29 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
-async function expectNoHorizontalOverflow(page: import("@playwright/test").Page) {
+const baseURL = "http://127.0.0.1:3000";
+const recordId = "ops-record-101";
+
+async function setOperationsSession(page: Page) {
+  await page.context().addCookies([
+    {
+      name: "rp04_demo_session",
+      value: "operations-demo",
+      url: baseURL,
+      httpOnly: true,
+      sameSite: "Lax"
+    }
+  ]);
+}
+
+async function expectNoHorizontalOverflow(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
 }
 
-async function signInOperations(page: import("@playwright/test").Page) {
-  await page.goto("/sign-in");
-  const operations = page.getByRole("button", { name: /العمليات|operations/i });
-  if (await operations.count()) await operations.first().click();
-}
-
 test("S08 approved composition keeps entity visual left and occupancy main/side structure", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await signInOperations(page);
-  await page.goto("/operations/records/ops-unit-001/occupancy");
+  await setOperationsSession(page);
+  await page.goto(`/operations/records/${recordId}/occupancy`);
 
   const entity = page.locator('[data-rp04-surface="operations-entity-summary"]');
   const image = entity.locator('img').first();
@@ -36,8 +45,8 @@ test("S08 approved composition keeps entity visual left and occupancy main/side 
 
 test("S10 approved composition keeps work stream primary and summary rail bounded", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await signInOperations(page);
-  await page.goto("/operations/records/ops-unit-001/maintenance");
+  await setOperationsSession(page);
+  await page.goto(`/operations/records/${recordId}/maintenance`);
 
   const workspace = page.locator('[data-rp04-surface="s10-maintenance-workspace"]');
   const openWork = page.getByRole("heading", { name: "الطلبات والأعمال المفتوحة" });
