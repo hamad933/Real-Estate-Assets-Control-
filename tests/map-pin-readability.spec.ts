@@ -1,6 +1,6 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 
-async function expectUpright(elements: ReturnType<import("@playwright/test").Page["locator"]>) {
+async function expectUpright(elements: Locator) {
   const count = await elements.count();
   expect(count).toBeGreaterThan(0);
   for (let index = 0; index < count; index += 1) {
