@@ -53,8 +53,7 @@
 }
 
 .maintenanceSide {
-  position: sticky;
-  top: 18px;
+  align-content: start;
 }
 
 @media (max-width: 1050px) {
@@ -81,10 +80,6 @@
 
   .occupancyLead > :nth-child(2) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .maintenanceSide {
-    position: static;
   }
 }
 
