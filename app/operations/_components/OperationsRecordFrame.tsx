@@ -5,6 +5,7 @@ import { WorkspaceShell } from "@/components/WorkspaceShell";
 import type { AuthenticatedSession } from "@/lib/auth/types";
 import type { OperationsRecordData, OperationsSection } from "@/app/operations/_data/records";
 import styles from "@/app/operations/operations.module.css";
+import frozenStyles from "@/app/operations/frozen-fidelity.module.css";
 
 type OperationsRecordFrameProps = {
   session: AuthenticatedSession;
@@ -48,7 +49,7 @@ export function OperationsRecordFrame({
       title={title}
       description={description}
     >
-      <section className={styles.entityCard} aria-label="سياق السجل التشغيلي">
+      <section className={`${styles.entityCard} ${frozenStyles.entityCardFrozen}`} aria-label="سياق السجل التشغيلي" data-rp04-surface="operations-entity-summary">
         <div className={styles.entityVisual}>
           <PropertyPhoto
             propertyId="narjis-101"
