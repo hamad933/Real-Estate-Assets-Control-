@@ -187,18 +187,18 @@
 .mapCanvas, .mapList { direction: rtl; }
 .mapCanvas { grid-column: 2; }
 .mapList { grid-column: 1; }
-.mapCanvas { position: relative; overflow: hidden; border: 1px solid #d5d6cf; border-radius: 19px; background: #e6e6df; background-image: radial-gradient(circle at 17% 25%, rgba(184,193,174,.35) 0 8%, transparent 9%), radial-gradient(circle at 77% 67%, rgba(184,193,174,.35) 0 11%, transparent 12%); }
+.mapCanvas { position: relative; overflow: hidden; pointer-events: none; isolation: isolate; border: 1px solid #d5d6cf; border-radius: 19px; background: #e6e6df; background-image: radial-gradient(circle at 17% 25%, rgba(184,193,174,.35) 0 8%, transparent 9%), radial-gradient(circle at 77% 67%, rgba(184,193,174,.35) 0 11%, transparent 12%); }
 .mapLabelNorth, .mapLabelCenter { position: absolute; z-index: 2; color: #888d89; font-size: .72rem; }
 .mapLabelNorth { top: 15%; left: 39%; }
 .mapLabelCenter { top: 50%; left: 58%; rotate: -23deg; }
-.mapPin { z-index: 6; border: 0; cursor: pointer; box-shadow: 0 4px 12px rgba(18,44,58,.2); }
+.mapPin { z-index: 20; pointer-events: auto; border: 0; cursor: pointer; box-shadow: 0 4px 12px rgba(18,44,58,.2); }
 .mapPinActive { width: 38px; height: 38px; background: var(--w02-accent); }
-.mapPopup { position: absolute; z-index: 10; left: 24px; bottom: 24px; width: min(295px, calc(100% - 48px)); padding: 16px; display: grid; gap: 3px; border: 1px solid rgba(255,255,255,.85); border-radius: 14px; background: rgba(255,255,255,.94); box-shadow: 0 16px 40px rgba(20,42,54,.14); }
+.mapPopup { position: absolute; z-index: 21; pointer-events: auto; left: 24px; bottom: 24px; width: min(295px, calc(100% - 48px)); padding: 16px; display: grid; gap: 3px; border: 1px solid rgba(255,255,255,.85); border-radius: 14px; background: rgba(255,255,255,.94); box-shadow: 0 16px 40px rgba(20,42,54,.14); }
 .mapPopup > span { color: #54705b; font-size: .72rem; font-weight: 800; }
 .mapPopup small { color: var(--w02-muted); }
 .mapPopup b { margin-top: 6px; }
 .mapPopup a { margin-top: 7px; color: var(--w02-navy); font-weight: 900; }
-.areaToggle { position: absolute; z-index: 11; top: 17px; right: 17px; padding: 9px 12px; display: flex; align-items: center; gap: 7px; border: 1px solid #d5d6d0; border-radius: 10px; background: rgba(255,255,255,.94); font-size: .78rem; font-weight: 800; }
+.areaToggle { position: absolute; z-index: 22; pointer-events: auto; top: 17px; right: 17px; padding: 9px 12px; display: flex; align-items: center; gap: 7px; border: 1px solid #d5d6d0; border-radius: 10px; background: rgba(255,255,255,.94); font-size: .78rem; font-weight: 800; }
 .mapList { overflow: auto; padding: 13px; border: 1px solid var(--w02-line); border-radius: 19px; background: #f9f8f4; }
 .mapListHeading { position: sticky; top: -13px; z-index: 8; margin: -13px -13px 12px; padding: 16px 15px; background: rgba(249,248,244,.95); border-bottom: 1px solid var(--w02-line); }
 .mapListHeading div { display: grid; gap: 2px; }
