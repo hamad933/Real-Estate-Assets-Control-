@@ -19,6 +19,9 @@ export default async function MapPage({ searchParams }: MapPageProps) {
       <MapExperience initial={initial} properties={properties} />
       <style>{`
         [aria-label="خريطة العقارات"] {
+          position: relative;
+          z-index: 1;
+          align-self: stretch;
           pointer-events: none;
         }
         [aria-label="خريطة العقارات"] > button,
@@ -27,8 +30,14 @@ export default async function MapPage({ searchParams }: MapPageProps) {
           pointer-events: auto;
         }
         [aria-label="خريطة العقارات"] > button {
-          z-index: 40;
-          scroll-margin-block-start: 96px;
+          z-index: 60;
+          scroll-margin-block: 180px;
+        }
+        @media (min-width: 901px) {
+          [aria-label="خريطة العقارات"] {
+            height: 720px;
+            min-height: 720px;
+          }
         }
       `}</style>
     </>
