@@ -146,9 +146,8 @@
 .mapRoadTwo { width: 105%; left: -4%; top: 68%; transform: rotate(-9deg); }
 .mapRoadThree { width: 80%; left: 12%; top: 50%; transform: rotate(63deg); }
 .mapRoadFour { width: 74%; left: 27%; top: 45%; transform: rotate(118deg); }
-.miniPin, .mapPin { position: absolute; transform: translate(-50%,-50%); width: 32px; height: 32px; border-radius: 50% 50% 50% 5px; display: grid; place-items: center; background: var(--w02-navy); color: #fff; font-size: .72rem; font-weight: 900; rotate: -45deg; }
+.miniPin, .mapPin { position: absolute; transform: translate(-50%,-50%); width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--w02-navy); color: #fff; font-size: .72rem; font-weight: 900; line-height: 1; rotate: none; }
 .miniPin { z-index: 3; }
-.miniPin::first-letter { rotate: 45deg; }
 
 .pageShell { width: min(1280px, calc(100% - 40px)); margin: auto; padding: 26px 0 20px; }
 .breadcrumb { display: flex; align-items: center; gap: 8px; color: var(--w02-muted); font-size: .8rem; margin: 0 0 28px; }
