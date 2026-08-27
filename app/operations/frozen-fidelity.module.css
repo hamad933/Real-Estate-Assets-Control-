@@ -56,6 +56,14 @@
   align-content: start;
 }
 
+.maintenanceSummaryCard {
+  grid-template-columns: auto minmax(150px, 1fr);
+}
+
+.maintenanceSummaryCard > :last-child {
+  grid-column: 1 / -1;
+}
+
 @media (max-width: 1050px) {
   .entityCardFrozen {
     grid-template-columns: 220px minmax(0, 1fr);
@@ -90,5 +98,13 @@
 
   .occupancyLead > :nth-child(2) {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .maintenanceSummaryCard {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .maintenanceSummaryCard > :last-child {
+    grid-column: auto;
   }
 }
