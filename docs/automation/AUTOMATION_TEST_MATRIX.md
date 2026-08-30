@@ -1,17 +1,7 @@
 # RP04 Automation Gateway — Test Matrix
 
-Foundation automated tests cover: valid read request; unknown-field rejection; wrong repository/controller rejection; malformed SHA; mutation without authority; reconciliation without target identity; deterministic identity; changed intent divergence; redaction; mutation default-off/explicit-on; canonical digest; same-domain effect locking; independent-domain distinction; cross-run request-ID collision behavior; exact create-session SHA; reviewed-plan identity; workflow sequencing; non-destructive setup contract.
+Current targeted automated suite covers 27 cases including: valid request; unknown-field rejection; wrong repository/controller; unsupported schema version; malformed SHA; non-boolean plan policy; refusal to disable plan approval; mutation without authority; reconciliation without target identity; reconciliation plan-ID requirement; stable request/effect identities; redaction; default-off mutation; changed-intent collision; exact create-session SHA; stale SHA; deterministic correlation derivation; effect-specific create-session readback; effect-specific send-message readback; refusal to PASS when send-message proof is absent; effect-specific plan-approval readback; APPLIED create-session reconciliation; UNKNOWN-on-absence behavior; APPLIED send-message reconciliation; duplicate-effect detection; and WRITE_INTENT effect proof without storing prompt plaintext.
 
-Required later canary evidence: live read source/session/activity; exact duplicate cross-run idempotency; concurrent duplicate request; same-effect serialization; independent-domain parallelism; stale SHA/session/update-time; unknown provider-write outcome reconciliation; plan identity; secret-redaction artifact inspection; publication patch/path/tree readback; kill-switch recovery; clean Jules setup.
+Required later live canary evidence: source/session/activity shadow reads; exact duplicate cross-run idempotency; concurrent duplicate request; same-effect serialization; independent-domain parallelism; stale SHA/session/update-time; live unknown-write reconciliation; secret-redaction artifact inspection; trusted publication patch/path/tree readback; kill-switch recovery; clean Jules setup.
 
-A test is PASS only from exact executable evidence. Not-yet-executed rows remain NOT_RUN, never inferred from design.
-
-## Foundation hardening additions
-- Same write domain across different logical tasks derives the same effect lock.
-- Independent write domains derive different effect locks.
-- Changed intent under the same request ID fails closed.
-- Existing unresolved request intent requires reconciliation rather than replay.
-- Create-session stale remote SHA fails before Provider mutation.
-- Existing-session mutation requires exact state and update time.
-- Plan approval requires exact reviewed plan digest and activity identity.
-- Workflow contract asserts durable intent publication precedes the Provider-write step.
+A test is PASS only from exact executable evidence. Mock-based reconciliation tests validate control logic, not live Provider behavior. Not-yet-executed live rows remain NOT_RUN.
