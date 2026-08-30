@@ -24,6 +24,7 @@ Implemented in the candidate:
 - separate shadow-read workflow;
 - mutation workflow guarded by Owner/default-ref transport gates and a default-off kill switch;
 - deterministic non-destructive Jules setup script;
+- separate trusted-publication dry-run verifier with exact ChangeSet activity/base/patch/allowed-path/target-prestate checks and local `git apply --check`;
 - automated foundation tests and first-class architecture/security/operator/Jules/Drive/recovery/test/lessons documentation.
 
 Not yet accepted or claimed:
@@ -32,7 +33,7 @@ Not yet accepted or claimed:
 - mutation canary;
 - live unknown-outcome reconciliation canary;
 - permanent authority/idempotency ledger independent of both GitHub artifacts and Provider-observable history;
-- trusted publication implementation/canary;
+- trusted publication mutation implementation/canary; dry-run verification foundation only;
 - direct Drive credential integration;
 - production activation;
 - hourly Central-Controller automation.

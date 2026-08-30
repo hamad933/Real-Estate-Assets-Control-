@@ -84,6 +84,12 @@ class GitHubClient:
         sha=str((payload.get("commit") or {}).get("sha") or "").lower()
         if not SHA_RE.fullmatch(sha): raise GatewayError("github_branch_sha_unavailable")
         return sha
+    def branch_sha_optional(self, branch: str) -> str | None:
+        try:
+            return self.branch_sha(branch)
+        except GatewayError as exc:
+            if str(exc) == "github_read_http_404": return None
+            raise
     def artifact_names(self, *, max_pages: int = 5) -> list[str]:
         names=[]
         for page in range(1,max_pages+1):

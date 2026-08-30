@@ -11,3 +11,5 @@ Unknown-outcome reconciliation is read-only and fail-closed. Matching effects re
 Replay defense combines bounded artifact markers with a Provider-side effect-existence precheck immediately before mutation. This prevents artifact expiry alone from authorizing a duplicate effect while the authoritative Provider effect remains observable.
 
 Residual risks: GitHub variables are not an authority database; branch protection is not presently platform-enforced; GitHub concurrency is not a durable authority ledger; Provider-observable history is bounded by API availability/pagination and is not a permanent authority store; live canary evidence and trusted publication are not yet accepted. These block production mutation readiness.
+
+Publication threat controls: publication verification rejects binary patches, symlink/submodule mode changes, path traversal/unsafe paths, disallowed changed paths, stale or non-full base SHAs, patch-digest mismatch, moved remote base, and unexpected target-branch prestate. The verifier is read-only and performs local `git apply --check`; it has no GitHub contents-write permission.
