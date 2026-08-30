@@ -1,0 +1,104 @@
+name: RP04 Automation Effect Worker
+on:
+  workflow_call:
+    inputs:
+      request_json: {required: true, type: string}
+      effect_key: {required: true, type: string}
+      operation_kind: {required: true, type: string}
+    secrets:
+      JULES_API_KEY: {required: true}
+permissions:
+  contents: read
+  actions: read
+jobs:
+  effect:
+    concurrency:
+      group: rp04-automation-effect-${{ inputs.effect_key }}
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
+      GITHUB_TOKEN: ${{ github.token }}
+      RP04_AUTOMATION_MUTATION_ENABLED: ${{ vars.RP04_AUTOMATION_MUTATION_ENABLED }}
+      REQUEST_JSON: ${{ inputs.request_json }}
+      OPERATION_KIND: ${{ inputs.operation_kind }}
+    steps:
+      - name: Reassert owner and governed-ref transport gate
+        env: {ACTOR: '${{ github.actor }}', OWNER: '${{ github.repository_owner }}', REF: '${{ github.ref }}'}
+        run: |
+          set -euo pipefail
+          test "$ACTOR" = "$OWNER"
+          test "$REF" = "refs/heads/main"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with: {python-version: '3.12'}
+      - name: Materialize normalized public-safe request
+        run: |
+          python - <<'PY'
+          import os
+          open('/tmp/rp04-request.json','w',encoding='utf-8').write(os.environ['REQUEST_JSON'])
+          PY
+      - name: Require Jules secret without printing it
+        run: test -n "${JULES_API_KEY:-}"
+      - name: Mutation kill switch must be explicitly enabled
+        if: inputs.operation_kind == 'MUTATION'
+        run: test "${RP04_AUTOMATION_MUTATION_ENABLED:-}" = "true"
+      - id: preflight
+        name: Exact pre-read, idempotency check, and WRITE_INTENT creation
+        if: inputs.operation_kind == 'MUTATION'
+        run: |
+          set -euo pipefail
+          python -m tools.rp04_automation.cli preflight /tmp/rp04-request.json --output-dir /tmp/rp04-preflight
+          python - <<'PY'
+          import json, os
+          p=json.load(open('/tmp/rp04-preflight/preflight.json',encoding='utf-8'))
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as f:
+              for k in ('request_marker','completed_marker','unknown_marker'): f.write(f"{k}={p[k]}\n")
+          PY
+      - name: Publish preflight diagnostics
+        if: inputs.operation_kind == 'MUTATION' && always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with: {name: 'rp04-automation-preflight-${{ github.run_id }}', path: /tmp/rp04-preflight/, if-no-files-found: warn, retention-days: 14}
+      - name: Persist durable request WRITE_INTENT before Provider mutation
+        if: inputs.operation_kind == 'MUTATION' && steps.preflight.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with: {name: '${{ steps.preflight.outputs.request_marker }}', path: /tmp/rp04-preflight/intent.json, if-no-files-found: error, retention-days: 90}
+      - id: execute
+        name: Final exact pre-read then exactly one Provider write
+        if: inputs.operation_kind == 'MUTATION' && steps.preflight.outcome == 'success'
+        continue-on-error: true
+        run: python -m tools.rp04_automation.cli execute /tmp/rp04-request.json --preflight-file /tmp/rp04-preflight/preflight.json --intent-file /tmp/rp04-preflight/intent.json --output-dir /tmp/rp04-final
+      - name: Publish mutation evidence
+        if: inputs.operation_kind == 'MUTATION' && always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with: {name: 'rp04-automation-mutation-${{ github.run_id }}', path: /tmp/rp04-final/, if-no-files-found: warn, retention-days: 14}
+      - id: terminal
+        name: Classify terminal mutation outcome
+        if: inputs.operation_kind == 'MUTATION' && steps.preflight.outcome == 'success' && always()
+        run: |
+          python - <<'PY'
+          import json, os
+          p=json.load(open('/tmp/rp04-final/postcondition.json',encoding='utf-8'))
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as f:
+              f.write('classification=' + str(p.get('classification','')) + '\n')
+              f.write('reconciliation_required=' + ('true' if p.get('reconciliation_required') else 'false') + '\n')
+          PY
+      - name: Persist completed request marker last
+        if: inputs.operation_kind == 'MUTATION' && steps.terminal.outputs.classification == 'APPLIED_RESPONSE_RECEIVED_READBACK_CAPTURED'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with: {name: '${{ steps.preflight.outputs.completed_marker }}', path: /tmp/rp04-final/postcondition.json, if-no-files-found: error, retention-days: 90}
+      - name: Persist UNKNOWN prior-write marker last
+        if: inputs.operation_kind == 'MUTATION' && steps.terminal.outputs.reconciliation_required == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with: {name: '${{ steps.preflight.outputs.unknown_marker }}', path: /tmp/rp04-final/postcondition.json, if-no-files-found: error, retention-days: 90}
+      - name: Fail closed unless exact effect-specific readback was captured
+        if: inputs.operation_kind == 'MUTATION' && steps.terminal.outputs.classification != 'APPLIED_RESPONSE_RECEIVED_READBACK_CAPTURED'
+        run: exit 1
+      - name: Reconcile authoritative Provider state without mutation
+        if: inputs.operation_kind == 'RECONCILIATION'
+        run: python -m tools.rp04_automation.cli reconcile /tmp/rp04-request.json --output-dir /tmp/rp04-reconcile
+      - name: Publish reconciliation evidence
+        if: inputs.operation_kind == 'RECONCILIATION' && always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with: {name: 'rp04-automation-reconciliation-${{ github.run_id }}', path: /tmp/rp04-reconcile/, if-no-files-found: warn, retention-days: 90}

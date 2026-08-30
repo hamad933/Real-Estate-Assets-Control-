@@ -1,0 +1,49 @@
+name: RP04 Automation Shadow Inspect
+on:
+  workflow_dispatch:
+    inputs:
+      request_id: {description: Stable request identity, required: true, type: string}
+      action:
+        description: Read-only Jules action
+        required: true
+        type: choice
+        options: [list_sources, list_sessions, get_session, list_activities]
+      session_id: {description: Session id for session-scoped reads, required: false, type: string}
+permissions:
+  contents: read
+concurrency:
+  group: rp04-automation-inspect-${{ inputs.request_id }}
+  cancel-in-progress: false
+jobs:
+  inspect:
+    if: github.actor == github.repository_owner && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with: {python-version: '3.12'}
+      - name: Require secret without printing it
+        run: test -n "${JULES_API_KEY:-}"
+      - name: Build strict request
+        env:
+          RID: ${{ inputs.request_id }}
+          ACTION: ${{ inputs.action }}
+          SID: ${{ inputs.session_id }}
+        run: |
+          python - <<'PY'
+          import json,os
+          req={'schema_version':'1','request_id':os.environ['RID'],'project_id':'RP04','controller_id':'CENTRAL','lane':'AUTOMATION','logical_task_id':'shadow-inspect','action':os.environ['ACTION'],'write_domain':'READ_ONLY','repository':'hamad933/Real-Estate-Assets-Control-'}
+          if os.environ.get('SID'): req['session_id']=os.environ['SID']
+          open('/tmp/rp04-request.json','w').write(json.dumps(req))
+          PY
+      - run: python -m tools.rp04_automation.cli inspect /tmp/rp04-request.json --output-dir /tmp/rp04-evidence
+      - if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: rp04-automation-inspect-${{ github.run_id }}
+          path: /tmp/rp04-evidence/
+          if-no-files-found: error
+          retention-days: 14
