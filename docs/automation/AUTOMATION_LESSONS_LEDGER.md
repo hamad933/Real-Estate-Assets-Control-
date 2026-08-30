@@ -17,9 +17,9 @@ PROJECT_SPECIFIC: portfolio routing/adapters/state store remain external referen
 
 ## Jules official API
 SOURCE_REF: Jules API/docs checked 2026-08-30.
-MECHANISM: API-key auth, Sources/Sessions/Activities, explicit plan approval, repo setup/snapshots.
+MECHANISM: API-key auth, Sources/Sessions/Activities, explicit plan approval, repo setup/snapshots and ChangeSet patch artifacts.
 RISK: API is alpha/experimental; provider contracts and quotas are volatile.
-RECOMMENDED_ADOPTION: adapter boundary, source discovery, explicit plan approval, no hard-coded quota assumptions.
+RECOMMENDED_ADOPTION: adapter boundary, source discovery, explicit plan approval, no hard-coded quota assumptions, effect-specific readback from immutable Activities.
 
 ## RP04 live control-cycle lesson — external write errors still require readback
 SOURCE_SYSTEM: GitHub Pull Request metadata API.
@@ -33,3 +33,15 @@ PROJECT_SPECIFIC_PARTS: PR #16 and the rejected option are RP04-specific evidenc
 SECURITY_IMPLICATION: prevents duplicate or conflicting writes caused by assuming an error response means zero effect.
 RECOMMENDED_ADOPTION: mandatory postcondition readback after all externally mutating operations, including apparent 4xx failures when partial application is possible.
 REJECTED_ALTERNATIVES: automatic retry based only on HTTP status.
+
+## RP04 supply-chain lesson — external GitHub Actions must use reviewed immutable refs
+SOURCE_SYSTEM: GitHub Actions official action releases and RP04 CI runtime logs.
+SOURCE_REF: `actions/checkout` v7.0.1 commit `3d3c42e5aac5ba805825da76410c181273ba90b1`; `actions/setup-python` v7.0.0 commit `5fda3b95a4ea91299a34e894583c3862153e4b97`; `actions/upload-artifact` v7.0.1 commit `043fb46d1a93c77aae656e7c1c64a875d1fc6a0a`, verified 2026-08-30.
+PROBLEM_SOLVED: mutable Action tags and obsolete embedded Node runtime targets create avoidable supply-chain/runtime drift.
+FAILURE_MODE: the prior candidate used `checkout@v4`, `setup-python@v5`, and `upload-artifact@v4`; CI succeeded but emitted Node-runtime deprecation warnings for the first two, while all three references remained mutable tags.
+MECHANISM: verify current upstream releases directly, pin each external Action to the exact reviewed 40-hex release commit, preserve a human-readable version comment, and enforce pins with tests.
+WHY_IT_WORKS: workflow execution becomes tied to reviewed immutable source identities rather than mutable tags.
+PORTABLE_TO_THIS_PROJECT: yes, and generally reusable for governed GitHub Actions control planes.
+SECURITY_IMPLICATION: reduces tag-move/dependency-drift risk and makes workflow provenance auditable.
+RECOMMENDED_ADOPTION: full-SHA pinning plus periodic explicit reviewed upgrades; never auto-follow a moving major tag in high-trust automation.
+REJECTED_ALTERNATIVES: leaving moving tags because CI currently passes; pinning obsolete action majors indefinitely.

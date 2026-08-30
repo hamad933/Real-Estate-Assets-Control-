@@ -30,8 +30,8 @@ jobs:
           set -euo pipefail
           test "$ACTOR" = "$OWNER"
           test "$REF" = "refs/heads/main"
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with: {python-version: '3.12'}
       - name: Materialize normalized public-safe request
         run: |
@@ -58,11 +58,11 @@ jobs:
           PY
       - name: Publish preflight diagnostics
         if: inputs.operation_kind == 'MUTATION' && always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with: {name: 'rp04-automation-preflight-${{ github.run_id }}', path: /tmp/rp04-preflight/, if-no-files-found: warn, retention-days: 14}
       - name: Persist durable request WRITE_INTENT before Provider mutation
         if: inputs.operation_kind == 'MUTATION' && steps.preflight.outcome == 'success'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with: {name: '${{ steps.preflight.outputs.request_marker }}', path: /tmp/rp04-preflight/intent.json, if-no-files-found: error, retention-days: 90}
       - id: execute
         name: Final exact pre-read then exactly one Provider write
@@ -71,7 +71,7 @@ jobs:
         run: python -m tools.rp04_automation.cli execute /tmp/rp04-request.json --preflight-file /tmp/rp04-preflight/preflight.json --intent-file /tmp/rp04-preflight/intent.json --output-dir /tmp/rp04-final
       - name: Publish mutation evidence
         if: inputs.operation_kind == 'MUTATION' && always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with: {name: 'rp04-automation-mutation-${{ github.run_id }}', path: /tmp/rp04-final/, if-no-files-found: warn, retention-days: 14}
       - id: terminal
         name: Classify terminal mutation outcome
@@ -86,11 +86,11 @@ jobs:
           PY
       - name: Persist completed request marker last
         if: inputs.operation_kind == 'MUTATION' && steps.terminal.outputs.classification == 'APPLIED_RESPONSE_RECEIVED_READBACK_CAPTURED'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with: {name: '${{ steps.preflight.outputs.completed_marker }}', path: /tmp/rp04-final/postcondition.json, if-no-files-found: error, retention-days: 90}
       - name: Persist UNKNOWN prior-write marker last
         if: inputs.operation_kind == 'MUTATION' && steps.terminal.outputs.reconciliation_required == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with: {name: '${{ steps.preflight.outputs.unknown_marker }}', path: /tmp/rp04-final/postcondition.json, if-no-files-found: error, retention-days: 90}
       - name: Fail closed unless exact effect-specific readback was captured
         if: inputs.operation_kind == 'MUTATION' && steps.terminal.outputs.classification != 'APPLIED_RESPONSE_RECEIVED_READBACK_CAPTURED'
@@ -100,5 +100,5 @@ jobs:
         run: python -m tools.rp04_automation.cli reconcile /tmp/rp04-request.json --output-dir /tmp/rp04-reconcile
       - name: Publish reconciliation evidence
         if: inputs.operation_kind == 'RECONCILIATION' && always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with: {name: 'rp04-automation-reconciliation-${{ github.run_id }}', path: /tmp/rp04-reconcile/, if-no-files-found: warn, retention-days: 90}
