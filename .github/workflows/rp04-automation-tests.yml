@@ -1,0 +1,23 @@
+name: RP04 Automation Foundation Tests
+on:
+  pull_request:
+    paths: ['tools/rp04_automation/**','tests/test_rp04_automation.py','.github/workflows/rp04-automation-*.yml','docs/automation/**','scripts/jules/**']
+  push:
+    branches-ignore: [main]
+    paths: ['tools/rp04_automation/**','tests/test_rp04_automation.py','.github/workflows/rp04-automation-*.yml','docs/automation/**','scripts/jules/**']
+permissions:
+  contents: read
+concurrency:
+  group: rp04-automation-tests-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: python -m compileall -q tools/rp04_automation tests/test_rp04_automation.py
+      - run: python -m unittest -v tests.test_rp04_automation
+      - run: bash -n scripts/jules/rp04-jules-setup.sh
