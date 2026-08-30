@@ -8,4 +8,6 @@ Postcondition safety is action-specific. A generic session snapshot is not accep
 
 Unknown-outcome reconciliation is read-only and fail-closed. Matching effects resolve APPLIED; duplicate matches raise an explicit duplicate-effect stop gate; absence remains UNKNOWN and cannot authorize retry. `NOT_APPLIED` is intentionally not inferred from absence because the provider's consistency guarantee is not treated as stronger than its documented API contract.
 
-Residual risks: GitHub variables are not an authority database; branch protection is not presently platform-enforced; GitHub concurrency is not a durable authority ledger; artifact-backed idempotency has bounded retention; live canary evidence and trusted publication are not yet accepted. These block production mutation readiness.
+Replay defense combines bounded artifact markers with a Provider-side effect-existence precheck immediately before mutation. This prevents artifact expiry alone from authorizing a duplicate effect while the authoritative Provider effect remains observable.
+
+Residual risks: GitHub variables are not an authority database; branch protection is not presently platform-enforced; GitHub concurrency is not a durable authority ledger; Provider-observable history is bounded by API availability/pagination and is not a permanent authority store; live canary evidence and trusted publication are not yet accepted. These block production mutation readiness.

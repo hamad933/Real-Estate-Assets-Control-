@@ -42,6 +42,17 @@ def _latest_plan_snapshot(payload):
         if isinstance(plan,dict): found={"activity":activity.get("name"),"createTime":activity.get("createTime"),"plan_id":plan.get("id") or plan.get("name"),"plan_digest":digest(plan)}
     return found
 
+def _assert_provider_effect_absent(n: dict[str,Any], jules: JulesClient) -> None:
+    marker=correlation_marker(n)
+    if n["action"]=="create_session":
+        matches=[s for s in (jules.list_sessions().get("sessions") or []) if marker in str(s.get("title") or "")]
+    else:
+        activities=jules.list_activities(n["session_id"]).get("activities") or []
+        if n["action"]=="send_message": matches=[a for a in activities if _message_matches(a,marker)]
+        elif n["action"]=="approve_plan": matches=[a for a in activities if _approval_matches(a,n["expected_plan_id"])]
+        else: matches=[]
+    if matches: raise IdempotencyConflict("provider_effect_already_exists_for_request")
+
 def collect_mutation_preconditions(n: dict[str,Any], jules: JulesClient, github: GitHubClient) -> dict[str,Any]:
     action=n["action"]; snapshot={"action":action}
     if action=="create_session":
@@ -49,12 +60,15 @@ def collect_mutation_preconditions(n: dict[str,Any], jules: JulesClient, github:
         if remote_sha!=n["expected_sha"]: raise PreconditionFailed("stale_remote_sha")
         source=find_rp04_source(jules.list_sources())
         if not source: raise PreconditionFailed("rp04_jules_source_not_connected")
-        snapshot.update({"starting_branch":n["starting_branch"],"remote_sha":remote_sha,"source":source})
+        _assert_provider_effect_absent(n,jules)
+        snapshot.update({"starting_branch":n["starting_branch"],"remote_sha":remote_sha,"source":source,"provider_effect_absent":True})
         return snapshot
     session=_session_snapshot(jules.get_session(n["session_id"]))
     if session["state"]!=n.get("expected_session_state"): raise PreconditionFailed("stale_session_state")
     if session["updateTime"]!=n.get("expected_session_update_time"): raise PreconditionFailed("stale_session_update_time")
     snapshot["session"]=session
+    _assert_provider_effect_absent(n,jules)
+    snapshot["provider_effect_absent"]=True
     if action=="approve_plan":
         plan=_latest_plan_snapshot(jules.list_activities(n["session_id"]))
         if not plan: raise PreconditionFailed("reviewed_plan_not_found")

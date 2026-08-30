@@ -82,6 +82,15 @@ class GatewayTests(unittest.TestCase):
     def test_reconcile_duplicate_send_detected(self):
         target=normalize_request(dict(BASE,action="send_message",write_domain="automation/core",session_id="7",prompt="hello",authority_event="A1",expected_session_state="AWAITING_PLAN_APPROVAL",expected_session_update_time="2026-08-30T18:00:00Z")); msg=correlated_message(target); j=FakeJules(); j.activities=[{"name":"a","userMessaged":{"userMessage":msg}},{"name":"b","userMessaged":{"userMessage":msg}}]
         r=normalize_request(dict(BASE,request_id="recon-1",action="reconcile_send_message",write_domain="automation/core",session_id="7",authority_event="A1",target_request_id=target["request_id"],target_intent_identity=target["intent_identity"])); self.assertEqual(reconcile_provider_effect(r,j)["classification"],"APPLIED_DUPLICATE_EFFECT_DETECTED")
+    def test_create_preflight_rejects_existing_provider_effect_after_artifact_expiry(self):
+        n=normalize_request(dict(BASE,action="create_session",write_domain="automation/core",starting_branch="main",expected_sha="a"*40,prompt="x",authority_event="A1")); j=FakeJules(); j.sessions=[{"name":"sessions/99","id":"99","title":correlated_title(n)}]
+        with self.assertRaises(IdempotencyConflict): collect_mutation_preconditions(n,j,FakeGitHub(names=[]))
+    def test_send_preflight_rejects_existing_provider_effect_after_artifact_expiry(self):
+        n=normalize_request(dict(BASE,action="send_message",write_domain="automation/core",session_id="7",prompt="hello",authority_event="A1",expected_session_state="AWAITING_PLAN_APPROVAL",expected_session_update_time="2026-08-30T18:00:00Z")); j=FakeJules(); j.activities=[{"name":"m","userMessaged":{"userMessage":correlated_message(n)}}]
+        with self.assertRaises(IdempotencyConflict): collect_mutation_preconditions(n,j,FakeGitHub(names=[]))
+    def test_approve_preflight_rejects_existing_plan_approval_effect(self):
+        plan={"id":"plan-1","steps":[{"title":"x"}]}; n=normalize_request(dict(BASE,action="approve_plan",write_domain="automation/core",session_id="7",authority_event="A1",expected_session_state="AWAITING_PLAN_APPROVAL",expected_session_update_time="2026-08-30T18:00:00Z",expected_plan_activity="sessions/7/activities/p1",expected_plan_id="plan-1",expected_plan_digest=digest(plan))); j=FakeJules(); j.activities=[{"name":"a","planApproved":{"planId":"plan-1"}}]
+        with self.assertRaises(IdempotencyConflict): collect_mutation_preconditions(n,j,FakeGitHub(names=[]))
     def test_write_intent_has_effect_proof_without_prompt_plaintext(self):
         n=normalize_request(dict(BASE,action="send_message",write_domain="automation/core",session_id="7",prompt="sensitive task text",authority_event="A1",expected_session_state="AWAITING_PLAN_APPROVAL",expected_session_update_time="2026-08-30T18:00:00Z")); intent=build_write_intent(n,{"x":1}); self.assertNotIn("sensitive task text",json.dumps(intent)); self.assertIn("message_digest",intent["effect_proof"])
 

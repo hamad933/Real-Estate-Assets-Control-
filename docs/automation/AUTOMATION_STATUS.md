@@ -9,6 +9,7 @@ Implemented in the candidate:
 - stable request identity, intent identity, and write-domain effect identity;
 - deterministic request-level and effect/write-domain concurrency groups;
 - cross-run request-ID collision detection through bounded GitHub Actions artifact inventory;
+- Provider-side effect-existence precheck before every mutation so artifact expiry alone cannot authorize replay;
 - machine-readable evidence and secret redaction;
 - read-only Jules adapter with bounded retries for reads only and complete bounded pagination;
 - exact GitHub branch-SHA precondition for session creation;
@@ -30,7 +31,7 @@ Not yet accepted or claimed:
 - live Jules shadow-read canary;
 - mutation canary;
 - live unknown-outcome reconciliation canary;
-- permanent idempotency ledger beyond artifact retention;
+- permanent authority/idempotency ledger independent of both GitHub artifacts and Provider-observable history;
 - trusted publication implementation/canary;
 - direct Drive credential integration;
 - production activation;
